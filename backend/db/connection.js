@@ -1,6 +1,6 @@
-const { Pool } = require("pg");
-const path = require("path");
-const dotenv = require("dotenv");
+import { Pool } from "pg";
+import path from "path";
+import dotenv from "dotenv";
 
 // 1. Load environment file based on NODE_ENV
 const ENV = process.env.NODE_ENV || "development";
@@ -18,4 +18,4 @@ const pool = new Pool({
 });
 
 // 4. Export the pool
-module.exports = pool;
+export default pool;

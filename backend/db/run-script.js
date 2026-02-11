@@ -1,6 +1,7 @@
-const { exec } = require('child_process');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env.development') });
+import exec from 'child_process';
+import path from 'path';
+import dotenv from "dotenv";
+dotenv.config({ path: path.join(__dirname, '..', '.env.development') });
 
 const setupSqlPath = path.join(__dirname, 'setup.sql');
 const seedScriptPath = path.join(__dirname, 'seeds', 'run-seed.js');

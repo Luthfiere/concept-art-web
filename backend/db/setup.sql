@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS user CASCADE;
 -- Drop enums after all tables are gone
 DROP TYPE IF EXISTS tier_type CASCADE;
 
-CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
+CREATE TYPE tier_type AS ENUM ('guest', 'member', 'corporate');
 
 -- 1. Create User table
 CREATE TABLE user (
@@ -17,7 +17,7 @@ CREATE TABLE user (
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role tier_type DEFAULT 'member'
+    role tier_type DEFAULT 'guest'
 );
 
 -- 2. Create Concept Art table
