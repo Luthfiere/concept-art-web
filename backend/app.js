@@ -1,10 +1,11 @@
-import express from "express";
-import cors from "cors";
-import client from "prom-client";
+import express from 'express';
+import cors from 'cors';
+import client from 'prom-client';
 
 const app = express();
 
-// Metrics collection setup
+import auths from './routes/auths.js';
+
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
 
@@ -60,5 +61,11 @@ app.use(
     exposedHeaders: ["Content-Disposition"], 
   })
 );
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/api", auths);
+
 
 export default app;

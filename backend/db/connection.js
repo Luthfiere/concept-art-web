@@ -1,10 +1,16 @@
 import { Pool } from "pg";
 import path from "path";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
-// 1. Load environment file based on NODE_ENV
+// Compute __dirname for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Preserve NODE_ENV usage for other logic
 const ENV = process.env.NODE_ENV || "development";
-dotenv.config({ path: path.resolve(__dirname, `../.env.${ENV}`) });
+const envFile = ENV === "development" ? ".env.dev" : `.env.${ENV}`;
+dotenv.config({ path: path.resolve(__dirname, `../${envFile}`) });
 
 // 2. Validate the environment
 if (!process.env.DATABASE_URL) {
