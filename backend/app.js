@@ -5,6 +5,8 @@ import client from 'prom-client';
 const app = express();
 
 import auths from './routes/auths.js';
+import conceptArts from './routes/concept-arts.js';
+import artMedia from './routes/art-media.js';
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -66,6 +68,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", auths);
-
+app.use("/api/concept-arts", conceptArts);
+app.use("/api/art-media", artMedia);
 
 export default app;

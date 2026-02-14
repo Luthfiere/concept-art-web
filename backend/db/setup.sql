@@ -1,15 +1,15 @@
 -- Drop tables in reverse dependency order
-DROP TABLE IF EXISTS master_resumes CASCADE;
-DROP TABLE IF EXISTS core_job_listing CASCADE;
-DROP TABLE IF EXISTS core_community_page CASCADE;
-DROP TABLE IF EXISTS core_dev_log CASCADE;
+DROP TABLE IF EXISTS core_concept_art_tags CASCADE;
+DROP TABLE IF EXISTS core_art_media CASCADE;
 DROP TABLE IF EXISTS core_concept_art CASCADE;
 DROP TABLE IF EXISTS master_users CASCADE;
 
 -- Drop enums after all tables are gone
 DROP TYPE IF EXISTS tier_type CASCADE;
+DROP TYPE IF EXISTS status_type CASCADE;
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
+CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed')
 
 -- 1. Create User table
 CREATE TABLE master_users (
@@ -23,9 +23,19 @@ CREATE TABLE master_users (
 -- 2. Create Concept Art table
 CREATE TABLE core_concept_art (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES master_users (id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    status status_type DEFAULT 'Open',
+    tag VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_art_media (
+    id SERIAL PRIMARY KEY,
+    art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
+    media VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
