@@ -1,4 +1,6 @@
 -- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS core_art_comments CASCADE;
+DROP TABLE IF EXISTS core_art_likes CASCADE;
 DROP TABLE IF EXISTS core_concept_art_tags CASCADE;
 DROP TABLE IF EXISTS core_art_media CASCADE;
 DROP TABLE IF EXISTS core_concept_art CASCADE;
@@ -9,7 +11,7 @@ DROP TYPE IF EXISTS tier_type CASCADE;
 DROP TYPE IF EXISTS status_type CASCADE;
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
-CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed')
+CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
 
 -- 1. Create User table
 CREATE TABLE master_users (
@@ -27,7 +29,7 @@ CREATE TABLE core_concept_art (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     status status_type DEFAULT 'Open',
-    tag VARCHAR(255),
+    tag TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -37,6 +39,22 @@ CREATE TABLE core_art_media (
     art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
     media VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_art_likes (
+    id SERIAL PRIMARY KEY,
+    art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    UNIQUE (art_id, user_id)
+);
+
+CREATE TABLE core_art_comments (
+    id SERIAL PRIMARY KEY,
+    art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW().
+    updated_at TIMESTAMPTZ DEFAULT NOW()    
 );
 
 -- 3. Create Dev Log table

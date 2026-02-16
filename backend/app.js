@@ -7,6 +7,8 @@ const app = express();
 import auths from './routes/auths.js';
 import conceptArts from './routes/concept-arts.js';
 import artMedia from './routes/art-media.js';
+import artLikes from './routes/art-likes.js';
+import artComments from './routes/art-comments.js';
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -70,5 +72,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", auths);
 app.use("/api/concept-arts", conceptArts);
 app.use("/api/art-media", artMedia);
+app.use("/api/art-likes", artLikes);
+app.use("/api/art-comments", artComments);
 
 export default app;
