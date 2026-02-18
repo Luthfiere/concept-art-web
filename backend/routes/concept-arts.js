@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
-import ConceptArtController from '../controllers/ConceptArtController';
+import ConceptArtController from '../controllers/ConceptArtController.js';
 import authToken from '../middlewares/authMiddleware.js';
 
 router.use(authToken)

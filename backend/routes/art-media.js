@@ -1,9 +1,9 @@
 import express from 'express';
 const router = express.Router();
 
-import ArtMediaController from '../controllers/ArtMediaController';
 
-import upload from '../middlewares/multerArtMedia';
+import ArtMediaController from '../controllers/ArtMediaController.js'
+import upload from '../middlewares/multerArtMedia.js'
 
 router.get('/art/:art_id', ArtMediaController.getByArtId);
 

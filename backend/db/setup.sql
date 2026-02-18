@@ -53,7 +53,7 @@ CREATE TABLE core_art_comments (
     art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
     user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
     comment TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW().
+    created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()    
 );
 

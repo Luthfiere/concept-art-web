@@ -1,4 +1,4 @@
-import ConceptArt from "../model/ConceptArtModel";
+import ConceptArt from "../model/ConceptArtModel.js";
 
 class ConceptArtController {
 
@@ -73,7 +73,7 @@ class ConceptArtController {
 
   static async update(req, res){
     const { id } = req.params;
-    const { title, description, status, tag } = rqq.body;
+    const { title, description, status, tag } = req.body;
     const fields = {};
 
     if(title) fields.title = title;

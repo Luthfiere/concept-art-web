@@ -1,11 +1,14 @@
 import ArtLike from '../model/ArtLikeModel.js';
 
+
 class ArtLikeController {
 
   static async getByUserIdAndArtId(req, res) {
     try {
-      const { user_id } = req.user;
-      const { art_id } = req.params;
+      const user_id   = req.user.id;
+      const { art_id } = req.body;
+
+      console.log ("USER: ", req.user);
 
       const like = await ArtLike.getByUserIdAndArtId({ art_id, user_id });
 
@@ -21,7 +24,7 @@ class ArtLikeController {
 
   static async getByArtId(req, res) {
     try {
-      const { art_id } = req.params;
+      const { art_id } = req.body;
 
       const likes = await ArtLike.getByArtId(art_id);
 
@@ -38,8 +41,8 @@ class ArtLikeController {
 
   static async create(req, res) {
     try {
-      const { user_id } = req.user;   
-      const { art_id } = req.params;
+      const user_id  = req.user.id;   
+      const { art_id } = req.body;
 
       if (!art_id) {
         return res.status(400).json({ message: 'art_id is required' });
@@ -65,8 +68,8 @@ class ArtLikeController {
 
   static async delete(req, res) {
     try {
-      const { user_id } = req.user;
-      const { art_id } = req.params;
+      const  user_id  = req.user.id;
+      const { art_id } = req.body;
 
       const deleted = await ArtLike.delete({ art_id, user_id });
 

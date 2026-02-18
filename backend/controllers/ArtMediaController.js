@@ -1,43 +1,60 @@
-import ArtMedia from '../model/ArtMediaModel.js';
+import ArtMedia from "../model/ArtMediaModel.js";
 
 class ArtMediaController {
-
   static async getByArtId(req, res) {
     try {
+      console.log("PARAM:", req.params);
+
       const { art_id } = req.params;
 
       const media = await ArtMedia.getByArtId(art_id);
-      return res.status(200).json({ 
-        message: 'List of media for the art',
-        data: media 
-      });
 
+      console.log("RESULT:", media);
+
+      console.log("BODY:", req.body);
+      console.log("FILES:", req.files);
+
+
+      return res.status(200).json({
+        message: "List of media for the art",
+        data: media,
+      });
     } catch (err) {
+      console.error("ERROR CONTROLLER:", err);
       return res.status(500).json({ message: err.message });
     }
   }
 
   static async create(req, res) {
-    try {
-      const { art_id, media } = req.body;
+  try {
+    const { art_id } = req.body;
 
-      if (!art_id || !media) {
-        return res.status(400).json({
-          message: 'art_id and media are required'
-        });
-      }
-
-      const newMedia = await ArtMedia.create({ art_id, media });
-
-      return res.status(201).json({
-        message: 'Media created successfully',
-        data: newMedia
+    if (!art_id || !req.files || req.files.length === 0) {
+      return res.status(400).json({
+        message: "art_id and media are required",
       });
-
-    } catch (err) {
-      return res.status(500).json({ message: err.message });
     }
+
+    // simpan semua file ke database
+    const mediaData = await Promise.all(
+      req.files.map(file =>
+        ArtMedia.create({
+          art_id,
+          media: file.path, // atau file.filename
+        })
+      )
+    );
+
+    return res.status(201).json({
+      message: "Media created successfully",
+      data: mediaData,
+    });
+
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
   }
+}
+
 
   static async delete(req, res) {
     try {
@@ -46,14 +63,13 @@ class ArtMediaController {
       const deleted = await ArtMedia.delete(id);
 
       if (!deleted) {
-        return res.status(404).json({ message: 'Media not found' });
+        return res.status(404).json({ message: "Media not found" });
       }
 
       return res.status(200).json({
-        message: 'Media deleted successfully',
-        data: deleted
+        message: "Media deleted successfully",
+        data: deleted,
       });
-
     } catch (err) {
       return res.status(500).json({ message: err.message });
     }
