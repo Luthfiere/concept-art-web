@@ -7,8 +7,8 @@ import authToken from '../middlewares/authMiddleware.js';
 router.use(authToken)
 
 router.get('/', ConceptArtController.getAll);
-router.get('/:id', ConceptArtController.getById);
 router.get('/user/:user_id', ConceptArtController.getByUser);
+router.get('/:id', ConceptArtController.getById);
 
 router.post('/', ConceptArtController.create);
 

@@ -6,14 +6,14 @@ import authToken from '../middlewares/authMiddleware.js';
 
 router.use(authToken)
 
-router.get('/user-art/:art_id', ArtCommentController.getByArtId);
+router.get('/art/:art_id', ArtCommentController.getByArtId);
 router.get('/:id', ArtCommentController.getById);
 
-router.post('/', ArtCommentController.create);
+router.post('/art/:art_id', ArtCommentController.create);
 
 router.put('/:id', ArtCommentController.update);
 
-router.delete('/', ArtCommentController.delete);
+router.delete('/:id', ArtCommentController.delete);
 
 
 export default router;

@@ -53,10 +53,11 @@ class ConceptArtController {
   }
 
   static async create(req, res){
-    const { user_id, title, description, status, tag} = req.body;
+    const { title, description, status, tag} = req.body;
+    const { user_id } = req.user;
 
-    if(!user_id || !title){
-      return res.status(400).json({ message: 'user_id and title are required' });
+    if(!title){
+      return res.status(400).json({ message: 'title is required' });
     }
 
     try{
@@ -104,7 +105,7 @@ class ConceptArtController {
       const deletedArt = await ConceptArt.delete(id);
 
       if(!deletedArt){
-        return res.status(404).json({ message: 'Concept art noot found' });
+        return res.status(404).json({ message: 'Concept art not found' });
       }
 
       res.status(200).json({

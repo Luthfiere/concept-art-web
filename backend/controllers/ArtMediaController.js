@@ -1,19 +1,12 @@
 import ArtMedia from "../model/ArtMediaModel.js";
+import ConceptArt from "../model/ConceptArtModel.js";
 
 class ArtMediaController {
   static async getByArtId(req, res) {
     try {
-      console.log("PARAM:", req.params);
-
       const { art_id } = req.params;
 
       const media = await ArtMedia.getByArtId(art_id);
-
-      console.log("RESULT:", media);
-
-      console.log("BODY:", req.body);
-      console.log("FILES:", req.files);
-
 
       return res.status(200).json({
         message: "List of media for the art",
@@ -27,20 +20,26 @@ class ArtMediaController {
 
   static async create(req, res) {
   try {
-    const { art_id } = req.body;
+    const { art_id } = req.params;
 
-    if (!art_id || !req.files || req.files.length === 0) {
+    if (!req.files || req.files.length === 0) {
       return res.status(400).json({
-        message: "art_id and media are required",
+        message: "media files are required",
       });
     }
 
-    // simpan semua file ke database
+    const art = await ConceptArt.getById(art_id);
+    if (!art) {
+      return res.status(404).json({
+        message: "Concept art not found",
+      });
+    }
+
     const mediaData = await Promise.all(
       req.files.map(file =>
         ArtMedia.create({
           art_id,
-          media: file.path, // atau file.filename
+          media: file.path.replace(/\\/g, '/'),
         })
       )
     );

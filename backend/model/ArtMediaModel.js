@@ -52,7 +52,7 @@ class ArtMedia {
 
     const result = await db.query(`
       UPDATE core_art_media
-      SET ${setClause}, updated_at = NOW()
+      SET ${setClause}
       WHERE id = $${keys.length + 1}
       RETURNING *
     `, [...values, id]);

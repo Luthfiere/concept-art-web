@@ -7,7 +7,7 @@ import authToken from '../middlewares/authMiddleware.js';
 
 router.use(authToken)
 
-router.get('/user-art/:art_id', ArtLikeController.getByArtId);
+router.get('/user/:user_id/art/:art_id', ArtLikeController.getByUserIdAndArtId);
 router.get('/art/:art_id', ArtLikeController.getByArtId);
 
 router.post('/',  ArtLikeController.create);

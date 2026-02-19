@@ -50,7 +50,7 @@ class AuthController {
 
       // JWT payload
       const payload = {
-        uid: user.id,
+        user_id: user.id,
         email: user.email,
         username: user.username,
         role: user.role
@@ -90,8 +90,8 @@ class AuthController {
         });
       }
 
-      const existingEmail = await User.getByEmail(email);
-      if (existingEmail) {
+      const existingUser = await User.getByEmail(email);
+      if (existingUser) {
         return res.status(400).json({ message: 'Email already exists' });
       }
 

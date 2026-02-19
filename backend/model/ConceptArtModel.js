@@ -31,9 +31,9 @@ class ConceptArt {
 
   static async create({ user_id, title, description, status, tag }) {
     const result = await db.query(`
-      INSERT INTO core_concept_art 
+      INSERT INTO core_concept_art
       (user_id, title, description, status, tag)
-      VALUES ($1, $2, $3, $4, $5)
+      VALUES ($1, $2, $3, COALESCE($4, 'Open')::status_type, $5)
       RETURNING *
     `, [user_id, title, description, status, tag]);
 
