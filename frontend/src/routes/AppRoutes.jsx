@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
+import ArtDetail from "../pages/ArtDetail";
 import ProtectedRoute from "./ProtectedRoutes";
 
 const AppRoutes = () => {
@@ -9,10 +10,19 @@ const AppRoutes = () => {
       <Route path="/" element={<Login />} />
 
       <Route
-        path="/Home"
+        path="/home"
         element={
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/art/:id"
+        element={
+          <ProtectedRoute>
+            <ArtDetail />
           </ProtectedRoute>
         }
       />
