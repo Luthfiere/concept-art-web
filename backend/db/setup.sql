@@ -1,4 +1,6 @@
 -- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS core_messages CASCADE;
+DROP TABLE IF EXISTS core_conversations CASCADE;
 DROP TABLE IF EXISTS core_art_comments CASCADE;
 DROP TABLE IF EXISTS core_art_likes CASCADE;
 DROP TABLE IF EXISTS core_concept_art_tags CASCADE;
@@ -9,9 +11,11 @@ DROP TABLE IF EXISTS master_users CASCADE;
 -- Drop enums after all tables are gone
 DROP TYPE IF EXISTS tier_type CASCADE;
 DROP TYPE IF EXISTS status_type CASCADE;
+DROP TYPE IF EXISTS art_category CASCADE;
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
 CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
+CREATE TYPE art_category AS ENUM('art', 'post'); -- for art & post without art
 
 -- 1. Create User table
 CREATE TABLE master_users (
@@ -30,6 +34,7 @@ CREATE TABLE core_concept_art (
     description TEXT,
     status status_type DEFAULT 'Open',
     tag TEXT,
+    category art_category DEFAULT 'art',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -55,6 +60,27 @@ CREATE TABLE core_art_comments (
     comment TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()    
+);
+
+-- Create Conversations table (DM threads)
+CREATE TABLE core_conversations (
+    id SERIAL PRIMARY KEY,
+    art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
+    sender_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    receiver_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (art_id, sender_id, receiver_id)
+);
+
+-- Create Messages table
+CREATE TABLE core_messages (
+    id SERIAL PRIMARY KEY,
+    conversation_id INTEGER NOT NULL REFERENCES core_conversations(id) ON DELETE CASCADE,
+    sender_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 3. Create Dev Log table

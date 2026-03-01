@@ -19,6 +19,16 @@ class ConceptArt {
     return result.rows[0];
   }
 
+  static async getByCategory(category) {
+    const result = await db.query(`
+      SELECT *
+      FROM core_concept_art
+      WHERE category = $1
+      ORDER BY created_at DESC
+    `, [category]);
+    return result.rows;
+  }
+
   static async getByUser(user_id) {
     const result = await db.query(`
       SELECT *
@@ -29,13 +39,13 @@ class ConceptArt {
     return result.rows;
   }
 
-  static async create({ user_id, title, description, status, tag }) {
+  static async create({ user_id, title, description, status, tag, category }) {
     const result = await db.query(`
       INSERT INTO core_concept_art
-      (user_id, title, description, status, tag)
-      VALUES ($1, $2, $3, COALESCE($4, 'Open')::status_type, $5)
+      (user_id, title, description, status, tag, category)
+      VALUES ($1, $2, $3, COALESCE($4, 'Open')::status_type, $5, COALESCE($6, 'art')::art_category)
       RETURNING *
-    `, [user_id, title, description, status, tag]);
+    `, [user_id, title, description, status, tag, category]);
 
     return result.rows[0];
   }

@@ -15,6 +15,21 @@ class ConceptArtController {
     }
   }
 
+  static async getByCategory(req, res){
+    const { category } = req.params;
+
+    try{
+      const art = await ConceptArt.getByCategory(category);
+
+      res.status(200).json({
+        message: `List of all ${category}s`,
+        art
+      })
+    }catch(err){
+      res.status(500).json({ message: err.message });
+    }
+  }
+
   static async getById(req, res){
     const { id } = req.params;
     try{
@@ -53,7 +68,7 @@ class ConceptArtController {
   }
 
   static async create(req, res){
-    const { title, description, status, tag} = req.body;
+    const { title, description, status, tag, category} = req.body;
     const { user_id } = req.user;
 
     if(!title){
@@ -61,7 +76,7 @@ class ConceptArtController {
     }
 
     try{
-      const newArt = await ConceptArt.create({user_id, title, description, status, tag});
+      const newArt = await ConceptArt.create({user_id, title, description, status, tag, category});
 
       res.status(201).json({
         message: 'Concept art created successfully',
@@ -74,13 +89,14 @@ class ConceptArtController {
 
   static async update(req, res){
     const { id } = req.params;
-    const { title, description, status, tag } = req.body;
+    const { title, description, status, tag, category } = req.body;
     const fields = {};
 
     if(title) fields.title = title;
     if(description) fields.description = description;
     if(status) fields.status = status;
     if(tag) fields.tag = tag;
+    if(category) fields.category = category;
 
     try{
       const updatedArt = await ConceptArt.update(id, fields);

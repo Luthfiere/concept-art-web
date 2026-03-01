@@ -14,6 +14,8 @@ import conceptArts from './routes/concept-arts.js';
 import artMedia from './routes/art-media.js';
 import artLikes from './routes/art-likes.js';
 import artComments from './routes/art-comments.js';
+import conversation from './routes/conversations.js';
+import messages from './routes/messages.js';
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -80,5 +82,7 @@ app.use("/api/concept-arts", conceptArts);
 app.use("/api/art-media", artMedia);
 app.use("/api/art-likes", artLikes);
 app.use("/api/art-comments", artComments);
+app.use("/api/conversations", conversation);
+app.use("/api/messages", messages);
 
 export default app;

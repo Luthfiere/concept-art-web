@@ -11,6 +11,54 @@ function slugify(text) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
+// Image and video types for 'art' category
+const artMimeTypes = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp',
+  'video/mp4',
+  'video/webm'
+];
+
+// Document types for 'post' category
+const postMimeTypes = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+];
+
+const fileFilter = async (req, file, cb) => {
+  try {
+    const { art_id } = req.params;
+
+    // Query once and cache on req so destination doesn't query again
+    if (!req._art) {
+      req._art = await ConceptArt.getById(art_id);
+    }
+
+    if (!req._art) {
+      return cb(new Error('Concept art not found'), false);
+    }
+
+    const allowed = req._art.category === 'post' ? postMimeTypes : artMimeTypes;
+
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      const types = req._art.category === 'post'
+        ? 'PDF, DOC, DOCX, TXT, PPT, PPTX'
+        : 'PNG, JPG, JPEG, WEBP, MP4, WEBM';
+      cb(new Error(`Invalid file type for ${req._art.category}. Allowed: ${types}`), false);
+    }
+  } catch (err) {
+    cb(err, false);
+  }
+};
+
 const storage = multer.diskStorage({
 
   destination: async (req, file, cb) => {
@@ -21,16 +69,18 @@ const storage = multer.diskStorage({
         return cb(new Error('art_id is required for upload path'), null);
       }
 
-      const art = await ConceptArt.getById(art_id);
+      // Reuse the lookup from fileFilter
+      const art = req._art || await ConceptArt.getById(art_id);
       if (!art) {
         return cb(new Error('Concept art not found'), null);
       }
 
       const folderName = `${art_id}-${slugify(art.title)}`;
+      const basePath = art.category === 'art' ? 'concept-art' : 'concept-posts';
 
       const folderPath = path.join(
         'assets',
-        'concept-art',
+        basePath,
         folderName
       );
 
@@ -46,36 +96,16 @@ const storage = multer.diskStorage({
     const timestamp = Date.now();
     const ext = path.extname(file.originalname).toLowerCase();
 
-    const filename = `art_${art_id}_${timestamp}${ext}`;
+    const filename = `${art_id}_${timestamp}${ext}`;
 
     cb(null, filename);
   }
 
 });
 
-const fileFilter = (req, file, cb) => {
-
-  const allowedMimeTypes = [
-    'image/png',
-    'image/jpeg',
-    'image/jpg',
-    // future support
-    'video/mp4',
-    'video/webm'
-  ];
-
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(
-      new Error('Invalid file type. Only PNG, JPG, JPEG, MP4, WEBM allowed.'),
-      false
-    );
-  }
-};
-
 const upload = multer({
   storage,
+  fileFilter,
 });
 
 export default upload;
