@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { loginUser } from "../features/auth/authService";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import noise from "../assets/images/noise.png";
 
 const Login = () => {
@@ -100,6 +101,12 @@ const Login = () => {
             Sign In
           </button>
         </form>
+        <p className="text-sm text-gray-400 text-center mt-6">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-yellow-500 hover:underline">
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   );

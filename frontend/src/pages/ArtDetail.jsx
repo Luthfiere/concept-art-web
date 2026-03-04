@@ -157,75 +157,76 @@ const ArtDetail = () => {
   return (
     <div className="min-h-screen bg-[#0b0f2a] text-white">
       <Navbar />
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* LEFT */}
+          <div className="lg:col-span-8 space-y-8">
+            {art.image && (
+              <div className="rounded-2xl overflow-hidden shadow-2xl">
+                <img
+                  src={`http://localhost:3000/${art.image}`}
+                  alt={art.title}
+                  className="w-full h-[600px] object-cover"
+                />
+              </div>
+            )}
 
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* ================= LEFT - IMAGE ================= */}
-        <div className="lg:col-span-2">
-          {art.image && (
-            <div className="rounded-2xl overflow-hidden shadow-2xl">
-              <img
-                src={`http://localhost:3000/${art.image}`}
-                alt={art.title}
-                className="w-full object-cover"
-              />
+            {/* Extra content biar ga kosong */}
+            <div className="bg-[#111427] p-8 rounded-2xl shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">About this artwork</h2>
+              <p className="text-gray-300 leading-relaxed">{art.description}</p>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* ================= RIGHT - INFO PANEL ================= */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-24 bg-[#111427] p-6 rounded-2xl shadow-xl">
-            {/* Title */}
-            <h1 className="text-2xl font-bold mb-2">{art.title}</h1>
-
-            {/* Tag */}
-            <p className="text-sm text-gray-400 mb-4">{art.tag}</p>
-
-            {/* Like Button */}
-            <button
-              onClick={handleLike}
-              className={`w-full py-2 rounded-xl mb-6 transition ${
-                liked
-                  ? "bg-yellow-500 text-black"
-                  : "bg-[#1b1f3a] hover:bg-[#2a2f55]"
-              }`}
-            >
-              ❤️ {likes}
-            </button>
-
-            {/* Description */}
-            <div className="text-gray-300 text-sm leading-relaxed mb-8">
-              {art.description}
-            </div>
-
-            {/* Comments */}
-            <div>
-              <h2 className="text-lg font-semibold mb-4">
-                Comments ({comments.length})
-              </h2>
-
-              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto pr-2">
-                {comments.map((c) => (
-                  <div key={c.id} className="bg-[#1b1f3a] p-3 rounded-xl">
-                    <p className="text-xs text-gray-400">{c.user?.username}</p>
-                    <p className="text-sm">{c.comment}</p>
-                  </div>
-                ))}
+          {/* RIGHT */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-24 bg-[#111427] p-6 rounded-2xl shadow-xl space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold mb-1">{art.title}</h1>
+                <p className="text-sm text-gray-400">{art.tag}</p>
               </div>
 
-              <div className="flex gap-2">
-                <input
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="flex-1 bg-[#1b1f3a] p-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-yellow-500"
-                  placeholder="Write a comment..."
-                />
-                <button
-                  onClick={handleComment}
-                  className="bg-yellow-500 px-4 rounded-xl text-black text-sm font-semibold"
-                >
-                  Post
-                </button>
+              <button
+                onClick={handleLike}
+                className={`w-full py-2 rounded-xl transition ${
+                  liked
+                    ? "bg-yellow-500 text-black"
+                    : "bg-[#1b1f3a] hover:bg-[#2a2f55]"
+                }`}
+              >
+                ❤️ {likes}
+              </button>
+
+              <div>
+                <h2 className="text-lg font-semibold mb-3">
+                  Comments ({comments.length})
+                </h2>
+
+                <div className="space-y-3 max-h-72 overflow-y-auto pr-2">
+                  {comments.map((c) => (
+                    <div key={c.id} className="bg-[#1b1f3a] p-3 rounded-xl">
+                      <p className="text-xs text-gray-400">
+                        {c.user?.username}
+                      </p>
+                      <p className="text-sm">{c.comment}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 mt-4">
+                  <input
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    className="flex-1 bg-[#1b1f3a] p-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="Write a comment..."
+                  />
+                  <button
+                    onClick={handleComment}
+                    className="bg-yellow-500 px-4 rounded-xl text-black text-sm font-semibold"
+                  >
+                    Post
+                  </button>
+                </div>
               </div>
             </div>
           </div>
