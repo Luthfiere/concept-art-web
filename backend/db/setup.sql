@@ -1,4 +1,7 @@
 -- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS core_application_notes CASCADE;
+DROP TABLE IF EXISTS core_job_applications CASCADE;
+DROP TABLE IF EXISTS core_job_posting CASCADE;
 DROP TABLE IF EXISTS core_messages CASCADE;
 DROP TABLE IF EXISTS core_conversations CASCADE;
 DROP TABLE IF EXISTS core_art_comments CASCADE;
@@ -12,10 +15,21 @@ DROP TABLE IF EXISTS master_users CASCADE;
 DROP TYPE IF EXISTS tier_type CASCADE;
 DROP TYPE IF EXISTS status_type CASCADE;
 DROP TYPE IF EXISTS art_category CASCADE;
+DROP TYPE IF EXISTS work_option_type CASCADE;
+DROP TYPE IF EXISTS work_type_type CASCADE;
+DROP TYPE IF EXISTS job_status_type CASCADE;
+DROP TYPE IF EXISTS currency_type CASCADE;
+DROP TYPE IF EXISTS application_status CASCADE;
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
 CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
 CREATE TYPE art_category AS ENUM('art', 'post'); -- for art & post without art
+CREATE TYPE work_option_type AS ENUM ('On-site', 'Hybrid', 'Remote');
+CREATE TYPE work_type_type AS ENUM ('Full-time', 'Part-time', 'Contract', 'Casual');
+CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked');
+CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'USD');
+CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'not_suitable', 'hired');
+
 
 -- 1. Create User table
 CREATE TABLE master_users (
@@ -83,7 +97,38 @@ CREATE TABLE core_messages (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Create Dev Log table
+-- 3. Create Job Posting table
+CREATE TABLE core_job_posting (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    art_id INTEGER REFERENCES core_concept_art(id) ON DELETE SET NULL,
+    title VARCHAR(255) NOT NULL, -- e.g. 'Senior Concept Artist'
+    description TEXT, 
+    job_location VARCHAR(255), 
+    work_option work_option_type, 
+    work_type work_type_type,             
+    salary_min INTEGER,                    
+    salary_max INTEGER,                   
+    salary_currency currency_type DEFAULT 'IDR',
+    status job_status_type DEFAULT 'Draft',
+    expired_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_job_applications (
+    id SERIAL PRIMARY KEY,
+    job_id INTEGER NOT NULL REFERENCES core_job_posting(id) ON DELETE CASCADE,
+    applicant_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    status application_status DEFAULT 'pending',
+    cover_letter TEXT,
+    cv VARCHAR(255),
+    applied_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (job_id, applicant_id)  
+);
+
+-- 4. Create Dev Log table
 CREATE TABLE core_dev_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES master_users (id) ON DELETE CASCADE,
@@ -92,7 +137,7 @@ CREATE TABLE core_dev_log (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Create Community Page table
+-- 5. Create Community Page table
 CREATE TABLE core_community_page (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES master_users (id) ON DELETE SET NULL,
@@ -100,16 +145,6 @@ CREATE TABLE core_community_page (
     description TEXT,
     type VARCHAR(100),
     image VARCHAR(255),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 5. Create Job Listing table
-CREATE TABLE core_job_listing (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES master_users (id) ON DELETE SET NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    jobrole VARCHAR(255),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
