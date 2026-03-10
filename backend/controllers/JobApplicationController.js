@@ -37,7 +37,8 @@ class JobApplicationController {
     try {
       const { user_id } = req.user;
       const { job_id } = req.params;
-      const { cover_letter, cv } = req.body;
+      const { cover_letter } = req.body;
+      const cv = req.file ? req.file.path : null;
 
       const job = await JobPosting.getById(job_id);
 

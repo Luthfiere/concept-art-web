@@ -39,13 +39,13 @@ class JobPosting {
     return result.rows;
   }
 
-  static async create({ user_id, art_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at }) {
+  static async create({ user_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at }) {
     const result = await db.query(`
       INSERT INTO core_job_posting
-      (user_id, art_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, COALESCE($10, 'IDR')::currency_type, COALESCE($11, 'Draft')::job_status_type, $12)
+      (user_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($9, 'IDR')::currency_type, COALESCE($10, 'Draft')::job_status_type, $11)
       RETURNING *
-    `, [user_id, art_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at]);
+    `, [user_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at]);
     return result.rows[0];
   }
 

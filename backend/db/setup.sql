@@ -28,7 +28,7 @@ CREATE TYPE work_option_type AS ENUM ('On-site', 'Hybrid', 'Remote');
 CREATE TYPE work_type_type AS ENUM ('Full-time', 'Part-time', 'Contract', 'Casual');
 CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked');
 CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'USD');
-CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'not_suitable', 'hired');
+CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'hired');
 
 
 -- 1. Create User table
@@ -101,7 +101,6 @@ CREATE TABLE core_messages (
 CREATE TABLE core_job_posting (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-    art_id INTEGER REFERENCES core_concept_art(id) ON DELETE SET NULL,
     title VARCHAR(255) NOT NULL, -- e.g. 'Senior Concept Artist'
     description TEXT, 
     job_location VARCHAR(255), 

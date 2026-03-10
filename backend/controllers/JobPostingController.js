@@ -1,5 +1,11 @@
 import JobPosting from '../model/JobPostingModel.js';
 
+function parseDateDMY(dateStr) {
+  if (!dateStr) return null;
+  const [day, month, year] = dateStr.split('-');
+  return new Date(`${year}-${month}-${day}`).toISOString();
+}
+
 class JobPostingController {
 
   static async getAll(req, res) {
@@ -67,16 +73,16 @@ class JobPostingController {
   static async create(req, res) {
     try {
       const { user_id } = req.user;
-      const { art_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at } = req.body;
+      const { title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at } = req.body;
 
       if (!title) {
         return res.status(400).json({ message: 'Title is required' });
       }
 
       const job = await JobPosting.create({
-        user_id, art_id, title, description, job_location,
+        user_id, title, description, job_location,
         work_option, work_type, salary_min, salary_max,
-        salary_currency, status, expired_at
+        salary_currency, status, expired_at: parseDateDMY(expired_at)
       });
 
       return res.status(201).json({
@@ -92,7 +98,7 @@ class JobPostingController {
     try {
       const { id } = req.params;
       const { user_id } = req.user;
-      const { art_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at } = req.body;
+      const { title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at } = req.body;
 
       const existing = await JobPosting.getById(id);
 
@@ -105,7 +111,6 @@ class JobPostingController {
       }
 
       const fields = {};
-      if (art_id !== undefined) fields.art_id = art_id;
       if (title) fields.title = title;
       if (description !== undefined) fields.description = description;
       if (job_location !== undefined) fields.job_location = job_location;
@@ -115,7 +120,7 @@ class JobPostingController {
       if (salary_max !== undefined) fields.salary_max = salary_max;
       if (salary_currency) fields.salary_currency = salary_currency;
       if (status) fields.status = status;
-      if (expired_at !== undefined) fields.expired_at = expired_at;
+      if (expired_at !== undefined) fields.expired_at = parseDateDMY(expired_at);
 
       const updated = await JobPosting.update(id, fields);
 
