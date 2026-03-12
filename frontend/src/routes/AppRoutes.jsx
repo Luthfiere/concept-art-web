@@ -4,6 +4,8 @@ import Login from "../pages/Login";
 import ArtDetail from "../pages/ArtDetail";
 import Register from "../pages/Register";
 import ProtectedRoute from "./ProtectedRoutes";
+import JobPage from "../pages/Jobpage";
+import PostJobPage from "../pages/PostJobPage";
 
 const AppRoutes = () => {
   return (
@@ -29,6 +31,25 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/Job"
+        element={
+          <ProtectedRoute>
+            <JobPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/JobPost"
+        element={
+          <ProtectedRoute>
+            <PostJobPage />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   );
 };

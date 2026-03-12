@@ -5,6 +5,21 @@ import Navbar from "../components/Navbar";
 const Home = () => {
   const [artworks, setArtworks] = useState([]);
   const navigate = useNavigate();
+  const [sort, setSort] = useState("Newest");
+  const [channel, setChannel] = useState("All Channels");
+  const [openSort, setOpenSort] = useState(false);
+
+  const channels = [
+  "All Channels",
+  "Tutorials",
+  "Game Art",
+  "Character Animation",
+  "Environment",
+  "Props",
+  "Concept Design",
+  "Sketches",
+  "UI Design"
+];
 
   useEffect(() => {
     const fetchArtworks = async () => {
@@ -12,14 +27,11 @@ const Home = () => {
         const token = localStorage.getItem("token");
 
         // 1️⃣ Ambil concept arts
-        const resArt = await fetch(
-          "http://localhost:3000/api/concept-arts",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const resArt = await fetch("http://localhost:3000/api/concept-arts", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const artData = await resArt.json();
         const arts = artData.art;
@@ -33,19 +45,16 @@ const Home = () => {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
-              }
+              },
             );
 
             const mediaData = await resMedia.json();
 
             return {
               ...art,
-              media:
-                mediaData.data.length > 0
-                  ? mediaData.data[0].media
-                  : null,
+              media: mediaData.data.length > 0 ? mediaData.data[0].media : null,
             };
-          })
+          }),
         );
 
         setArtworks(artsWithMedia);
@@ -61,8 +70,59 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
 
-      <div className="px-10 pt-10 pb-6">
-        <h2 className="text-2xl font-bold">Newest</h2>
+      <div className="px-10 pt-10 pb-6 flex items-center gap-6">
+        {/* SORT DROPDOWN */}
+        <div className="relative">
+          <button
+            onClick={() => setOpenSort(!openSort)}
+            className="bg-[#1a1d2e] px-4 py-2 rounded-lg flex items-center gap-11"
+          >
+            {sort}
+            <span>▼</span>
+          </button>
+
+          {openSort && (
+            <div className="absolute mt-2 bg-[#1a1d2e] rounded-lg shadow w-35 z-50">
+              <button
+                onClick={() => {
+                  setSort("Newest");
+                  setOpenSort(false);
+                }}
+                className="block w-full text-left px-4 py-2 hover:bg-[#2a2d3e]"
+              >
+                Newest
+              </button>
+
+              <button
+                onClick={() => {
+                  setSort("Popular");
+                  setOpenSort(false);
+                }}
+                className="block w-full text-left px-4 py-2 hover:bg-[#2a2d3e]"
+              >
+                Popular
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* CHANNEL FILTER */}
+        <div className="flex gap-4 overflow-x-auto">
+          {channels.map((c) => (
+            <button
+              key={c}
+              onClick={() => setChannel(c)}
+              className={`px-10 py-2 rounded-full text-base transition
+        ${
+          channel === c
+            ? "border border-white text-white"
+            : "text-gray-400 hover:text-white"
+        }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="px-10 pb-20">
@@ -75,10 +135,7 @@ const Home = () => {
             >
               {art.media ? (
                 <img
-                  src={`http://localhost:3000/${art.media.replace(
-                    /\\/g,
-                    "/"
-                  )}`}
+                  src={`http://localhost:3000/${art.media.replace(/\\/g, "/")}`}
                   alt={art.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                 />
@@ -90,9 +147,7 @@ const Home = () => {
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
                 <div>
                   <p className="text-sm font-semibold">{art.title}</p>
-                  <p className="text-xs text-gray-400">
-                    {art.tag}
-                  </p>
+                  <p className="text-xs text-gray-400">{art.tag}</p>
                 </div>
               </div>
             </div>
@@ -100,9 +155,7 @@ const Home = () => {
         </div>
 
         {artworks.length === 0 && (
-          <p className="text-gray-500 mt-10">
-            No artworks yet.
-          </p>
+          <p className="text-gray-500 mt-10">No artworks yet.</p>
         )}
       </div>
     </div>

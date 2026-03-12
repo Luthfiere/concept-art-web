@@ -31,6 +31,8 @@ const Login = () => {
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
 
+      console.log("user: ", JSON.stringify(response.user));
+
       navigate("/home");
     } catch (err) {
       setError(err.response?.data?.message || "Login gagal");
