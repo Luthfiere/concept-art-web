@@ -18,6 +18,10 @@ import conversation from './routes/conversations.js';
 import messages from './routes/messages.js';
 import jobPostings from './routes/job-postings.js';
 import jobApplications from './routes/job-applications.js';
+import devlog from './routes/devlog.js';
+import devlogMedia from './routes/devlog-media.js';
+import devlogLikes from './routes/devlog-likes.js';
+import devlogComments from './routes/devlog-comments.js';
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -88,5 +92,9 @@ app.use("/api/conversations", conversation);
 app.use("/api/messages", messages);
 app.use("/api/job-postings", jobPostings);
 app.use("/api/job-applications", jobApplications);
+app.use("/api/devlog", devlog);
+app.use("/api/devlog-media", devlogMedia);
+app.use("/api/devlog-likes", devlogLikes);
+app.use("/api/devlog-comments", devlogComments);
 
 export default app;

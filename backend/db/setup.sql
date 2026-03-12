@@ -1,4 +1,8 @@
 -- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS core_dev_log_comments CASCADE; 
+DROP TABLE IF EXISTS core_dev_log_likes CASCADE; 
+DROP TABLE IF EXISTS core_dev_log_media CASCADE; 
+DROP TABLE IF EXISTS core_dev_log CASCADE;
 DROP TABLE IF EXISTS core_application_notes CASCADE;
 DROP TABLE IF EXISTS core_job_applications CASCADE;
 DROP TABLE IF EXISTS core_job_posting CASCADE;
@@ -20,6 +24,9 @@ DROP TYPE IF EXISTS work_type_type CASCADE;
 DROP TYPE IF EXISTS job_status_type CASCADE;
 DROP TYPE IF EXISTS currency_type CASCADE;
 DROP TYPE IF EXISTS application_status CASCADE;
+DROP TYPE IF EXISTS dev_log_status CASCADE;
+DROP TYPE IF EXISTS dev_log_category CASCADE;
+DROP TYPE IF EXISTS dev_log_genre CASCADE;
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
 CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
@@ -29,6 +36,9 @@ CREATE TYPE work_type_type AS ENUM ('Full-time', 'Part-time', 'Contract', 'Casua
 CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked');
 CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'USD');
 CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'hired');
+CREATE TYPE dev_log_status AS ENUM ('Draft','In Progress', 'Published');
+CREATE TYPE dev_log_category AS ENUM ('major_update', 'minor_update', 'patch_notes', 'announcement', 'feature', 'bugfix', 'milestone', 'devlog');
+CREATE TYPE dev_log_genre AS ENUM ('action', 'rpg', 'strategy', 'simulation', 'puzzle', 'platformer', 'horror', 'adventure', 'fighting', 'sports', 'indie', 'other');
 
 
 -- 1. Create User table
@@ -130,10 +140,39 @@ CREATE TABLE core_job_applications (
 -- 4. Create Dev Log table
 CREATE TABLE core_dev_log (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES master_users (id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
-    description TEXT,
+    content TEXT,                          
+    cover_image VARCHAR(255),              
+    category dev_log_category DEFAULT 'devlog',
+    genre dev_log_genre DEFAULT 'other',
+    tag VARCHAR(255),                      
+    status dev_log_status DEFAULT 'Draft',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_dev_log_media (
+    id SERIAL PRIMARY KEY,
+    log_id INTEGER NOT NULL REFERENCES core_dev_log(id) ON DELETE CASCADE,
+    media VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_dev_log_likes (
+    id SERIAL PRIMARY KEY,
+    log_id INTEGER NOT NULL REFERENCES core_dev_log(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    UNIQUE (log_id, user_id)
+);
+
+CREATE TABLE core_dev_log_comments (
+    id SERIAL PRIMARY KEY,
+    log_id INTEGER NOT NULL REFERENCES core_dev_log(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 5. Create Community Page table
@@ -147,11 +186,4 @@ CREATE TABLE core_community_page (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Create Resumes table
-CREATE TABLE master_resumes (
-    id SERIAL PRIMARY KEY,
-    job_id INTEGER NOT NULL REFERENCES core_job_listing(id) ON DELETE CASCADE,
-    resume VARCHAR(255),
-    uploaded_at TIMESTAMPTZ DEFAULT NOW()
-);
 
