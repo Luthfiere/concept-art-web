@@ -1,10 +1,10 @@
 import db from '../db/connection.js';
 
-class ConceptArt {
+class JobPosting {
   static async getAll() {
     const result = await db.query(`
       SELECT *
-      FROM core_concept_art
+      FROM core_job_posting
       ORDER BY created_at DESC
     `);
     return result.rows;
@@ -13,40 +13,39 @@ class ConceptArt {
   static async getById(id) {
     const result = await db.query(`
       SELECT *
-      FROM core_concept_art
+      FROM core_job_posting
       WHERE id = $1
     `, [id]);
     return result.rows[0];
   }
 
-  static async getByCategory(category) {
-    const result = await db.query(`
-      SELECT *
-      FROM core_concept_art
-      WHERE category = $1
-      ORDER BY created_at DESC
-    `, [category]);
-    return result.rows;
-  }
-
   static async getByUser(user_id) {
     const result = await db.query(`
       SELECT *
-      FROM core_concept_art
+      FROM core_job_posting
       WHERE user_id = $1
       ORDER BY created_at DESC
     `, [user_id]);
     return result.rows;
   }
 
-  static async create({ user_id, title, description, status, tag, category }) {
+  static async getByStatus(status) {
     const result = await db.query(`
-      INSERT INTO core_concept_art
-      (user_id, title, description, status, tag, category)
-      VALUES ($1, $2, $3, COALESCE($4, 'Open')::status_type, $5, COALESCE($6, 'art')::art_category)
-      RETURNING *
-    `, [user_id, title, description, status, tag, category]);
+      SELECT *
+      FROM core_job_posting
+      WHERE status = $1
+      ORDER BY created_at DESC
+    `, [status]);
+    return result.rows;
+  }
 
+  static async create({ user_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at }) {
+    const result = await db.query(`
+      INSERT INTO core_job_posting
+      (user_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($9, 'IDR')::currency_type, COALESCE($10, 'Draft')::job_status_type, $11)
+      RETURNING *
+    `, [user_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at]);
     return result.rows[0];
   }
 
@@ -61,7 +60,7 @@ class ConceptArt {
       .join(', ');
 
     const result = await db.query(`
-      UPDATE core_concept_art
+      UPDATE core_job_posting
       SET ${setClause}, updated_at = NOW()
       WHERE id = $${keys.length + 1}
       RETURNING *
@@ -72,7 +71,7 @@ class ConceptArt {
 
   static async delete(id) {
     const result = await db.query(`
-      DELETE FROM core_concept_art
+      DELETE FROM core_job_posting
       WHERE id = $1
       RETURNING *
     `, [id]);
@@ -80,4 +79,4 @@ class ConceptArt {
   }
 }
 
-export default ConceptArt;
+export default JobPosting;
