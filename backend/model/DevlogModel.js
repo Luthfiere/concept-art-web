@@ -102,7 +102,7 @@ class DevLog {
       VALUES
         ($1, $2, $3, $4,
          COALESCE($5, 'devlog')::dev_log_category,
-         COALESCE($6, 'other')::dev_log_genre,
+         $6,
          $7,
          COALESCE($8, 'Draft')::dev_log_status)
       RETURNING *

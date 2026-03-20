@@ -26,7 +26,7 @@ DROP TYPE IF EXISTS currency_type CASCADE;
 DROP TYPE IF EXISTS application_status CASCADE;
 DROP TYPE IF EXISTS dev_log_status CASCADE;
 DROP TYPE IF EXISTS dev_log_category CASCADE;
-DROP TYPE IF EXISTS dev_log_genre CASCADE;
+
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
 CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
@@ -36,9 +36,9 @@ CREATE TYPE work_type_type AS ENUM ('Full-time', 'Part-time', 'Contract', 'Casua
 CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked');
 CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'USD');
 CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'hired');
-CREATE TYPE dev_log_status AS ENUM ('Draft','In Progress', 'Published');
-CREATE TYPE dev_log_category AS ENUM ('major_update', 'minor_update', 'patch_notes', 'announcement', 'feature', 'bugfix', 'milestone', 'devlog');
-CREATE TYPE dev_log_genre AS ENUM ('action', 'rpg', 'strategy', 'simulation', 'puzzle', 'platformer', 'horror', 'adventure', 'fighting', 'sports', 'indie', 'other');
+CREATE TYPE dev_log_status AS ENUM ('Draft', 'Published', 'Archived');
+CREATE TYPE dev_log_category AS ENUM ('major_update', 'minor_update', 'patch_notes', 'announcement', 'feature', 'bugfix', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion', 'tutorial', 'culture', 'marketing');
+
 
 
 -- 1. Create User table
@@ -145,7 +145,7 @@ CREATE TABLE core_dev_log (
     content TEXT,                          
     cover_image VARCHAR(255),              
     category dev_log_category DEFAULT 'devlog',
-    genre dev_log_genre DEFAULT 'other',
+    genre VARCHAR(255),
     tag VARCHAR(255),                      
     status dev_log_status DEFAULT 'Draft',
     created_at TIMESTAMPTZ DEFAULT NOW(),
