@@ -11,8 +11,8 @@ class DevLog {
         COUNT(DISTINCT dlc.id) AS comment_count
       FROM core_dev_log dl
       LEFT JOIN master_users u ON dl.user_id = u.id
-      LEFT JOIN core_dev_log_likes dll ON dl.id = dll.log_id
-      LEFT JOIN core_dev_log_comments dlc ON dl.id = dlc.log_id
+      LEFT JOIN core_likes dll ON dl.id = dll.entity_id AND dll.entity_type = 'devlog'
+      LEFT JOIN core_comments dlc ON dl.id = dlc.entity_id AND dlc.entity_type = 'devlog'
       WHERE dl.status = 'Published'
       GROUP BY dl.id, u.username, u.id
       ORDER BY dl.created_at DESC
@@ -30,8 +30,8 @@ class DevLog {
         COUNT(DISTINCT dlc.id) AS comment_count
       FROM core_dev_log dl
       LEFT JOIN master_users u ON dl.user_id = u.id
-      LEFT JOIN core_dev_log_likes dll ON dl.id = dll.log_id
-      LEFT JOIN core_dev_log_comments dlc ON dl.id = dlc.log_id
+      LEFT JOIN core_likes dll ON dl.id = dll.entity_id AND dll.entity_type = 'devlog'
+      LEFT JOIN core_comments dlc ON dl.id = dlc.entity_id AND dlc.entity_type = 'devlog'
       WHERE dl.id = $1
       GROUP BY dl.id, u.username, u.id
     `, [id]);
@@ -48,8 +48,8 @@ class DevLog {
         COUNT(DISTINCT dlc.id) AS comment_count
       FROM core_dev_log dl
       LEFT JOIN master_users u ON dl.user_id = u.id
-      LEFT JOIN core_dev_log_likes dll ON dl.id = dll.log_id
-      LEFT JOIN core_dev_log_comments dlc ON dl.id = dlc.log_id
+      LEFT JOIN core_likes dll ON dl.id = dll.entity_id AND dll.entity_type = 'devlog'
+      LEFT JOIN core_comments dlc ON dl.id = dlc.entity_id AND dlc.entity_type = 'devlog'
       WHERE dl.user_id = $1
       GROUP BY dl.id, u.username, u.id
       ORDER BY dl.created_at DESC
@@ -67,8 +67,8 @@ class DevLog {
         COUNT(DISTINCT dlc.id) AS comment_count
       FROM core_dev_log dl
       LEFT JOIN master_users u ON dl.user_id = u.id
-      LEFT JOIN core_dev_log_likes dll ON dl.id = dll.log_id
-      LEFT JOIN core_dev_log_comments dlc ON dl.id = dlc.log_id
+      LEFT JOIN core_likes dll ON dl.id = dll.entity_id AND dll.entity_type = 'devlog'
+      LEFT JOIN core_comments dlc ON dl.id = dlc.entity_id AND dlc.entity_type = 'devlog'
       WHERE dl.user_id = $1 AND dl.status = 'Published'
       GROUP BY dl.id, u.username, u.id
       ORDER BY dl.created_at DESC
@@ -86,8 +86,8 @@ class DevLog {
         COUNT(DISTINCT dlc.id) AS comment_count
       FROM core_dev_log dl
       LEFT JOIN master_users u ON dl.user_id = u.id
-      LEFT JOIN core_dev_log_likes dll ON dl.id = dll.log_id
-      LEFT JOIN core_dev_log_comments dlc ON dl.id = dlc.log_id
+      LEFT JOIN core_likes dll ON dl.id = dll.entity_id AND dll.entity_type = 'devlog'
+      LEFT JOIN core_comments dlc ON dl.id = dlc.entity_id AND dlc.entity_type = 'devlog'
       WHERE dl.category = $1 AND dl.status = 'Published'
       GROUP BY dl.id, u.username, u.id
       ORDER BY dl.created_at DESC

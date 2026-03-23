@@ -1,16 +1,15 @@
-import DevLogComment from '../model/DevlogCommentModel.js';
-import DevLog from '../model/DevlogModel.js';
+import Comment from '../model/CommentModel.js';
 
-class DevLogCommentController {
+class CommentController {
 
-  static async getByLogId(req, res) {
+  static async getByEntityId(req, res) {
     try {
-      const { log_id } = req.params;
+      const { entity_type, entity_id } = req.params;
 
-      const comments = await DevLogComment.getByLogId(log_id);
+      const comments = await Comment.getByEntityId(entity_type, entity_id);
 
       return res.status(200).json({
-        message: 'List of comments for this dev log',
+        message: `List of comments`,
         total: comments.length,
         data: comments
       });
@@ -23,7 +22,7 @@ class DevLogCommentController {
     try {
       const { id } = req.params;
 
-      const comment = await DevLogComment.getById(id);
+      const comment = await Comment.getById(id);
 
       if (!comment) {
         return res.status(404).json({ message: 'Comment not found' });
@@ -41,7 +40,7 @@ class DevLogCommentController {
   static async create(req, res) {
     try {
       const { user_id } = req.user;
-      const { log_id } = req.params;
+      const { entity_type, entity_id } = req.params;
       const { comment } = req.body;
 
       if (!comment) {
@@ -56,16 +55,7 @@ class DevLogCommentController {
         return res.status(400).json({ message: 'Comment must not exceed 500 characters' });
       }
 
-      const log = await DevLog.getById(log_id);
-      if (!log) {
-        return res.status(404).json({ message: 'Dev log not found' });
-      }
-
-      const newComment = await DevLogComment.create({
-        log_id,
-        user_id,
-        comment: comment.trim()
-      });
+      const newComment = await Comment.create(entity_type, entity_id, user_id, comment.trim());
 
       return res.status(201).json({
         message: 'Comment created successfully',
@@ -94,7 +84,7 @@ class DevLogCommentController {
         return res.status(400).json({ message: 'Comment must not exceed 500 characters' });
       }
 
-      const existing = await DevLogComment.getById(id);
+      const existing = await Comment.getById(id);
 
       if (!existing) {
         return res.status(404).json({ message: 'Comment not found' });
@@ -104,7 +94,7 @@ class DevLogCommentController {
         return res.status(403).json({ message: 'Not authorized to update this comment' });
       }
 
-      const updated = await DevLogComment.update(id, comment.trim());
+      const updated = await Comment.update(id, comment.trim());
 
       return res.status(200).json({
         message: 'Comment updated successfully',
@@ -120,7 +110,7 @@ class DevLogCommentController {
       const { user_id } = req.user;
       const { id } = req.params;
 
-      const existing = await DevLogComment.getById(id);
+      const existing = await Comment.getById(id);
 
       if (!existing) {
         return res.status(404).json({ message: 'Comment not found' });
@@ -130,7 +120,7 @@ class DevLogCommentController {
         return res.status(403).json({ message: 'Not authorized to delete this comment' });
       }
 
-      const deleted = await DevLogComment.delete(id);
+      const deleted = await Comment.delete(id);
 
       return res.status(200).json({
         message: 'Comment deleted successfully',
@@ -142,4 +132,4 @@ class DevLogCommentController {
   }
 }
 
-export default DevLogCommentController;
+export default CommentController;

@@ -1,15 +1,14 @@
 -- Drop tables in reverse dependency order
-DROP TABLE IF EXISTS core_dev_log_comments CASCADE; 
-DROP TABLE IF EXISTS core_dev_log_likes CASCADE; 
-DROP TABLE IF EXISTS core_dev_log_media CASCADE; 
+DROP TABLE IF EXISTS core_comments CASCADE;
+DROP TABLE IF EXISTS core_likes CASCADE;
+DROP TABLE IF EXISTS core_dev_log_media CASCADE;
 DROP TABLE IF EXISTS core_dev_log CASCADE;
 DROP TABLE IF EXISTS core_application_notes CASCADE;
 DROP TABLE IF EXISTS core_job_applications CASCADE;
 DROP TABLE IF EXISTS core_job_posting CASCADE;
 DROP TABLE IF EXISTS core_messages CASCADE;
 DROP TABLE IF EXISTS core_conversations CASCADE;
-DROP TABLE IF EXISTS core_art_comments CASCADE;
-DROP TABLE IF EXISTS core_art_likes CASCADE;
+DROP TABLE IF EXISTS core_community_page CASCADE;
 DROP TABLE IF EXISTS core_concept_art_tags CASCADE;
 DROP TABLE IF EXISTS core_art_media CASCADE;
 DROP TABLE IF EXISTS core_concept_art CASCADE;
@@ -26,6 +25,7 @@ DROP TYPE IF EXISTS currency_type CASCADE;
 DROP TYPE IF EXISTS application_status CASCADE;
 DROP TYPE IF EXISTS dev_log_status CASCADE;
 DROP TYPE IF EXISTS dev_log_category CASCADE;
+DROP TYPE IF EXISTS entity_type CASCADE;
 
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
@@ -38,6 +38,7 @@ CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SG
 CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'hired');
 CREATE TYPE dev_log_status AS ENUM ('Draft', 'Published', 'Archived');
 CREATE TYPE dev_log_category AS ENUM ('major_update', 'minor_update', 'patch_notes', 'announcement', 'feature', 'bugfix', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion', 'tutorial', 'culture', 'marketing');
+CREATE TYPE entity_type AS ENUM ('art', 'devlog', 'forum');
 
 
 
@@ -70,20 +71,23 @@ CREATE TABLE core_art_media (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE core_art_likes (
+CREATE TABLE core_likes (
     id SERIAL PRIMARY KEY,
-    art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
+    entity_type entity_type NOT NULL,
+    entity_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-    UNIQUE (art_id, user_id)
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (entity_type, entity_id, user_id)
 );
 
-CREATE TABLE core_art_comments (
+CREATE TABLE core_comments (
     id SERIAL PRIMARY KEY,
-    art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
+    entity_type entity_type NOT NULL,
+    entity_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
     comment TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()    
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Create Conversations table (DM threads)
@@ -159,31 +163,17 @@ CREATE TABLE core_dev_log_media (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE core_dev_log_likes (
-    id SERIAL PRIMARY KEY,
-    log_id INTEGER NOT NULL REFERENCES core_dev_log(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-    UNIQUE (log_id, user_id)
-);
-
-CREATE TABLE core_dev_log_comments (
-    id SERIAL PRIMARY KEY,
-    log_id INTEGER NOT NULL REFERENCES core_dev_log(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-    comment TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
 
 -- 5. Create Community Page table
 CREATE TABLE core_community_page (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES master_users (id) ON DELETE SET NULL,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     type VARCHAR(100),
     image VARCHAR(255),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 
