@@ -24,28 +24,15 @@ const Home = () => {
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        // 1️⃣ Ambil concept arts
-        const resArt = await fetch("http://localhost:3000/api/concept-arts", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const resArt = await fetch("http://localhost:5000/api/concept-arts");
 
         const artData = await resArt.json();
         const arts = artData.art;
 
-        // 2️⃣ Untuk tiap art, ambil media
         const artsWithMedia = await Promise.all(
           arts.map(async (art) => {
             const resMedia = await fetch(
-              `http://localhost:3000/api/art-media/art/${art.id}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              },
+              `http://localhost:5000/api/art-media/art/${art.id}`,
             );
 
             const mediaData = await resMedia.json();
@@ -135,7 +122,7 @@ const Home = () => {
             >
               {art.media ? (
                 <img
-                  src={`http://localhost:3000/${art.media.replace(/\\/g, "/")}`}
+                  src={art.media.startsWith('http') ? art.media : `http://localhost:5000/${art.media.replace(/\\/g, "/")}`}
                   alt={art.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                 />

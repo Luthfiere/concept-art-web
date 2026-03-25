@@ -33,7 +33,7 @@ const Login = () => {
 
       console.log("user: ", JSON.stringify(response.user));
 
-      navigate("/home");
+      navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Login gagal");
     }

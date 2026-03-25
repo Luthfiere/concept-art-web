@@ -17,7 +17,7 @@ const ArtDetail = () => {
       try {
         // 1️⃣ Ambil concept art
         const resArt = await fetch(
-          `http://localhost:3000/api/concept-arts/${id}`,
+          `http://localhost:5000/api/concept-arts/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -29,7 +29,7 @@ const ArtDetail = () => {
 
         // Ambil total like
         const resLikes = await fetch(
-          `http://localhost:3000/api/art-likes/art/${id}`,
+          `http://localhost:5000/api/art-likes/art/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -42,7 +42,7 @@ const ArtDetail = () => {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const resUserLike = await fetch(
-          `http://localhost:3000/api/art-likes/user/${user.id}/art/${id}`,
+          `http://localhost:5000/api/art-likes/user/${user.id}/art/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -56,7 +56,7 @@ const ArtDetail = () => {
 
         // Ambil Comments
         const resComments = await fetch(
-          `http://localhost:3000/api/art-comments/art/${id}`,
+          `http://localhost:5000/api/art-comments/art/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -66,7 +66,7 @@ const ArtDetail = () => {
         setComments(commentData.data);
         //  Ambil media
         const resMedia = await fetch(
-          `http://localhost:3000/api/art-media/art/${id}`,
+          `http://localhost:5000/api/art-media/art/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -98,7 +98,7 @@ const ArtDetail = () => {
 
     try {
       if (!liked) {
-        await fetch("http://localhost:3000/api/art-likes", {
+        await fetch("http://localhost:5000/api/art-likes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -110,7 +110,7 @@ const ArtDetail = () => {
         setLikes((prev) => prev + 1);
         setLiked(true);
       } else {
-        await fetch("http://localhost:3000/api/art-likes", {
+        await fetch("http://localhost:5000/api/art-likes", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -132,7 +132,7 @@ const ArtDetail = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/art-comments/art/${id}`,
+        `http://localhost:5000/api/art-comments/art/${id}`,
         {
           method: "POST",
           headers: {
@@ -164,7 +164,7 @@ const ArtDetail = () => {
             {art.image && (
               <div className="rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src={`http://localhost:3000/${art.image}`}
+                  src={art.image.startsWith('http') ? art.image : `http://localhost:5000/${art.image}`}
                   alt={art.title}
                   className="w-full h-[600px] object-cover"
                 />

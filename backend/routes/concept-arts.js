@@ -4,17 +4,15 @@ const router = express.Router();
 import ConceptArtController from '../controllers/ConceptArtController.js';
 import authToken from '../middlewares/authMiddleware.js';
 
-router.use(authToken)
-
 router.get('/', ConceptArtController.getAll);
 router.get('/category/:category', ConceptArtController.getByCategory);
 router.get('/user/:user_id', ConceptArtController.getByUser);
 router.get('/:id', ConceptArtController.getById);
 
-router.post('/', ConceptArtController.create);
+router.post('/', authToken, ConceptArtController.create);
 
-router.put('/:id', ConceptArtController.update);
+router.put('/:id', authToken, ConceptArtController.update);
 
-router.delete('/:id', ConceptArtController.delete);
+router.delete('/:id', authToken, ConceptArtController.delete);
 
 export default router;

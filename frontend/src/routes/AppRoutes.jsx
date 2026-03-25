@@ -10,18 +10,10 @@ import PostJobPage from "../pages/PostJobPage";
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/Register" element={<Register />} />
-      
 
-      <Route
-        path="/home"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
 
       <Route
         path="/art/:id"
