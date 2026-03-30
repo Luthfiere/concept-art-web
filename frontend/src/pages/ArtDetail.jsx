@@ -9,6 +9,8 @@ const ArtDetail = () => {
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [likeLoading, setLikeLoading] = useState(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -29,7 +31,7 @@ const ArtDetail = () => {
 
         // Ambil total like
         const resLikes = await fetch(
-          `http://localhost:5000/api/art-likes/art/${id}`,
+          `http://localhost:5000/api/likes/art/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -38,11 +40,9 @@ const ArtDetail = () => {
         const likesData = await resLikes.json();
         setLikes(likesData.data.length);
 
-        // Cek user sudah like belum
-        const user = JSON.parse(localStorage.getItem("user"));
-
+     
         const resUserLike = await fetch(
-          `http://localhost:5000/api/art-likes/user/${user.id}/art/${id}`,
+          `http://localhost:5000/api/likes/art/${id}/status`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -50,13 +50,11 @@ const ArtDetail = () => {
 
         const userLikeData = await resUserLike.json();
 
-        if (userLikeData.data) {
-          setLiked(true);
-        }
+        setLiked(!!userLikeData.liked);
 
         // Ambil Comments
         const resComments = await fetch(
-          `http://localhost:5000/api/art-comments/art/${id}`,
+          `http://localhost:5000/api/comments/art/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -76,14 +74,11 @@ const ArtDetail = () => {
 
         const mediaData = await resMedia.json();
 
-        const image =
-          mediaData.data.length > 0
-            ? mediaData.data[0].media.replace(/\\/g, "/")
-            : null;
+        const images = mediaData.data.map((m) => m.media.replace(/\\/g, "/"));
 
         setArt({
           ...artData.art,
-          image,
+          images,
         });
       } catch (error) {
         console.error("Error fetching detail:", error);
@@ -93,37 +88,78 @@ const ArtDetail = () => {
     fetchDetail();
   }, [id]);
 
+  const fetchLikes = async () => {
+    const res = await fetch(`http://localhost:5000/api/likes/art/${id}`);
+    const data = await res.json();
+    setLikes(data.total);
+  };
+
   const handleLike = async () => {
     const token = localStorage.getItem("token");
 
+    if (likeLoading) return;
+    setLikeLoading(true);
+
     try {
       if (!liked) {
-        await fetch("http://localhost:5000/api/art-likes", {
+        const res = await fetch("http://localhost:5000/api/likes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ art_id: id }),
+          body: JSON.stringify({
+            entity_type: "art",
+            entity_id: id,
+          }),
         });
 
-        setLikes((prev) => prev + 1);
+        if (!res.ok) {
+          let errorMessage;
+          try {
+            const json = await res.json();
+            errorMessage = json.message;
+          } catch {
+            errorMessage = await res.text();
+          }
+          throw new Error(errorMessage);
+        }
+
         setLiked(true);
+        setLikes((prev) => prev + 1);
+        await fetchLikes();
       } else {
-        await fetch("http://localhost:5000/api/art-likes", {
+        const res = await fetch("http://localhost:5000/api/likes", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ art_id: id }),
+          body: JSON.stringify({
+            entity_type: "art",
+            entity_id: id,
+          }),
         });
 
-        setLikes((prev) => prev - 1);
+        if (!res.ok) {
+          let errorMessage;
+          try {
+            const json = await res.json();
+            errorMessage = json.message;
+          } catch {
+            errorMessage = await res.text();
+          }
+          throw new Error(errorMessage);
+        }
+
         setLiked(false);
+        setLikes((prev) => prev - 1);
+        await fetchLikes();
       }
     } catch (err) {
-      console.error(err);
+      console.error("LIKE ERROR:", err.message);
+    } finally {
+      setLikeLoading(false);
     }
   };
 
@@ -131,17 +167,14 @@ const ArtDetail = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/art-comments/art/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ comment: newComment }),
+      const res = await fetch(`http://localhost:5000/api/comments/art/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify({ comment: newComment }),
+      });
 
       const data = await res.json();
 
@@ -161,15 +194,76 @@ const ArtDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* LEFT */}
           <div className="lg:col-span-8 space-y-8">
-            {art.image && (
-              <div className="rounded-2xl overflow-hidden shadow-2xl">
+            {art.images && art.images.length > 0 && (
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                {/* IMAGE */}
                 <img
-                  src={art.image.startsWith('http') ? art.image : `http://localhost:5000/${art.image}`}
+                  src={
+                    art.images[currentIndex].startsWith("http")
+                      ? art.images[currentIndex]
+                      : `http://localhost:5000/${art.images[currentIndex]}`
+                  }
                   alt={art.title}
                   className="w-full h-[600px] object-cover"
                 />
+
+                {/* LEFT BUTTON */}
+                <button
+                  onClick={() =>
+                    setCurrentIndex((prev) =>
+                      prev === 0 ? art.images.length - 1 : prev - 1,
+                    )
+                  }
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 px-3 py-2 rounded-lg"
+                >
+                  ◀
+                </button>
+
+                {/* RIGHT BUTTON */}
+                <button
+                  onClick={() =>
+                    setCurrentIndex((prev) =>
+                      prev === art.images.length - 1 ? 0 : prev + 1,
+                    )
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 px-3 py-2 rounded-lg"
+                >
+                  ▶
+                </button>
+
+                {/* DOT INDICATOR */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                  {art.images.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-2 rounded-full ${
+                        i === currentIndex ? "bg-yellow-500" : "bg-gray-400"
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
+
+            {/* {thumbnail} */}
+            <div className="flex gap-2 mt-3 overflow-x-auto">
+              {art.images.map((img, i) => (
+                <img
+                  key={i}
+                  src={
+                    img.startsWith("http")
+                      ? img
+                      : `http://localhost:5000/${img}`
+                  }
+                  onClick={() => setCurrentIndex(i)}
+                  className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 ${
+                    i === currentIndex
+                      ? "border-yellow-500"
+                      : "border-transparent"
+                  }`}
+                />
+              ))}
+            </div>
 
             {/* Extra content biar ga kosong */}
             <div className="bg-[#111427] p-8 rounded-2xl shadow-lg">
@@ -188,11 +282,12 @@ const ArtDetail = () => {
 
               <button
                 onClick={handleLike}
+                disabled={likeLoading}
                 className={`w-full py-2 rounded-xl transition ${
                   liked
                     ? "bg-yellow-500 text-black"
                     : "bg-[#1b1f3a] hover:bg-[#2a2f55]"
-                }`}
+                } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 ❤️ {likes}
               </button>

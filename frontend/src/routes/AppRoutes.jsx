@@ -6,6 +6,7 @@ import Register from "../pages/Register";
 import ProtectedRoute from "./ProtectedRoutes";
 import JobPage from "../pages/Jobpage";
 import PostJobPage from "../pages/PostJobPage";
+import PostArt from "../pages/PostArt";
 
 const AppRoutes = () => {
   return (
@@ -38,6 +39,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <PostJobPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/post-art"
+        element={
+          <ProtectedRoute>
+            <PostArt />
           </ProtectedRoute>
         }
       />
