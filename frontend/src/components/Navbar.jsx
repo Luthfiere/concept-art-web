@@ -1,5 +1,6 @@
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import Logo from "../assets/images/Logo-White.png";
 
 const Navbar = () => {
   const storedUser = localStorage.getItem("user");
@@ -20,7 +21,12 @@ const Navbar = () => {
 
   return (
     <div className="relative z-50 flex justify-between items-center px-10 py-5 border-b border-gray-800">
-      <h1 className="text-yellow-500 font-bold text-xl">LOGO</h1>
+      <Link
+        to="/"
+        className=" px-3 py-1 rounded-md backdrop-blur-sm"
+      >
+        <img src={Logo} alt="Logo" className="h-12 object-contain" />
+      </Link>
 
       <div className="flex gap-6 text-gray-300">
         <Link to="/">Concept Art</Link>
@@ -28,7 +34,6 @@ const Navbar = () => {
         <Link to="/Job">Job Hiring</Link>
         <Link to="/JobPost">Job Posting</Link>
         <span>Dev Logs</span>
-
       </div>
 
       {user ? (
@@ -38,11 +43,7 @@ const Navbar = () => {
             onClick={() => setOpen(!open)}
             className="flex text-sm rounded-full focus:ring-2 focus:ring-gray-500"
           >
-            <img
-              className="w-8 h-8 rounded-full"
-              src={avatar}
-              alt="avatar"
-            />
+            <img className="w-8 h-8 rounded-full" src={avatar} alt="avatar" />
           </button>
 
           {/* Dropdown */}
@@ -97,7 +98,10 @@ const Navbar = () => {
             Sign Up
           </Link>
 
-          <Link to="/login" className="bg-yellow-500 px-4 py-2 rounded text-black">
+          <Link
+            to="/login"
+            className="bg-yellow-500 px-4 py-2 rounded text-black"
+          >
             Sign In
           </Link>
         </div>

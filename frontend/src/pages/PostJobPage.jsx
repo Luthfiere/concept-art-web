@@ -10,7 +10,7 @@ const PostJobPage = () => {
       <div className="max-w-4xl mx-auto mt-10">
 
         <h1 className="text-2xl font-bold mb-6">
-          Post a Job
+          
         </h1>
 
         <PostJobForm />

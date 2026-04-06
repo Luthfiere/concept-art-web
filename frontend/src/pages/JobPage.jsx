@@ -6,52 +6,47 @@ import JobList from "../components/JobList";
 import JobDetail from "../components/JobDetail";
 
 const JobPage = () => {
-
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchJobs();
   }, []);
 
   const fetchJobs = async () => {
-
-    const res = await axios.get(
-      "http://localhost:3000/api/job-postings",
-      {
+    try {
+      const res = await axios.get("http://localhost:5000/api/job-postings", {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    setJobs(res.data);
-    setSelectedJob(res.data[0]);
+      const jobList = res.data.data;
+
+      setJobs(jobList);
+      setSelectedJob(jobList.length > 0 ? jobList[0] : null);
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#050816] text-white">
-
       <Navbar />
 
       <JobFilter />
 
       <div className="px-10 grid grid-cols-12 gap-6">
-
         <JobList
           jobs={jobs}
           setSelectedJob={setSelectedJob}
           selectedJob={selectedJob}
         />
 
-        <JobDetail
-          job={selectedJob}
-        />
-
+        <JobDetail job={selectedJob} />
       </div>
-
     </div>
   );
 };

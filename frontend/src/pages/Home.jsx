@@ -77,7 +77,9 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
-
+      <div className="relative">
+        <p className="items-center px-10 pt-3 text-3xl">Art</p>
+      </div>
       <div className="px-10 pt-10 pb-6 flex items-center gap-6">
         {/* SORT DROPDOWN */}
         <div className="relative">
