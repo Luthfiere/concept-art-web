@@ -6,6 +6,8 @@ const WORK_TYPE = ["Full-time", "Part-time", "Contract", "Casual"];
 const JOB_STATUS = ["Draft", "Active", "Expired", "Blocked"];
 
 const PostJobForm = () => {
+  
+  
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -161,16 +163,14 @@ const PostJobForm = () => {
       />
 
       {/* Status */}
-      <select
+      <input
         name="status"
         value={form.status}
         onChange={handleChange}
-        className="w-full bg-[#0f1323] p-3 rounded"
+        readOnly
+        className="w-full bg-[#0f1323] p-3 rounded cursor-not-allowed"
       >
-        {JOB_STATUS.map((opt) => (
-          <option key={opt} value={opt}>{opt}</option>
-        ))}
-      </select>
+      </input>
 
       {/* Expired Date */}
       <input

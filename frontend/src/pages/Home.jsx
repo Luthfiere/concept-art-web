@@ -13,6 +13,8 @@ const Home = () => {
 
   const [search, setSearch] = useState("");
 
+  
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (categoryRef.current && !categoryRef.current.contains(e.target)) {
@@ -197,7 +199,6 @@ const Home = () => {
           <p className="text-gray-500 mt-10">No artworks yet.</p>
         )}
       </div>
-
     </div>
   );
 };

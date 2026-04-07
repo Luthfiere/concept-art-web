@@ -8,6 +8,15 @@ const PostArt = () => {
   const [preview, setPreview] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must login first!");
+      navigate("/login");
+    }
+  }, []);
+
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -154,7 +163,7 @@ const PostArt = () => {
             onChange={handleChange}
             className="w-full p-3 rounded bg-[#1b1f3a]"
           />
-          
+
           <select
             name="status"
             value={form.status}
