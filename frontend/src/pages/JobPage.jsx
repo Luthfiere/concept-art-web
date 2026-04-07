@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Navbar from "../components/Navbar";
-import JobFilter from "../components/JobFilter";
-import JobList from "../components/JobList";
-import JobDetail from "../components/JobDetail";
+import Navbar from "../components/layout/Navbar";
+import JobFilter from "../components/job/JobFilter";
+import JobList from "../components/job/JobList";
+import JobDetail from "../components/job/JobDetail";
 
 const JobPage = () => {
   const [jobs, setJobs] = useState([]);

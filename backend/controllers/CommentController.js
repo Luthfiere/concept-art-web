@@ -55,7 +55,8 @@ class CommentController {
         return res.status(400).json({ message: 'Comment must not exceed 500 characters' });
       }
 
-      const newComment = await Comment.create(entity_type, entity_id, user_id, comment.trim());
+      const created = await Comment.create(entity_type, entity_id, user_id, comment.trim());
+      const newComment = await Comment.getById(created.id);
 
       return res.status(201).json({
         message: 'Comment created successfully',

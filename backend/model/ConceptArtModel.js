@@ -12,9 +12,10 @@ class ConceptArt {
 
   static async getById(id) {
     const result = await db.query(`
-      SELECT *
-      FROM core_concept_art
-      WHERE id = $1
+      SELECT ca.*, u.username
+      FROM core_concept_art ca
+      LEFT JOIN master_users u ON ca.user_id = u.id
+      WHERE ca.id = $1
     `, [id]);
     return result.rows[0];
   }

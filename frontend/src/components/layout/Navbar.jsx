@@ -1,6 +1,6 @@
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Logo from "../assets/images/Logo-White.png";
+import Logo from "../../assets/images/Logo-White.png";
 
 const Navbar = () => {
   const storedUser = localStorage.getItem("user");

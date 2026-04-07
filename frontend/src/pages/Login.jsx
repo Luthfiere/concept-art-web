@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { loginUser } from "../features/auth/authService";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import noise from "../assets/images/noise.png";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
     email: "",
@@ -33,7 +33,7 @@ const Login = () => {
 
       console.log("user: ", JSON.stringify(response.user));
 
-      navigate("/");
+      navigate(searchParams.get("redirect") || "/");
     } catch (err) {
       setError(err.response?.data?.message || "Login gagal");
     }

@@ -1,5 +1,5 @@
-import Navbar from "../components/Navbar";
-import PostJobForm from "../components/PostJobForm";
+import Navbar from "../components/layout/Navbar";
+import PostJobForm from "../components/job/PostJobForm";
 
 const PostJobPage = () => {
   return (

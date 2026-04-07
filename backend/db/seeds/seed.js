@@ -1,7 +1,10 @@
 import db from '../../db/connection.js';
 // data
 import usersData from '../data/users.js';
-import { conceptArtsData, artMediaData } from '../data/concept-arts.js';
+import { conceptArtsData } from '../data/concept-arts.js';
+import { artMediaData } from '../data/art-media.js';
+import { likesData } from '../data/likes.js';
+import { commentsData } from '../data/comments.js';
 
 
 const seed = async () => {
@@ -34,6 +37,24 @@ const seed = async () => {
         `INSERT INTO core_art_media (id, art_id, media)
          VALUES ($1, $2, $3)`,
         [media.id, media.art_id, media.media]
+      );
+    }
+
+    // 4. likes
+    for (const like of likesData) {
+      await db.query(
+        `INSERT INTO core_likes (id, entity_type, entity_id, user_id)
+         VALUES ($1, $2, $3, $4)`,
+        [like.id, like.entity_type, like.entity_id, like.user_id]
+      );
+    }
+
+    // 5. comments
+    for (const comment of commentsData) {
+      await db.query(
+        `INSERT INTO core_comments (id, entity_type, entity_id, user_id, comment)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [comment.id, comment.entity_type, comment.entity_id, comment.user_id, comment.comment]
       );
     }
 

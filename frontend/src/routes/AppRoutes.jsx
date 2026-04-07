@@ -16,14 +16,7 @@ const AppRoutes = () => {
       <Route path="/Register" element={<Register />} />
 
 
-      <Route
-        path="/art/:id"
-        element={
-          <ProtectedRoute>
-            <ArtDetail />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/art/:id" element={<ArtDetail />} />
 
       <Route
         path="/Job"

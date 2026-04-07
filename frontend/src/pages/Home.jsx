@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import PostArt from "./PostArt";
+import Navbar from "../components/layout/Navbar";
 
 const Home = () => {
   const [artworks, setArtworks] = useState([]);
@@ -198,6 +197,7 @@ const Home = () => {
           <p className="text-gray-500 mt-10">No artworks yet.</p>
         )}
       </div>
+
     </div>
   );
 };
