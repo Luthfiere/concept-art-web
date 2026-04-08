@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import api from "../services/api";
+import api, { isTokenExpired } from "../services/api";
 
 const ArtDetail = () => {
   const { id: rawId } = useParams();
@@ -15,7 +15,7 @@ const ArtDetail = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likeLoading, setLikeLoading] = useState(false);
 
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn = !isTokenExpired();
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -101,8 +101,10 @@ const ArtDetail = () => {
     }
   };
 
-  const imgSrc = (img) =>
-    img.startsWith("http") ? img : `http://localhost:5000/${img}`;
+  const mediaSrc = (path) =>
+    path.startsWith("http") ? path : `http://localhost:5000/${path}`;
+
+  const isVideo = (path) => /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
 
   if (!art) {
     return (
@@ -119,37 +121,60 @@ const ArtDetail = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      {/* Main image area — full width dark background like ArtStation */}
+      {/* Main image area */}
       <div className="bg-black">
-        <div className="max-w-5xl mx-auto relative">
-          <img
-            src={imgSrc(art.images[currentIndex])}
-            alt={art.title}
-            className="w-full max-h-[75vh] object-contain"
-          />
+        <div className="group max-w-5xl mx-auto relative">
+          {/* Gradient edge fades */}
+          {art.images.length > 1 && (
+            <>
+              <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black/60 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black/60 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </>
+          )}
+
+          {isVideo(art.images[currentIndex]) ? (
+            <video
+              key={currentIndex}
+              src={mediaSrc(art.images[currentIndex])}
+              controls
+              className="w-full max-h-[75vh] object-contain"
+            />
+          ) : (
+            <img
+              src={mediaSrc(art.images[currentIndex])}
+              alt={art.title}
+              className="w-full max-h-[75vh] object-contain"
+            />
+          )}
 
           {art.images.length > 1 && (
             <>
+              {/* Prev */}
               <button
                 onClick={() =>
                   setCurrentIndex((prev) =>
                     prev === 0 ? art.images.length - 1 : prev - 1,
                   )
                 }
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white w-10 h-10 rounded-full flex items-center justify-center transition"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
               >
-                ◀
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
               </button>
+              {/* Next */}
               <button
                 onClick={() =>
                   setCurrentIndex((prev) =>
                     prev === art.images.length - 1 ? 0 : prev + 1,
                   )
                 }
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white w-10 h-10 rounded-full flex items-center justify-center transition"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
               >
-                ▶
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
               </button>
+              {/* Slide counter */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/50 backdrop-blur-sm text-white/80 text-xs font-medium px-3 py-1 rounded-full border border-white/10">
+                {currentIndex + 1} / {art.images.length}
+              </div>
             </>
           )}
         </div>
@@ -164,29 +189,37 @@ const ArtDetail = () => {
             {art.images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {art.images.map((img, i) => (
-                  <img
+                  <div
                     key={i}
-                    src={imgSrc(img)}
                     onClick={() => setCurrentIndex(i)}
-                    className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 shrink-0 transition ${
+                    className={`relative w-24 h-16 rounded-md cursor-pointer shrink-0 overflow-hidden transition-all duration-200 ${
                       i === currentIndex
-                        ? "border-yellow-500"
-                        : "border-transparent hover:border-gray-600"
+                        ? "ring-2 ring-yellow-500 ring-offset-2 ring-offset-[#0a0d1f] scale-105"
+                        : "opacity-60 hover:opacity-100"
                     }`}
-                  />
+                  >
+                    {isVideo(img) ? (
+                      <>
+                        <video
+                          src={mediaSrc(img)}
+                          muted
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-0.5 right-0.5 bg-black/70 text-white text-[8px] font-bold px-1 py-0.5 rounded">
+                          VIDEO
+                        </span>
+                      </>
+                    ) : (
+                      <img
+                        src={mediaSrc(img)}
+                        className="w-full h-full object-cover"
+                        alt=""
+                      />
+                    )}
+                  </div>
                 ))}
               </div>
             )}
-
-            {/* All images stacked (ArtStation style) */}
-            {art.images.map((img, i) => (
-              <img
-                key={i}
-                src={imgSrc(img)}
-                alt={`${art.title} - ${i + 1}`}
-                className="w-full rounded-lg"
-              />
-            ))}
 
             {/* Description */}
             <div className="border-t border-gray-800 pt-6">

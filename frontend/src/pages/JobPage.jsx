@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Navbar from "../components/layout/Navbar";
 import JobFilter from "../components/job/JobFilter";
 import JobList from "../components/job/JobList";
 import JobDetail from "../components/job/JobDetail";
+import api from "../services/api";
 
 const JobPage = () => {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
-
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchJobs();
@@ -17,12 +15,7 @@ const JobPage = () => {
 
   const fetchJobs = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/job-postings", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const res = await api.get("/job-postings");
       const jobList = res.data.data;
 
       setJobs(jobList);

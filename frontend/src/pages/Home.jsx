@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
+import api from "../services/api";
+
+const isVideo = (path) => /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
 
 const Home = () => {
   const [artworks, setArtworks] = useState([]);
@@ -29,22 +32,17 @@ const Home = () => {
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
-        const resArt = await fetch("http://localhost:5000/api/concept-arts");
-
-        const artData = await resArt.json();
-        const arts = artData.art;
+        const resArt = await api.get("/concept-arts");
+        const arts = resArt.data.art;
 
         const artsWithMedia = await Promise.all(
           arts.map(async (art) => {
-            const resMedia = await fetch(
-              `http://localhost:5000/api/art-media/art/${art.id}`,
-            );
-
-            const mediaData = await resMedia.json();
-
+            const resMedia = await api.get(`/art-media/art/${art.id}`);
+            const allMedia = resMedia.data.data;
+            const cover = allMedia.find((m) => !isVideo(m.media)) || allMedia[0] || null;
             return {
               ...art,
-              media: mediaData.data.length > 0 ? mediaData.data[0].media : null,
+              media: cover ? cover.media : null,
             };
           }),
         );
@@ -171,15 +169,32 @@ const Home = () => {
               className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer shadow-lg hover:scale-105 transition duration-300"
             >
               {art.media ? (
-                <img
-                  src={
-                    art.media.startsWith("http")
-                      ? art.media
-                      : `http://localhost:5000/${art.media.replace(/\\/g, "/")}`
-                  }
-                  alt={art.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                />
+                isVideo(art.media) ? (
+                  <>
+                    <video
+                      src={
+                        art.media.startsWith("http")
+                          ? art.media
+                          : `http://localhost:5000/${art.media.replace(/\\/g, "/")}`
+                      }
+                      muted
+                      className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                    />
+                    <span className="absolute top-2 left-2 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded z-10">
+                      VIDEO
+                    </span>
+                  </>
+                ) : (
+                  <img
+                    src={
+                      art.media.startsWith("http")
+                        ? art.media
+                        : `http://localhost:5000/${art.media.replace(/\\/g, "/")}`
+                    }
+                    alt={art.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                  />
+                )
               ) : (
                 <div className="w-full h-full bg-gray-800" />
               )}

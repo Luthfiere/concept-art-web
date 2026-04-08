@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 import noise from "../assets/images/noise.png";
 
 export default function Register() {
@@ -21,7 +21,7 @@ export default function Register() {
 
   const handleRegister = async () => {
     try {
-      await axios.post("http://localhost:3000/api/register", form);
+      await api.post("/register", form);
       alert("Register success!");
       navigate("/");
     } catch (err) {

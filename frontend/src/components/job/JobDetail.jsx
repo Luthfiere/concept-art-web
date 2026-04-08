@@ -1,12 +1,10 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/api";
 
 const JobDetail = ({ job }) => {
   const [file, setFile] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const token = localStorage.getItem("token");
 
   if (!job) return null;
 
@@ -48,16 +46,7 @@ const JobDetail = ({ job }) => {
       formData.append("cv", file);
       formData.append("cover_letter", coverLetter);
 
-      await axios.post(
-        `http://localhost:5000/api/job-applications/job/${job.id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          }
-        }
-      );
+      await api.post(`/job-applications/job/${job.id}`, formData);
 
       alert("Application sent!");
       setFile(null);

@@ -1,4 +1,4 @@
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Logo from "../../assets/images/Logo-White.png";
 
@@ -10,6 +10,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/");
     window.location.reload();

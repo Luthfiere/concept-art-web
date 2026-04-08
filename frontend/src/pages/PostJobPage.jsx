@@ -1,16 +1,7 @@
-import { useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
 import PostJobForm from "../components/job/PostJobForm";
 
 const PostJobPage = () => {
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("You must login first!");
-      navigate("/login");
-    }
-  }, []);
   return (
     <div className="min-h-screen bg-[#050816] text-white">
       <Navbar />

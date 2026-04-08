@@ -11,16 +11,6 @@ function slugify(text) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-// Image and video types for 'art' category
-const artMimeTypes = [
-  'image/png',
-  'image/jpeg',
-  'image/jpg',
-  'image/webp',
-  'video/mp4',
-  'video/webm'
-];
-
 // Document types for 'post' category
 const postMimeTypes = [
   'application/pdf',
@@ -44,16 +34,18 @@ const fileFilter = async (req, file, cb) => {
       return cb(new Error('Concept art not found'), false);
     }
 
-    const allowed = req._art.category === 'post' ? postMimeTypes : artMimeTypes;
-
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      const types = req._art.category === 'post'
-        ? 'PDF, DOC, DOCX, TXT, PPT, PPTX'
-        : 'PNG, JPG, JPEG, WEBP, MP4, WEBM';
-      cb(new Error(`Invalid file type for ${req._art.category}. Allowed: ${types}`), false);
+    if (req._art.category === 'post') {
+      if (postMimeTypes.includes(file.mimetype)) {
+        return cb(null, true);
+      }
+      return cb(new Error('Invalid file type for post. Allowed: PDF, DOC, DOCX, TXT, PPT, PPTX'), false);
     }
+
+    // Art category — accept any image or video
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+      return cb(null, true);
+    }
+    cb(new Error('Only image and video files are allowed'), false);
   } catch (err) {
     cb(err, false);
   }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/api";
 
 const WORK_OPTION = ["On-site", "Hybrid", "Remote"];
 const WORK_TYPE = ["Full-time", "Part-time", "Contract", "Casual"];
@@ -21,8 +21,6 @@ const PostJobForm = () => {
     expired_at: ""
   });
 
-  const token = localStorage.getItem("token");
-
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -43,15 +41,7 @@ const PostJobForm = () => {
     e.preventDefault();
 
     try {
-      await axios.post(
-        "http://localhost:5000/api/job-postings",
-        form,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      await api.post("/job-postings", form);
 
       alert("Job posted successfully!");
 
