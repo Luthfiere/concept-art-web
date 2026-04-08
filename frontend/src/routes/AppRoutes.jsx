@@ -7,6 +7,8 @@ import ProtectedRoute from "./ProtectedRoutes";
 import JobPage from "../pages/Jobpage";
 import PostJobPage from "../pages/PostJobPage";
 import PostArt from "../pages/PostArt";
+import PostForm from "../pages/PostForm";
+import PostDetail from "../pages/PostDetail";
 
 const AppRoutes = () => {
   return (
@@ -17,6 +19,7 @@ const AppRoutes = () => {
 
 
       <Route path="/art/:id" element={<ArtDetail />} />
+      <Route path="/post/:id" element={<PostDetail />} />
 
       <Route
         path="/Job"
@@ -44,6 +47,16 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/post-form"
+        element={
+          <ProtectedRoute>
+            <PostForm />
+          </ProtectedRoute>
+        }
+      />
+
 
     </Routes>
   );

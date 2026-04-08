@@ -30,11 +30,11 @@ const Navbar = () => {
       </Link>
 
       <div className="flex gap-6 text-gray-300">
-        <Link to="/">Concept Art</Link>
-        <span>Community</span>
+        <Link to="/Art">Concept Art</Link>
+        <Link to="/Post">Post</Link>
         <Link to="/Job">Job Hiring</Link>
         <Link to="/JobPost">Job Posting</Link>
-        <span>Dev Logs</span>
+        <Link to="/DevLogs">Dev Logs</Link>
       </div>
 
       {user ? (
