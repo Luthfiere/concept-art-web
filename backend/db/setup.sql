@@ -30,7 +30,7 @@ DROP TYPE IF EXISTS entity_type CASCADE;
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
 CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
-CREATE TYPE art_category AS ENUM('art', 'post'); -- for art & post without art
+CREATE TYPE art_category AS ENUM('art', 'post', 'community'); -- for art & post without art
 CREATE TYPE work_option_type AS ENUM ('On-site', 'Hybrid', 'Remote');
 CREATE TYPE work_type_type AS ENUM ('Full-time', 'Part-time', 'Contract', 'Casual');
 CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked');
