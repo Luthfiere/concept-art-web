@@ -49,7 +49,7 @@ const ChatIcon = () => (
   </svg>
 );
 
-const FloatingCreateButton = () => {
+const FloatingCreateButton = ({ onCreatePost }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const fabRef = useRef();
@@ -65,9 +65,9 @@ const FloatingCreateButton = () => {
   }, []);
 
   const actions = [
-    { label: "Post Art", path: "/post-art", icon: <ImageIcon /> },
-    { label: "Share Idea", path: "/post-form?type=post", icon: <LightbulbIcon /> },
-    { label: "Community Post", path: "/post-form?type=community", icon: <ChatIcon /> },
+    { label: "Post Art", key: "art", action: () => navigate("/post-art"), icon: <ImageIcon /> },
+    { label: "Share Idea", key: "idea", action: () => onCreatePost?.("post"), icon: <LightbulbIcon /> },
+    { label: "Community Post", key: "community", action: () => onCreatePost?.("community"), icon: <ChatIcon /> },
   ];
 
   return (
@@ -101,9 +101,9 @@ const FloatingCreateButton = () => {
       {open &&
         actions.map((action, i) => (
           <button
-            key={action.path}
+            key={action.key}
             onClick={() => {
-              navigate(action.path);
+              action.action();
               setOpen(false);
             }}
             className="flex items-center gap-2 animate-fade-in-up"

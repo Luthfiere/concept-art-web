@@ -3,9 +3,11 @@ import db from '../db/connection.js';
 class ConceptArt {
   static async getAll() {
     const result = await db.query(`
-      SELECT *
-      FROM core_concept_art
-      ORDER BY created_at DESC
+      SELECT ca.*, u.username,
+        (SELECT COUNT(*) FROM core_likes WHERE entity_type = 'art' AND entity_id = ca.id) AS likes
+      FROM core_concept_art ca
+      LEFT JOIN master_users u ON ca.user_id = u.id
+      ORDER BY ca.created_at DESC
     `);
     return result.rows;
   }
@@ -22,10 +24,12 @@ class ConceptArt {
 
   static async getByCategory(category) {
     const result = await db.query(`
-      SELECT *
-      FROM core_concept_art
-      WHERE category = $1
-      ORDER BY created_at DESC
+      SELECT ca.*, u.username,
+        (SELECT COUNT(*) FROM core_likes WHERE entity_type = 'art' AND entity_id = ca.id) AS likes
+      FROM core_concept_art ca
+      LEFT JOIN master_users u ON ca.user_id = u.id
+      WHERE ca.category = $1
+      ORDER BY ca.created_at DESC
     `, [category]);
     return result.rows;
   }
