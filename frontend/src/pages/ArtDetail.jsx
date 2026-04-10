@@ -3,6 +3,54 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
 
+const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill={filled ? "currentColor" : "none"}
+    stroke={filled ? "none" : "currentColor"}
+    strokeWidth={filled ? 0 : 1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
+    />
+  </svg>
+);
+
+const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+    />
+  </svg>
+);
+
+const ArrowLeftIcon = () => (
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+    />
+  </svg>
+);
+
 const ArtDetail = () => {
   const { id: rawId } = useParams();
   const id = Number(rawId);
@@ -104,224 +152,242 @@ const ArtDetail = () => {
   const mediaSrc = (path) =>
     path.startsWith("http") ? path : `http://localhost:5000/${path}`;
 
-  const isVideo = (path) => /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
+  const isVideo = (path) =>
+    /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
 
   if (!art) {
     return (
       <div className="min-h-screen bg-[#0a0d1f] text-white">
         <Navbar />
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="text-gray-400 text-lg">Loading...</div>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+          <div className="w-10 h-10 border-2 border-white/10 border-t-yellow-500 rounded-full animate-spin" />
+          <p className="text-gray-500 text-sm">Loading artwork...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0d1f] text-white">
+    <div className="min-h-screen bg-[#0a0d1f] text-white flex flex-col">
       <Navbar />
 
-      {/* Main image area */}
-      <div className="bg-black">
-        <div className="group max-w-5xl mx-auto relative">
-          {/* Gradient edge fades */}
-          {art.images.length > 1 && (
-            <>
-              <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black/60 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black/60 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </>
-          )}
+      {/* ──── MAIN: side-by-side layout ──── */}
+      <div className="flex-1 flex flex-col lg:flex-row animate-fade-in">
+        {/* ──── LEFT: Image viewer ──── */}
+        <div className="lg:flex-1 bg-black flex flex-col">
+          {/* Image/Video display */}
+          <div className="group relative flex-1 flex items-center justify-center min-h-[50vh] lg:min-h-0">
+            {isVideo(art.images[currentIndex]) ? (
+              <video
+                key={currentIndex}
+                src={mediaSrc(art.images[currentIndex])}
+                controls
+                className="w-full h-full max-h-[85vh] object-contain animate-fade-in"
+              />
+            ) : (
+              <img
+                key={currentIndex}
+                src={mediaSrc(art.images[currentIndex])}
+                alt={art.title}
+                className="w-full h-full max-h-[85vh] object-contain animate-fade-in"
+              />
+            )}
 
-          {isVideo(art.images[currentIndex]) ? (
-            <video
-              key={currentIndex}
-              src={mediaSrc(art.images[currentIndex])}
-              controls
-              className="w-full max-h-[75vh] object-contain"
-            />
-          ) : (
-            <img
-              src={mediaSrc(art.images[currentIndex])}
-              alt={art.title}
-              className="w-full max-h-[75vh] object-contain"
-            />
-          )}
-
-          {art.images.length > 1 && (
-            <>
-              {/* Prev */}
-              <button
-                onClick={() =>
-                  setCurrentIndex((prev) =>
-                    prev === 0 ? art.images.length - 1 : prev - 1,
-                  )
-                }
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-              </button>
-              {/* Next */}
-              <button
-                onClick={() =>
-                  setCurrentIndex((prev) =>
-                    prev === art.images.length - 1 ? 0 : prev + 1,
-                  )
-                }
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-              </button>
-              {/* Slide counter */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/50 backdrop-blur-sm text-white/80 text-xs font-medium px-3 py-1 rounded-full border border-white/10">
-                {currentIndex + 1} / {art.images.length}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Content area below image */}
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* LEFT — Additional images + description */}
-          <div className="lg:w-2/3 space-y-6">
-            {/* Thumbnail strip */}
             {art.images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
+              <>
+                {/* Edge fades */}
+                <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black/60 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black/60 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Prev */}
+                <button
+                  onClick={() =>
+                    setCurrentIndex((prev) =>
+                      prev === 0 ? art.images.length - 1 : prev - 1,
+                    )
+                  }
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+                </button>
+                {/* Next */}
+                <button
+                  onClick={() =>
+                    setCurrentIndex((prev) =>
+                      prev === art.images.length - 1 ? 0 : prev + 1,
+                    )
+                  }
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+                {/* Slide counter */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 bg-black/60 backdrop-blur-sm text-white/80 text-[11px] font-medium px-2.5 py-0.5 rounded-full">
+                  {currentIndex + 1} / {art.images.length}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Thumbnail strip */}
+          {art.images.length > 1 && (
+            <div className="bg-[#0a0d1f] border-t border-white/5 px-4 py-3">
+              <div className="flex gap-2 overflow-x-auto p-1 -m-1">
                 {art.images.map((img, i) => (
                   <div
                     key={i}
                     onClick={() => setCurrentIndex(i)}
-                    className={`relative w-24 h-16 rounded-md cursor-pointer shrink-0 overflow-hidden transition-all duration-200 ${
+                    className={`relative w-20 h-14 rounded-md cursor-pointer shrink-0 overflow-hidden transition-all duration-200 ${
                       i === currentIndex
-                        ? "ring-2 ring-yellow-500 ring-offset-2 ring-offset-[#0a0d1f] scale-105"
-                        : "opacity-60 hover:opacity-100"
+                        ? "ring-2 ring-yellow-500 ring-offset-1 ring-offset-[#0a0d1f]"
+                        : "opacity-50 hover:opacity-100"
                     }`}
                   >
                     {isVideo(img) ? (
                       <>
-                        <video
-                          src={mediaSrc(img)}
-                          muted
-                          className="w-full h-full object-cover"
-                        />
-                        <span className="absolute bottom-0.5 right-0.5 bg-black/70 text-white text-[8px] font-bold px-1 py-0.5 rounded">
-                          VIDEO
-                        </span>
+                        <video src={mediaSrc(img)} muted className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0.5 right-0.5 bg-black/70 text-white text-[7px] font-bold px-1 rounded">VIDEO</span>
                       </>
                     ) : (
-                      <img
-                        src={mediaSrc(img)}
-                        className="w-full h-full object-cover"
-                        alt=""
-                      />
+                      <img src={mediaSrc(img)} className="w-full h-full object-cover" alt="" />
                     )}
                   </div>
                 ))}
               </div>
-            )}
+            </div>
+          )}
+        </div>
 
-            {/* Description */}
-            <div className="border-t border-gray-800 pt-6">
-              <p className="text-gray-300 leading-relaxed">{art.description}</p>
+        {/* ──── RIGHT: Info panel (scrollable) ──── */}
+        <div className="lg:w-[380px] xl:w-[420px] lg:h-[calc(100vh-64px)] lg:overflow-y-auto border-l border-white/5 bg-[#0a0d1f] shrink-0">
+          <div className="p-5 space-y-0">
+            {/* Back button */}
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
+            >
+              <ArrowLeftIcon />
+              Back
+            </button>
+
+            {/* Artist row */}
+            <div className="flex items-center gap-3 mb-5">
+              <img
+                src={`https://api.dicebear.com/7.x/initials/svg?seed=${art.username || "artist"}`}
+                className="w-10 h-10 rounded-full"
+                alt=""
+              />
+              <div>
+                <p className="font-semibold text-sm text-white">
+                  {art.username || "Artist"}
+                </p>
+                <p className="text-[11px] text-gray-500">Creator</p>
+              </div>
             </div>
 
+            {/* Title + Tag */}
+            <div className="mb-4">
+              <h1 className="text-lg font-bold text-white leading-snug">
+                {art.title}
+              </h1>
+              <span className="inline-block mt-1.5 bg-yellow-500/10 text-yellow-500 text-[11px] font-medium px-2.5 py-0.5 rounded-md">
+                {art.tag}
+              </span>
+            </div>
+
+            {/* Like button + Stats */}
+            <div className="flex items-center gap-3 mb-4">
+              <button
+                onClick={handleLike}
+                disabled={likeLoading}
+                className={`flex-1 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm ${
+                  liked
+                    ? "bg-yellow-500 text-black"
+                    : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <HeartIcon className="w-4 h-4" filled={liked} />
+                {liked ? "Liked" : "Like"}
+              </button>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs text-gray-500 mb-5">
+              <span className="flex items-center gap-1">
+                <HeartIcon className="w-3.5 h-3.5" />
+                {likes} {likes === 1 ? "like" : "likes"}
+              </span>
+              <span className="flex items-center gap-1">
+                <ChatBubbleIcon className="w-3.5 h-3.5" />
+                {comments.length}{" "}
+                {comments.length === 1 ? "comment" : "comments"}
+              </span>
+            </div>
+
+            {/* Description */}
+            {art.description && (
+              <div className="border-t border-white/5 pt-4 mb-5">
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  {art.description}
+                </p>
+              </div>
+            )}
+
             {/* Comments section */}
-            <div className="border-t border-gray-800 pt-6">
-              <h3 className="text-lg font-semibold mb-4">
-                {comments.length} {comments.length === 1 ? "Comment" : "Comments"}
+            <div className="border-t border-white/5 pt-4">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5 text-gray-200">
+                <ChatBubbleIcon className="w-4 h-4 text-gray-500" />
+                {comments.length}{" "}
+                {comments.length === 1 ? "Comment" : "Comments"}
               </h3>
 
-              <div className="flex gap-3 mb-6">
+              {/* Comment input */}
+              <div className="flex gap-2 mb-4">
                 <input
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onFocus={() => requireLogin()}
-                  className="flex-1 bg-[#1a1d2e] p-3 rounded-lg text-sm outline-none focus:ring-2 focus:ring-yellow-500 placeholder-gray-500"
-                  placeholder={isLoggedIn ? "Add a comment..." : "Sign in to comment..."}
+                  className="flex-1 bg-white/5 border border-white/10 px-3 py-2 rounded-lg text-sm text-gray-200 outline-none focus:border-yellow-500/50 focus:bg-white/[0.07] placeholder-gray-500 transition-all duration-200"
+                  placeholder={
+                    isLoggedIn ? "Add a comment..." : "Sign in to comment..."
+                  }
                 />
                 <button
                   onClick={handleComment}
-                  className="bg-yellow-500 px-5 rounded-lg text-black text-sm font-semibold hover:bg-yellow-400 transition"
+                  className="bg-yellow-500 px-4 rounded-lg text-black text-xs font-semibold hover:bg-yellow-400 transition-colors duration-200"
                 >
                   Post
                 </button>
               </div>
 
-              <div className="space-y-4">
+              {/* Comments list */}
+              <div className="space-y-0.5">
                 {comments.length === 0 && (
-                  <p className="text-gray-500 text-sm">No comments yet.</p>
+                  <p className="text-gray-600 text-xs text-center py-6">
+                    No comments yet.
+                  </p>
                 )}
                 {comments.map((c) => (
-                  <div key={c.id} className="flex gap-3">
+                  <div
+                    key={c.id}
+                    className="flex gap-2.5 p-2.5 rounded-lg hover:bg-white/[0.03] transition-colors duration-200"
+                  >
                     <img
                       src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
-                      className="w-9 h-9 rounded-full shrink-0"
+                      className="w-8 h-8 rounded-full shrink-0"
                       alt=""
                     />
-                    <div>
-                      <p className="text-sm font-medium text-yellow-500">
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-yellow-500">
                         {c.username}
                       </p>
-                      <p className="text-sm text-gray-300 mt-0.5">
+                      <p className="text-xs text-gray-300 mt-0.5 break-words leading-relaxed">
                         {c.comment}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* RIGHT — Sidebar (sticky like ArtStation) */}
-          <div className="lg:w-1/3">
-            <div className="sticky top-6 space-y-5">
-              {/* Artist card */}
-              <div className="bg-[#111427] rounded-xl p-5">
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${art.username || "artist"}`}
-                    className="w-12 h-12 rounded-full"
-                    alt=""
-                  />
-                  <div>
-                    <p className="font-semibold">
-                      {art.username || "Artist"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Like & Save buttons */}
-                <div className="flex gap-2 mb-4">
-                  <button
-                    onClick={handleLike}
-                    disabled={likeLoading}
-                    className={`flex-1 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2 ${
-                      liked
-                        ? "bg-yellow-500 text-black"
-                        : "bg-[#1b1f3a] text-white hover:bg-[#2a2f55]"
-                    } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                  >
-                    {liked ? "👍" : "👍"} Like
-                  </button>
-                </div>
-
-                {/* Stats row */}
-                <div className="flex items-center gap-4 text-sm text-gray-400">
-                  <span>👍 {likes}</span>
-                  <span>💬 {comments.length}</span>
-                </div>
-              </div>
-
-              {/* Artwork info */}
-              <div className="bg-[#111427] rounded-xl p-5">
-                <h1 className="text-xl font-bold mb-2">{art.title}</h1>
-                <span className="inline-block bg-[#1b1f3a] text-gray-300 text-xs px-3 py-1 rounded-full">
-                  {art.tag}
-                </span>
-              </div>
-
             </div>
           </div>
         </div>

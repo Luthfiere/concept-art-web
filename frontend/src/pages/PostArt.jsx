@@ -88,88 +88,110 @@ const PostArt = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-6 animate-fade-in-up">
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-4"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back
+        </button>
+
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Post New Artwork</h1>
-          <p className="text-gray-400 mt-1">
+        <div className="mb-4">
+          <h1 className="text-xl font-bold">Post New Artwork</h1>
+          <p className="text-gray-500 text-xs mt-0.5">
             Share your concept art with the community
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* LEFT — Media upload (3/5) */}
-            <div className="lg:col-span-3 space-y-4">
-              <label className="text-sm font-medium text-gray-300">
-                Media ({files.length} {files.length === 1 ? "file" : "files"} selected)
+          {/* Title — full width */}
+          <div className="mb-4">
+            <label className="text-xs font-medium text-gray-400 mb-1 block">
+              Artwork Title <span className="text-red-400">*</span>
+            </label>
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="e.g. Cyber Samurai"
+              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-base text-gray-100 placeholder-gray-600 transition-all duration-200"
+              required
+            />
+          </div>
+
+          {/* Two columns: Media (left) + Fields (right) */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* LEFT — Media upload */}
+            <div className="lg:flex-1 space-y-3">
+              <label className="text-xs font-medium text-gray-400 block">
+                Media
+                <span className="text-gray-600 ml-1.5">
+                  ({files.length} {files.length === 1 ? "file" : "files"})
+                </span>
               </label>
 
               {/* Drop zone */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${
+                className={`relative border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer transition-all duration-200 ${
+                  previews.length > 0 ? "min-h-[180px]" : "min-h-[340px]"
+                } ${
                   dragOver
                     ? "border-yellow-500 bg-yellow-500/5"
-                    : "border-gray-700 bg-[#111427] hover:border-gray-500"
+                    : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
                 }`}
               >
-                <div className="flex flex-col items-center gap-2">
-                  <svg className="w-10 h-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-8m0 0l-3 3m3-3l3 3M6.75 19.25h10.5A2.25 2.25 0 0019.5 17V7a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 7v10a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
-                  <p className="text-sm text-gray-400">
+                <div className="flex flex-col items-center gap-2 text-center px-6">
+                  <div className="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-300 font-medium">
                     Drag & drop or click to browse
                   </p>
-                  <p className="text-xs text-gray-600">
-                    Images, videos, and documents supported
+                  <p className="text-[10px] text-gray-600">
+                    Images, videos, and documents
                   </p>
                 </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  onChange={handleFileInput}
-                  className="hidden"
-                />
+                <input ref={fileInputRef} type="file" multiple onChange={handleFileInput} className="hidden" />
               </div>
 
               {/* Preview grid */}
               {previews.length > 0 && (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-4 gap-1.5">
                   {previews.map((src, i) => (
-                    <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-[#111427]">
+                    <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-white/5">
                       {isVideo(files[i]) ? (
                         <video src={src} muted className="w-full h-full object-cover" />
                       ) : (
                         <img src={src} className="w-full h-full object-cover" alt="" />
                       )}
-
-                      {/* Video badge */}
                       {isVideo(files[i]) && (
-                        <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                        <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[8px] font-semibold px-1 py-0.5 rounded">
                           VIDEO
                         </span>
                       )}
-
-                      {/* Remove button */}
                       <button
                         type="button"
                         onClick={() => removeFile(i)}
-                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       >
-                        X
+                        &times;
                       </button>
-
-                      {/* File name */}
-                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover:opacity-100 transition">
-                        <p className="text-[10px] text-gray-300 truncate">
-                          {files[i].name}
-                        </p>
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <p className="text-[8px] text-gray-300 truncate">{files[i].name}</p>
                       </div>
                     </div>
                   ))}
@@ -177,74 +199,79 @@ const PostArt = () => {
               )}
             </div>
 
-            {/* RIGHT — Form fields (2/5) */}
-            <div className="lg:col-span-2 space-y-5">
+            {/* RIGHT — Form fields */}
+            <div className="lg:w-[380px] xl:w-[420px] shrink-0 space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
-                  Title <span className="text-red-400">*</span>
-                </label>
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="e.g. Cyber Samurai"
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm transition"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
+                <label className="text-xs font-medium text-gray-400 mb-1 block">
                   Description
                 </label>
                 <textarea
                   name="description"
                   value={form.description}
                   onChange={handleChange}
-                  placeholder="Describe your artwork..."
-                  rows={4}
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm resize-none transition"
+                  placeholder="Describe your artwork, inspiration, techniques used..."
+                  rows={10}
+                  className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-sm text-gray-200 placeholder-gray-600 resize-none transition-all duration-200"
                 />
               </div>
 
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
-                  Tag
-                </label>
-                <input
-                  name="tag"
-                  value={form.tag}
-                  onChange={handleChange}
-                  placeholder="e.g. Fantasy, Sci-Fi"
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm transition"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
-                  Visibility
-                </label>
-                <select
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm transition"
-                >
-                  <option value="Open">Open</option>
-                  <option value="Closed">Closed</option>
-                </select>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="text-xs font-medium text-gray-400 mb-1 block">
+                    Tag
+                  </label>
+                  <input
+                    name="tag"
+                    value={form.tag}
+                    onChange={handleChange}
+                    placeholder="e.g. Fantasy, Sci-Fi"
+                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all duration-200"
+                  />
+                </div>
+                <div className="w-32">
+                  <label className="text-xs font-medium text-gray-400 mb-1 block">
+                    Visibility
+                  </label>
+                  <select
+                    name="status"
+                    value={form.status}
+                    onChange={handleChange}
+                    className="w-full px-3 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-sm text-gray-200 transition-all duration-200 appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 10px center",
+                      backgroundSize: "14px",
+                    }}
+                  >
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 rounded-lg font-semibold text-sm transition ${
+                className={`w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
                   loading
                     ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
                     : "bg-yellow-500 text-black hover:bg-yellow-400"
                 }`}
               >
-                {loading ? "Uploading..." : "Publish Artwork"}
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    Publish Artwork
+                  </>
+                )}
               </button>
             </div>
           </div>

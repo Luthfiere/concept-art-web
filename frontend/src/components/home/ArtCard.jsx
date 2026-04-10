@@ -45,7 +45,7 @@ const ArtCard = ({ art, index }) => {
   return (
     <div
       onClick={() => navigate(`/art/${art.id}`)}
-      className="animate-fade-in-up group relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer"
+      className="animate-fade-in-up group relative aspect-[3/4] rounded-md overflow-hidden cursor-pointer"
       style={{ animationDelay: `${Math.min(index * 50, 500)}ms` }}
     >
       {/* Media */}

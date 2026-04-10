@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api from "../services/api";
 
 const PostForm = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const typeParam = searchParams.get("type") || "post";
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
-  const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -18,6 +19,15 @@ const PostForm = () => {
     tag: "",
     category: "post",
   });
+
+  // Set category from URL param on mount
+  useEffect(() => {
+    if (typeParam === "community" || typeParam === "post") {
+      setForm((prev) => ({ ...prev, category: typeParam }));
+    }
+  }, [typeParam]);
+
+  const isCommunity = form.category === "community";
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -43,12 +53,6 @@ const PostForm = () => {
     e.target.value = "";
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    addFiles(Array.from(e.dataTransfer.files));
-  };
-
   const isVideo = (file) => file.type.startsWith("video/");
 
   const handleSubmit = async (e) => {
@@ -65,7 +69,7 @@ const PostForm = () => {
 
     const payload = {
       ...form,
-      category: "post",
+      category: form.category,
     };
 
     try {
@@ -97,192 +101,210 @@ const PostForm = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Create Post</h1>
-          <p className="text-gray-400 mt-1">
-            Share ideas or discussions with the community
-          </p>
-        </div>
+      <div className="max-w-2xl mx-auto px-6 py-6 animate-fade-in-up">
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-4"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back
+        </button>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* LEFT — Media upload (3/5) */}
-            <div className="lg:col-span-3 space-y-4">
-              <label className="text-sm font-medium text-gray-300">
-                Media (optional) ({files.length}{" "}
-                {files.length === 1 ? "file" : "files"})
-              </label>
+        {/* Card container */}
+        <div className="bg-white/[0.03] border border-white/5 rounded-xl overflow-hidden">
+          {/* Header bar */}
+          <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+            <h1 className="text-base font-semibold">
+              {isCommunity ? "Community Post" : "Share an Idea"}
+            </h1>
 
-              {/* Drop zone */}
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${
-                  dragOver
-                    ? "border-yellow-500 bg-yellow-500/5"
-                    : "border-gray-700 bg-[#111427] hover:border-gray-500"
+            {/* Category toggle */}
+            <div className="flex items-center bg-white/5 rounded-md p-0.5">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, category: "post" }))
+                }
+                className={`px-3 py-1 rounded text-[11px] font-medium transition-all duration-200 ${
+                  !isCommunity
+                    ? "bg-blue-500 text-white"
+                    : "text-gray-400 hover:text-gray-200"
                 }`}
               >
-                <div className="flex flex-col items-center gap-2">
-                  <svg
-                    className="w-10 h-10 text-gray-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 16v-8m0 0l-3 3m3-3l3 3M6.75 19.25h10.5A2.25 2.25 0 0019.5 17V7a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 7v10a2.25 2.25 0 002.25 2.25z"
-                    />
-                  </svg>
-                  <p className="text-sm text-gray-400">
-                    Drag & drop or click to browse
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    Images, videos, and documents supported
-                  </p>
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  onChange={handleFileInput}
-                  className="hidden"
-                />
-              </div>
-
-              {/* Preview grid */}
-              {previews.length > 0 && (
-                <div className="grid grid-cols-3 gap-3">
-                  {previews.map((src, i) => (
-                    <div
-                      key={i}
-                      className="relative group aspect-square rounded-lg overflow-hidden bg-[#111427]"
-                    >
-                      {isVideo(files[i]) ? (
-                        <video
-                          src={src}
-                          muted
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={src}
-                          className="w-full h-full object-cover"
-                          alt=""
-                        />
-                      )}
-
-                      {/* Video badge */}
-                      {isVideo(files[i]) && (
-                        <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
-                          VIDEO
-                        </span>
-                      )}
-
-                      {/* Remove button */}
-                      <button
-                        type="button"
-                        onClick={() => removeFile(i)}
-                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                      >
-                        X
-                      </button>
-
-                      {/* File name */}
-                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover:opacity-100 transition">
-                        <p className="text-[10px] text-gray-300 truncate">
-                          {files[i].name}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                Ideation
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, category: "community" }))
+                }
+                className={`px-3 py-1 rounded text-[11px] font-medium transition-all duration-200 ${
+                  isCommunity
+                    ? "bg-emerald-500 text-white"
+                    : "text-gray-400 hover:text-gray-200"
+                }`}
+              >
+                Community
+              </button>
             </div>
+          </div>
 
-            {/* RIGHT — Form fields (2/5) */}
-            <div className="lg:col-span-2 space-y-5">
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
-                  Title <span className="text-red-400">*</span>
-                </label>
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="e.g. Best Platform For building a 2d game?"
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm transition"
-                  required
-                />
-              </div>
+          {/* Form body */}
+          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            {/* Title */}
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="Title *"
+              className="w-full px-0 py-2 bg-transparent border-b border-white/10 focus:border-yellow-500/50 outline-none text-lg text-gray-100 placeholder-gray-600 transition-all duration-200"
+              required
+            />
 
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  placeholder="Describe your posts..."
-                  rows={4}
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm resize-none transition"
-                />
-              </div>
+            {/* Description — the hero field */}
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder={
+                isCommunity
+                  ? "What's on your mind? Share a discussion, tutorial, or insight..."
+                  : "Describe your game concept, storyline, or collaboration idea..."
+              }
+              rows={8}
+              className="w-full px-0 py-2 bg-transparent outline-none text-sm text-gray-200 placeholder-gray-600 resize-none leading-relaxed"
+            />
 
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
-                  Tag
-                </label>
+            {/* Tag + Visibility — inline row */}
+            <div className="flex gap-3">
+              <div className="flex-1">
                 <input
                   name="tag"
                   value={form.tag}
                   onChange={handleChange}
-                  placeholder="e.g. Discussion, Ideas, Collaboration"
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm transition"
+                  placeholder={
+                    isCommunity
+                      ? "Tag: e.g. Discussion, Tutorial"
+                      : "Tag: e.g. Game Concept, Storyline"
+                  }
+                  className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-xs text-gray-200 placeholder-gray-600 transition-all duration-200"
                 />
               </div>
+              <select
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+                className="px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 outline-none text-xs text-gray-200 transition-all duration-200 appearance-none w-28"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 8px center",
+                  backgroundSize: "12px",
+                }}
+              >
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
 
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-1.5 block">
-                  Visibility
-                </label>
-                <select
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-lg bg-[#111427] border border-gray-800 focus:border-yellow-500 outline-none text-sm transition"
-                >
-                  <option value="Open">Open</option>
-                  <option value="Closed">Closed</option>
-                </select>
+            {/* Media attachments — compact */}
+            {previews.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto p-1 -m-1">
+                {previews.map((src, i) => (
+                  <div
+                    key={i}
+                    className="relative group w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-white/5"
+                  >
+                    {isVideo(files[i]) ? (
+                      <video
+                        src={src}
+                        muted
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={src}
+                        className="w-full h-full object-cover"
+                        alt=""
+                      />
+                    )}
+                    {isVideo(files[i]) && (
+                      <span className="absolute bottom-0.5 right-0.5 bg-black/70 text-white text-[7px] font-bold px-1 rounded">
+                        VID
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
+            )}
 
+            {/* Bottom bar: attach + post */}
+            <div className="flex items-center justify-between pt-3 border-t border-white/5">
+              {/* Attach button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors duration-200"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159M15.75 15.75l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+                  />
+                </svg>
+                Attach media
+                {files.length > 0 && (
+                  <span className="text-gray-600">({files.length})</span>
+                )}
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileInput}
+                className="hidden"
+              />
+
+              {/* Post button */}
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 rounded-lg font-semibold text-sm transition ${
+                className={`px-6 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
                   loading
                     ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
                     : "bg-yellow-500 text-black hover:bg-yellow-400"
                 }`}
               >
-                {loading ? "Posting..." : "Publish Post"}
+                {loading ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    Posting...
+                  </>
+                ) : (
+                  "Post"
+                )}
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
