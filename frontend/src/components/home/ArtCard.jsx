@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 
 const isVideo = (path) =>
   /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
@@ -9,11 +10,7 @@ const mediaSrc = (media) =>
     : `http://localhost:5000/${media.replace(/\\/g, "/")}`;
 
 const HeartIcon = () => (
-  <svg
-    className="w-3 h-3"
-    fill="currentColor"
-    viewBox="0 0 24 24"
-  >
+  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
     <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
   </svg>
 );
@@ -41,20 +38,42 @@ const EyeIcon = () => (
 
 const ArtCard = ({ art, index }) => {
   const navigate = useNavigate();
+  const videoRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.currentTime = 0;
+    video.play().catch(() => {});
+  };
+
+  const handleMouseLeave = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.pause();
+  };
 
   return (
     <div
       onClick={() => navigate(`/art/${art.id}`)}
-      className="animate-fade-in-up group relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer"
+      className="animate-fade-in-up group relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all-300 hover:scale-[1.04] hover:-translate-y-2 hover:shadow-2xl hover:shadow-black-/50"
       style={{ animationDelay: `${Math.min(index * 50, 500)}ms` }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Media */}
       {art.media ? (
         isVideo(art.media) ? (
           <>
             <video
+              ref={videoRef}
               src={mediaSrc(art.media)}
               muted
+              playsInline
+              loop
+              preload="metadata"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <span className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-0.5 rounded-full z-10">
@@ -76,13 +95,19 @@ const ArtCard = ({ art, index }) => {
       )}
 
       {/* Bottom gradient — always partially visible */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
 
       {/* Metadata — slides up on hover */}
       <div className="absolute inset-x-0 bottom-0 p-3 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
         <p className="text-sm font-semibold text-white truncate">{art.title}</p>
         <div className="flex items-center justify-between mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
-          <span className="text-[11px] text-yellow-500/90 font-medium">
+          <span
+            className="
+            text-[10px] px-2 py-0.5 rounded-full
+            bg-yellow-400/10 text-yellow-300 border border-yellow-400/20
+            font-medium
+            "
+          >
             {art.tag}
           </span>
           <div className="flex items-center gap-2.5 text-[11px] text-gray-300">
@@ -95,6 +120,14 @@ const ArtCard = ({ art, index }) => {
           </div>
         </div>
       </div>
+      <div
+        className="
+        absolute inset-0 rounded-xl border border-transparent
+        group-hover:border-yellow-400/40
+        group-hover:shadow-[0_0_25px_rgba(255,221,0,0.15)]
+        transition
+        "
+      />
     </div>
   );
 };

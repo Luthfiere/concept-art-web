@@ -21,49 +21,74 @@ const Navbar = () => {
     `https://api.dicebear.com/7.x/initials/svg?seed=${user?.username}`;
 
   return (
-    <div className="relative z-50 flex justify-between items-center px-10 py-5 border-b border-gray-800">
-      <Link
-        to="/"
-        className=" px-3 py-1 rounded-md backdrop-blur-sm"
-      >
-        <img src={Logo} alt="Logo" className="h-12 object-contain" />
+    <div
+      className="sticky top-0 z-50 flex justify-between items-center px-10 py-4 
+bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
+    >
+      {/* Logo */}
+      <Link to="/" className="flex items-center gap-2 group">
+        <img
+          src={Logo}
+          alt="Logo"
+          className="h-10 object-contain 
+    group-hover:drop-shadow-[0_0_8px_rgba(255,221,0,0.6)] transition"
+        />
       </Link>
 
-      <div className="flex gap-6 text-gray-300">
-        <Link to="/Art">Concept Art</Link>
-        <Link to="/Post">Post</Link>
-        <Link to="/Job">Job Hiring</Link>
-        <Link to="/JobPost">Job Posting</Link>
-        <Link to="/DevLogs">Dev Logs</Link>
+      {/* Menu */}
+      <div className="flex gap-8 text-gray-300 text-sm font-medium">
+        {[
+          { name: "Concept Art", path: "/Art" },
+          { name: "Post", path: "/Post" },
+          { name: "Job Hiring", path: "/Job" },
+          { name: "Job Posting", path: "/JobPost" },
+          { name: "Dev Logs", path: "/DevLogs" },
+        ].map((item) => (
+          <Link
+            key={item.name}
+            to={item.path}
+            className="relative group hover:text-white transition"
+          >
+            {item.name}
+
+            {/* underline hover */}
+            <span
+              className="absolute left-0 -bottom-1 w-0 h-[2px] 
+        bg-yellow-400 transition-all duration-300 group-hover:w-full"
+            ></span>
+          </Link>
+        ))}
       </div>
 
+      {/* Right Section */}
       {user ? (
         <div className="relative">
-          {/* Avatar Button */}
           <button
             onClick={() => setOpen(!open)}
-            className="flex text-sm rounded-full focus:ring-2 focus:ring-gray-500"
+            className="rounded-full focus:ring-2 focus:ring-yellow-400"
           >
-            <img className="w-8 h-8 rounded-full" src={avatar} alt="avatar" />
+            <img
+              className="w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 transition"
+              src={avatar}
+              alt="avatar"
+            />
           </button>
 
-          {/* Dropdown */}
           {open && (
-            <div className="absolute right-0 mt-3 w-44 bg-gray-900 border border-gray-700 rounded shadow-lg">
-              <div className="px-4 py-3 text-sm border-b border-gray-700">
-                <span className="block text-white font-medium">
-                  {user.username}
-                </span>
-                <span className="block text-gray-400 truncate">
-                  {user.email}
-                </span>
+            <div
+              className="absolute right-0 mt-3 w-48 
+        bg-[#111827] border border-white/10 rounded-xl shadow-xl backdrop-blur-lg"
+            >
+              <div className="px-4 py-3 text-sm border-b border-white/10">
+                <p className="text-white font-medium">{user.username}</p>
+                <p className="text-gray-400 truncate text-xs">{user.email}</p>
               </div>
 
               <ul className="py-2 text-sm text-gray-300">
                 <li>
                   <Link
                     to="/mycollection"
-                    className="block px-4 py-2 hover:bg-gray-800"
+                    className="block px-4 py-2 hover:bg-white/5"
                   >
                     My Collection
                   </Link>
@@ -72,7 +97,7 @@ const Navbar = () => {
                 <li>
                   <Link
                     to="/settings"
-                    className="block px-4 py-2 hover:bg-gray-800"
+                    className="block px-4 py-2 hover:bg-white/5"
                   >
                     Settings
                   </Link>
@@ -81,7 +106,7 @@ const Navbar = () => {
                 <li>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-800"
+                    className="block w-full text-left px-4 py-2 hover:bg-white/5"
                   >
                     Sign out
                   </button>
@@ -91,17 +116,19 @@ const Navbar = () => {
           )}
         </div>
       ) : (
-        <div className="flex gap-4">
+        <div className="flex gap-3 items-center">
           <Link
             to="/register"
-            className="text-gray-300 hover:text-white px-4 py-2"
+            className="text-gray-300 hover:text-white px-4 py-2 text-sm"
           >
             Sign Up
           </Link>
 
           <Link
             to="/login"
-            className="bg-yellow-500 px-4 py-2 rounded text-black"
+            className="bg-yellow-400 hover:bg-yellow-300 text-black 
+        px-5 py-2 rounded-lg font-semibold shadow-md 
+        hover:shadow-yellow-400/30 transition"
           >
             Sign In
           </Link>
