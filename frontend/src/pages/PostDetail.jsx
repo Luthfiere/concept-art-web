@@ -44,7 +44,7 @@ const PostDetail = () => {
 
         // likes (optional)
         try {
-          const likesRes = await api.get(`/likes/forum/${id}`);
+          const likesRes = await api.get(`/likes/art/${id}`);
           setLikes(likesRes.data.data.length);
         } catch {
           setLikes(0);
@@ -52,7 +52,7 @@ const PostDetail = () => {
 
         // comments (optional)
         try {
-          const commentsRes = await api.get(`/comments/forum/${id}`);
+          const commentsRes = await api.get(`/comments/art/${id}`);
           setComments(commentsRes.data.data);
         } catch {
           setComments([]);
@@ -61,7 +61,7 @@ const PostDetail = () => {
         // liked status
         if (isLoggedIn) {
           try {
-            const statusRes = await api.get(`/likes/forum/${id}/status`);
+            const statusRes = await api.get(`/likes/art/${id}/status`);
             setLiked(!!statusRes.data.liked);
           } catch {}
         }
@@ -88,12 +88,12 @@ const PostDetail = () => {
 
     try {
       if (!liked) {
-        await api.post("/likes", { entity_type: "forum", entity_id: id });
+        await api.post("/likes", { entity_type: "art", entity_id: id });
         setLiked(true);
         setLikes((prev) => prev + 1);
       } else {
         await api.delete("/likes", {
-          data: { entity_type: "forum", entity_id: id },
+          data: { entity_type: "art", entity_id: id },
         });
         setLiked(false);
         setLikes((prev) => prev - 1);
@@ -110,7 +110,7 @@ const PostDetail = () => {
     if (!newComment.trim()) return;
 
     try {
-      const res = await api.post(`/comments/forum/${id}`, {
+      const res = await api.post(`/comments/art/${id}`, {
         comment: newComment,
       });
       setComments((prev) => [...prev, res.data.data]);

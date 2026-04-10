@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
+import { useChat } from "../context/ChatContext";
 
 const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
   <svg
@@ -55,6 +56,7 @@ const ArtDetail = () => {
   const { id: rawId } = useParams();
   const id = Number(rawId);
   const navigate = useNavigate();
+  const { openChatWithArt } = useChat();
   const [art, setArt] = useState(null);
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -64,6 +66,8 @@ const ArtDetail = () => {
   const [likeLoading, setLikeLoading] = useState(false);
 
   const isLoggedIn = !isTokenExpired();
+  const storedUser = localStorage.getItem("user");
+  const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -310,6 +314,19 @@ const ArtDetail = () => {
                 {liked ? "Liked" : "Like"}
               </button>
             </div>
+
+            {/* Message Artist button */}
+            {isLoggedIn && art.user_id !== currentUserId && (
+              <div className="flex items-center gap-3 mb-4">
+                <button
+                  onClick={() => openChatWithArt(art.id, art.user_id)}
+                  className="flex-1 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                >
+                  <ChatBubbleIcon className="w-4 h-4" />
+                  Message Artist
+                </button>
+              </div>
+            )}
 
             <div className="flex items-center gap-4 text-xs text-gray-500 mb-5">
               <span className="flex items-center gap-1">

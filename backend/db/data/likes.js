@@ -58,4 +58,67 @@ export const likesData = [
   { id: 34, entity_type: "art", entity_id: 12, user_id: 1 },
   { id: 35, entity_type: "art", entity_id: 12, user_id: 3 },
   { id: 36, entity_type: "art", entity_id: 12, user_id: 5 },
+
+  // ── Ideation posts ──
+
+  // Post 13 - Open-World Survival RPG (4 likes)
+  { id: 37, entity_type: "art", entity_id: 13, user_id: 2 },
+  { id: 38, entity_type: "art", entity_id: 13, user_id: 3 },
+  { id: 39, entity_type: "art", entity_id: 13, user_id: 4 },
+  { id: 40, entity_type: "art", entity_id: 13, user_id: 5 },
+
+  // Post 14 - Time-Loop Mystery (2 likes)
+  { id: 41, entity_type: "art", entity_id: 14, user_id: 1 },
+  { id: 42, entity_type: "art", entity_id: 14, user_id: 5 },
+
+  // Post 15 - Creature Design Collab (3 likes)
+  { id: 43, entity_type: "art", entity_id: 15, user_id: 1 },
+  { id: 44, entity_type: "art", entity_id: 15, user_id: 2 },
+  { id: 45, entity_type: "art", entity_id: 15, user_id: 5 },
+
+  // Post 16 - Pixel Art Roguelike (2 likes)
+  { id: 46, entity_type: "art", entity_id: 16, user_id: 1 },
+  { id: 47, entity_type: "art", entity_id: 16, user_id: 4 },
+
+  // Post 17 - Floating Archipelago (3 likes)
+  { id: 48, entity_type: "art", entity_id: 17, user_id: 1 },
+  { id: 49, entity_type: "art", entity_id: 17, user_id: 2 },
+  { id: 50, entity_type: "art", entity_id: 17, user_id: 3 },
+
+  // Post 18 - Mech Combat Game (2 likes)
+  { id: 51, entity_type: "art", entity_id: 18, user_id: 3 },
+  { id: 52, entity_type: "art", entity_id: 18, user_id: 4 },
+
+  // ── Community posts ──
+
+  // Post 19 - First Game Art Job (4 likes)
+  { id: 53, entity_type: "art", entity_id: 19, user_id: 1 },
+  { id: 54, entity_type: "art", entity_id: 19, user_id: 3 },
+  { id: 55, entity_type: "art", entity_id: 19, user_id: 4 },
+  { id: 56, entity_type: "art", entity_id: 19, user_id: 5 },
+
+  // Post 20 - Free Brushes (3 likes)
+  { id: 57, entity_type: "art", entity_id: 20, user_id: 1 },
+  { id: 58, entity_type: "art", entity_id: 20, user_id: 2 },
+  { id: 59, entity_type: "art", entity_id: 20, user_id: 4 },
+
+  // Post 21 - Weekly Art Challenge (3 likes)
+  { id: 60, entity_type: "art", entity_id: 21, user_id: 1 },
+  { id: 61, entity_type: "art", entity_id: 21, user_id: 2 },
+  { id: 62, entity_type: "art", entity_id: 21, user_id: 5 },
+
+  // Post 22 - Burnout Recovery (4 likes)
+  { id: 63, entity_type: "art", entity_id: 22, user_id: 2 },
+  { id: 64, entity_type: "art", entity_id: 22, user_id: 3 },
+  { id: 65, entity_type: "art", entity_id: 22, user_id: 4 },
+  { id: 66, entity_type: "art", entity_id: 22, user_id: 5 },
+
+  // Post 23 - Blender vs Maya (2 likes)
+  { id: 67, entity_type: "art", entity_id: 23, user_id: 1 },
+  { id: 68, entity_type: "art", entity_id: 23, user_id: 3 },
+
+  // Post 24 - Color Theory (3 likes)
+  { id: 69, entity_type: "art", entity_id: 24, user_id: 1 },
+  { id: 70, entity_type: "art", entity_id: 24, user_id: 3 },
+  { id: 71, entity_type: "art", entity_id: 24, user_id: 5 },
 ];

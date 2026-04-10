@@ -58,6 +58,13 @@ const seed = async () => {
       );
     }
 
+    // Reset sequences so new inserts don't collide with seed IDs
+    await db.query(`SELECT setval('master_users_id_seq', (SELECT MAX(id) FROM master_users))`);
+    await db.query(`SELECT setval('core_concept_art_id_seq', (SELECT MAX(id) FROM core_concept_art))`);
+    await db.query(`SELECT setval('core_art_media_id_seq', (SELECT MAX(id) FROM core_art_media))`);
+    await db.query(`SELECT setval('core_likes_id_seq', (SELECT MAX(id) FROM core_likes))`);
+    await db.query(`SELECT setval('core_comments_id_seq', (SELECT MAX(id) FROM core_comments))`);
+
     await db.query('COMMIT');
     console.log('Seed completed successfully');
 
