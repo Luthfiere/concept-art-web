@@ -9,6 +9,7 @@ import PostJobPage from "../pages/PostJobPage";
 import PostArt from "../pages/PostArt";
 import PostForm from "../pages/PostForm";
 import PostDetail from "../pages/PostDetail";
+import MyCollection from "../pages/MyCollection";
 
 const AppRoutes = () => {
   return (
@@ -53,6 +54,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <PostForm />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/mycollection"
+        element={
+          <ProtectedRoute>
+            <MyCollection />
           </ProtectedRoute>
         }
       />
