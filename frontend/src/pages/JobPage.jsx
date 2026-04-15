@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/layout/Navbar";
 import JobFilter from "../components/job/JobFilter";
 import JobList from "../components/job/JobList";
@@ -7,38 +7,75 @@ import api from "../services/api";
 
 const JobPage = () => {
   const [jobs, setJobs] = useState([]);
-  const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [workOption, setWorkOption] = useState("All");
+  const [workType, setWorkType] = useState("All");
 
   useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await api.get("/job-postings");
+        setJobs(res.data.data);
+      } catch (err) {
+        console.log(err.response?.data || err.message);
+      }
+    };
+
     fetchJobs();
   }, []);
 
-  const fetchJobs = async () => {
-    try {
-      const res = await api.get("/job-postings");
-      const jobList = res.data.data;
+  const filteredJobs = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return jobs.filter((job) => {
+      if (workOption !== "All" && job.work_option !== workOption) return false;
+      if (workType !== "All" && job.work_type !== workType) return false;
+      if (q) {
+        const hay = `${job.title || ""} ${job.job_location || ""} ${
+          job.description || ""
+        }`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [jobs, search, workOption, workType]);
 
-      setJobs(jobList);
-      setSelectedJob(jobList.length > 0 ? jobList[0] : null);
-    } catch (err) {
-      console.log(err.response?.data || err.message);
-    }
-  };
+  const selectedJob =
+    filteredJobs.find((j) => j.id === selectedId) ?? filteredJobs[0] ?? null;
+
+  const setSelectedJob = (job) => setSelectedId(job?.id ?? null);
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
 
-      <JobFilter />
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold">Job Hiring</h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Find your next role in the game-art community.
+          </p>
+        </div>
 
-      <div className="px-10 grid grid-cols-12 gap-6">
-        <JobList
-          jobs={jobs}
-          setSelectedJob={setSelectedJob}
-          selectedJob={selectedJob}
+        <JobFilter
+          search={search}
+          setSearch={setSearch}
+          workOption={workOption}
+          setWorkOption={setWorkOption}
+          workType={workType}
+          setWorkType={setWorkType}
+          totalCount={jobs.length}
+          filteredCount={filteredJobs.length}
         />
 
-        <JobDetail job={selectedJob} />
+        <div className="grid grid-cols-12 gap-4 mt-4">
+          <JobList
+            jobs={filteredJobs}
+            setSelectedJob={setSelectedJob}
+            selectedJob={selectedJob}
+          />
+          <JobDetail job={selectedJob} />
+        </div>
       </div>
     </div>
   );

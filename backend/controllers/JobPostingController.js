@@ -1,9 +1,10 @@
 import JobPosting from '../model/JobPostingModel.js';
 
-function parseDateDMY(dateStr) {
+function parseDate(dateStr) {
   if (!dateStr) return null;
-  const [day, month, year] = dateStr.split('-');
-  return new Date(`${year}-${month}-${day}`).toISOString();
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
 }
 
 class JobPostingController {
@@ -82,7 +83,7 @@ class JobPostingController {
       const job = await JobPosting.create({
         user_id, title, description, job_location,
         work_option, work_type, salary_min, salary_max,
-        salary_currency, status, expired_at: parseDateDMY(expired_at)
+        salary_currency, status, expired_at: parseDate(expired_at)
       });
 
       return res.status(201).json({
@@ -120,7 +121,7 @@ class JobPostingController {
       if (salary_max !== undefined) fields.salary_max = salary_max;
       if (salary_currency) fields.salary_currency = salary_currency;
       if (status) fields.status = status;
-      if (expired_at !== undefined) fields.expired_at = parseDateDMY(expired_at);
+      if (expired_at !== undefined) fields.expired_at = parseDate(expired_at);
 
       const updated = await JobPosting.update(id, fields);
 

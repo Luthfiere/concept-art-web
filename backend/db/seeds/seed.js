@@ -5,6 +5,7 @@ import { conceptArtsData } from '../data/concept-arts.js';
 import { artMediaData } from '../data/art-media.js';
 import { likesData } from '../data/likes.js';
 import { commentsData } from '../data/comments.js';
+import { jobPostingsData } from '../data/job-postings.js';
 
 
 const seed = async () => {
@@ -58,12 +59,36 @@ const seed = async () => {
       );
     }
 
+    // 6. job postings
+    for (const job of jobPostingsData) {
+      await db.query(
+        `INSERT INTO core_job_posting
+         (id, user_id, title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [
+          job.id,
+          job.user_id,
+          job.title,
+          job.description,
+          job.job_location,
+          job.work_option,
+          job.work_type,
+          job.salary_min,
+          job.salary_max,
+          job.salary_currency,
+          job.status,
+          job.expired_at,
+        ]
+      );
+    }
+
     // Reset sequences so new inserts don't collide with seed IDs
     await db.query(`SELECT setval('master_users_id_seq', (SELECT MAX(id) FROM master_users))`);
     await db.query(`SELECT setval('core_concept_art_id_seq', (SELECT MAX(id) FROM core_concept_art))`);
     await db.query(`SELECT setval('core_art_media_id_seq', (SELECT MAX(id) FROM core_art_media))`);
     await db.query(`SELECT setval('core_likes_id_seq', (SELECT MAX(id) FROM core_likes))`);
     await db.query(`SELECT setval('core_comments_id_seq', (SELECT MAX(id) FROM core_comments))`);
+    await db.query(`SELECT setval('core_job_posting_id_seq', (SELECT MAX(id) FROM core_job_posting))`);
 
     await db.query('COMMIT');
     console.log('Seed completed successfully');

@@ -1,15 +1,48 @@
+import { Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import PostJobForm from "../components/job/PostJobForm";
 
 const PostJobPage = () => {
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const canPost = user?.role === "pro" || user?.role === "corporate";
+
   return (
-    <div className="min-h-screen bg-[#050816] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto mt-10">
-        <h1 className="text-2xl font-bold mb-6"></h1>
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white">Post a Job</h1>
+          <p className="text-sm text-gray-400 mt-2">
+            Share an opportunity with the concept-art and game-dev community.
+          </p>
+        </div>
 
-        <PostJobForm />
+        {canPost ? (
+          <PostJobForm />
+        ) : (
+          <div className="rounded-xl border border-yellow-400/30 bg-yellow-400/5 p-8 text-center">
+            <h2 className="text-xl font-semibold text-yellow-300 mb-3">
+              Upgrade required
+            </h2>
+            <p className="text-sm text-gray-300 mb-6 leading-relaxed">
+              Posting a job is available only to{" "}
+              <span className="font-semibold text-white">Pro</span> and{" "}
+              <span className="font-semibold text-white">Corporate</span>{" "}
+              accounts.
+              {user
+                ? ` Your current tier is "${user.role}".`
+                : " You need to sign in first."}
+            </p>
+            <Link
+              to={user ? "/settings" : "/login"}
+              className="inline-block bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2.5 rounded-lg font-semibold shadow-md hover:shadow-yellow-400/30 transition"
+            >
+              {user ? "Upgrade account" : "Sign in"}
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
