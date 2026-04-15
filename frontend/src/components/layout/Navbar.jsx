@@ -39,7 +39,6 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
       <div className="flex gap-8 text-gray-300 text-sm font-medium">
         {[
           { name: "Art / Ideation Gallery", path: "/" },
-          { name: "Post", path: "/Post" },
           { name: "Job Hiring", path: "/Job" },
           { name: "Job Posting", path: "/JobPost" },
           { name: "Dev Logs", path: "/DevLogs" },

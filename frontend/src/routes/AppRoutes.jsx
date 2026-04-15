@@ -10,6 +10,7 @@ import PostArt from "../pages/PostArt";
 import PostForm from "../pages/PostForm";
 import PostDetail from "../pages/PostDetail";
 import MyCollection from "../pages/MyCollection";
+import JobApplicantsPage from "../pages/JobApplicantsPage";
 
 const AppRoutes = () => {
   return (
@@ -21,6 +22,7 @@ const AppRoutes = () => {
 
       <Route path="/art/:id" element={<ArtDetail />} />
       <Route path="/post/:id" element={<PostDetail />} />
+      <Route path="/job/:id" element={<JobApplicantsPage />} />
 
       <Route
         path="/Job"

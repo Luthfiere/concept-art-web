@@ -1,8 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
+import { useChat } from "../context/ChatContext";
+import { isTokenExpired } from "../services/api";
 
 const API_BASE = "http://localhost:5000/api";
+
+const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+    />
+  </svg>
+);
 
 const TYPE_CONFIG = {
   art: {
@@ -51,6 +69,124 @@ const TYPE_CONFIG = {
     badge: "border-red-400/30 text-red-400",
   },
 };
+const STATUS_CONFIG = {
+  pending: "bg-yellow-400/10 text-yellow-300 border-yellow-400/20",
+  shortlisted: "bg-blue-400/10 text-blue-300 border-blue-400/20",
+  rejected: "bg-red-400/10 text-red-300 border-red-400/20",
+  hired: "bg-green-400/10 text-green-300 border-green-400/20",
+};
+
+const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
+  if (!app) return null;
+
+  const { openChatWithArt } = useChat();
+  const isLoggedIn = !isTokenExpired();
+  const [job, setJob] = useState(null);
+  const token = localStorage.getItem("token");
+
+  const statusStyle = STATUS_CONFIG[app.status] || STATUS_CONFIG.pending;
+
+  // ✅ Fetch job langsung dari app.job_id
+  useEffect(() => {
+    if (!token || !app?.job_id) return;
+
+    const fetchJob = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/job-postings/${app.job_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        setJob(data.data);
+      } catch (err) {
+        console.error("Fetch job error:", err);
+      }
+    };
+
+    fetchJob();
+  }, [token, app]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg bg-[#0f1323] p-6 rounded-2xl"
+      >
+        <h2 className="text-lg font-bold mb-4">Application Detail</h2>
+
+        {/* STATUS */}
+        <div
+          className={`mb-4 inline-block px-3 py-1 rounded-lg border text-sm ${statusStyle}`}
+        >
+          Status: {app.status}
+        </div>
+
+        {/* JOB */}
+        <p className="text-sm text-white/50 mb-1">Job ID</p>
+        <p className="mb-4 font-semibold">#{app.job_id}</p>
+
+        {/* DATE */}
+        <p className="text-sm text-white/50 mb-1">Applied At</p>
+        <p className="mb-4 text-sm">
+          {new Date(app.applied_at).toLocaleString("id-ID")}
+        </p>
+
+        {/* COVER LETTER */}
+        {app.cover_letter && (
+          <>
+            <p className="text-sm text-white/50 mb-1">Cover Letter</p>
+            <p className="mb-4 text-sm text-white/70">{app.cover_letter}</p>
+          </>
+        )}
+
+        {/* MESSAGE BUTTON */}
+        {isLoggedIn &&
+          job?.user_id &&
+          job.user_id !== currentUserId &&
+          ["pending", "shortlist", "hired"].includes(app.status) && ( // 💡 opsional: hanya kalau accepted
+            <div className="flex items-center gap-3 mb-4">
+              <button
+                onClick={() => {
+                  openChatWithArt(job.id, job.user_id);
+                  onClose(); // 🔥 lebih proper daripada setIsAppModalOpen
+                }}
+                className="flex-1 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm bg-white/5 border border-white/10 text-white hover:bg-white/10"
+              >
+                <ChatBubbleIcon className="w-4 h-4" />
+                Message Posters
+              </button>
+            </div>
+          )}
+
+        {/* CV */}
+        {app.cv && (
+          <a
+            href={`http://localhost:5000/${app.cv}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block text-sm text-yellow-400 underline mb-4"
+          >
+            View CV
+          </a>
+        )}
+
+        {/* CLOSE */}
+        <button
+          onClick={onClose}
+          className="w-full bg-white/10 py-2 rounded-lg hover:bg-white/20 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const EditArtModal = ({ form, setForm, onClose, onSubmit }) => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -177,21 +313,30 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
           className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
         />
 
-        <input
+        <select
           name="work_option"
           value={form.work_option}
           onChange={handleChange}
-          placeholder="Remote / Onsite"
-          className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
-        />
+          className="w-full mb-3 p-2 bg-[#0a0d1a]"
+        >
+          <option value="">Work Option</option>
+          <option value="On-site">On-site</option>
+          <option value="Hybrid">Hybrid</option>
+          <option value="Remote">Remote</option>
+        </select>
 
-        <input
+        <select
           name="work_type"
           value={form.work_type}
           onChange={handleChange}
-          placeholder="Fulltime / Parttime"
-          className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
-        />
+          className="w-full mb-3 p-2 bg-[#0a0d1a]"
+        >
+          <option value="">Work Type</option>
+          <option value="Full-time">Full-time</option>
+          <option value="Part-time">Part-time</option>
+          <option value="Contract">Contract</option>
+          <option value="Casual">Casual</option>
+        </select>
 
         <div className="flex gap-2 mb-3">
           <input
@@ -210,13 +355,16 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
           />
         </div>
 
-        <input
+        <select
           name="salary_currency"
           value={form.salary_currency}
           onChange={handleChange}
-          placeholder="Currency"
-          className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
-        />
+          className="w-full mb-3 p-2 bg-[#0a0d1a]"
+        >
+          <option value="">Currency</option>
+          <option value="IDR">IDR</option>
+          <option value="USD">USD</option>
+        </select>
 
         <select
           name="status"
@@ -225,16 +373,18 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
           className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
         >
           <option value="">Status</option>
-          <option value="Open">Open</option>
-          <option value="Closed">Closed</option>
+          <option value="Draft">Draft</option>
+          <option value="Active">Active</option>
+          <option value="Expired">Expired</option>
+          <option value="Blocked">Blocked</option>
         </select>
 
         <input
+          type="date"
           name="expired_at"
-          value={form.expired_at}
+          value={form.expired_at || ""}
           onChange={handleChange}
-          placeholder="DD-MM-YYYY"
-          className="w-full mb-4 p-2 bg-[#0a0d1a] pointer-events-auto"
+          className="w-full mb-4 p-2 bg-[#0a0d1a]"
         />
 
         <div className="flex gap-2">
@@ -263,6 +413,8 @@ const MyCollection = () => {
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [hoveredId, setHoveredId] = useState(null);
+  const [isAppModalOpen, setIsAppModalOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
@@ -407,23 +559,22 @@ const MyCollection = () => {
         salary_max: item.salary_max || "",
         salary_currency: item.salary_currency || "",
         status: item.status || "",
-        expired_at: item.expired_at || "",
+        expired_at: item.expired_at ? item.expired_at.split("T")[0] : "",
       });
     }
 
     setIsEditOpen(true);
   };
+
   const handleOpen = (item) => {
     if (item.type === "art") navigate(`/art/${item.id}`);
     if (item.type === "post") navigate(`/post/${item.id}`);
     if (item.type === "job") navigate(`/job/${item.id}`);
-  };
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    if (item.type === "application") {
+      setSelectedApplication(item);
+      setIsAppModalOpen(true);
+    }
   };
 
   const handleUpdateConceptArt = async () => {
@@ -441,6 +592,7 @@ const MyCollection = () => {
     if (!res.ok) throw new Error(data.message);
 
     alert("Update Success");
+    setIsEditOpen(false);
 
     setArts((prev) =>
       prev.map((a) => (a.id === selectedItem.id ? data.art : a)),
@@ -448,30 +600,47 @@ const MyCollection = () => {
   };
 
   const handleUpdateJob = async () => {
-    const payload = { ...jobForm };
+    try {
+      const payload = { ...jobForm };
 
-    Object.keys(payload).forEach((key) => {
-      if (payload[key] === "") delete payload[key];
-    });
+      // 🧹 Remove empty
+      Object.keys(payload).forEach((key) => {
+        if (payload[key] === "" || payload[key] === null) {
+          delete payload[key];
+        }
+      });
 
-    const res = await fetch(`${API_BASE}/job-postings/${selectedItem.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+      // 🔢 Convert salary
+      if (payload.salary_min) payload.salary_min = Number(payload.salary_min);
+      if (payload.salary_max) payload.salary_max = Number(payload.salary_max);
 
-    const data = await res.json();
+      const res = await fetch(`${API_BASE}/job-postings/${selectedItem.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (!res.ok) throw new Error(data.message);
-    
-    alert("Update Success");
+      const data = await res.json();
 
-    setJobs((prev) =>
-      prev.map((j) => (j.id === selectedItem.id ? data.data : j)),
-    );
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update job");
+      }
+
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === selectedItem.id ? { ...j, ...data.data } : j,
+        ),
+      );
+
+      alert("Update Success");
+      setIsEditOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
   };
 
   const renderMedia = (item) => {
@@ -757,6 +926,12 @@ const MyCollection = () => {
             />
           )}
         </>
+      )}
+      {isAppModalOpen && selectedApplication && (
+        <ApplicationDetailModal
+          app={selectedApplication}
+          onClose={() => setIsAppModalOpen(false)}
+        />
       )}
     </div>
   );

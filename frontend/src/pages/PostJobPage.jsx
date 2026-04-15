@@ -8,7 +8,7 @@ const PostJobPage = () => {
   const canPost = user?.role === "pro" || user?.role === "corporate";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
+    <div className="w-full min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-6 py-12">
