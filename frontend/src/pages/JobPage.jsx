@@ -16,7 +16,8 @@ const JobPage = () => {
     const fetchJobs = async () => {
       try {
         const res = await api.get("/job-postings");
-        setJobs(res.data.data);
+        const allJobs = res.data.data || [];
+        setJobs(allJobs.filter((j) => j.status === "Active"));
       } catch (err) {
         console.log(err.response?.data || err.message);
       }

@@ -1,0 +1,54 @@
+export const TYPE_CONFIG = {
+  art: {
+    label: "Art",
+    dot: "bg-amber-400",
+    dotGlow: "shadow-amber-400/50",
+    text: "text-amber-400",
+    border: "border-amber-400/30",
+    bg: "bg-amber-400/10",
+    badge: "border-amber-400/30 text-amber-400",
+  },
+  post: {
+    label: "Post",
+    dot: "bg-blue-400",
+    dotGlow: "shadow-blue-400/50",
+    text: "text-blue-400",
+    border: "border-blue-400/30",
+    bg: "bg-blue-400/10",
+    badge: "border-blue-400/30 text-blue-400",
+  },
+  community: {
+    label: "Community",
+    dot: "bg-violet-400",
+    dotGlow: "shadow-violet-400/50",
+    text: "text-violet-400",
+    border: "border-violet-400/30",
+    bg: "bg-violet-400/10",
+    badge: "border-violet-400/30 text-violet-400",
+  },
+  job: {
+    label: "Job",
+    dot: "bg-emerald-400",
+    dotGlow: "shadow-emerald-400/50",
+    text: "text-emerald-400",
+    border: "border-emerald-400/30",
+    bg: "bg-emerald-400/10",
+    badge: "border-emerald-400/30 text-emerald-400",
+  },
+  application: {
+    label: "Application",
+    dot: "bg-red-400",
+    dotGlow: "shadow-red-400/50",
+    text: "text-red-400",
+    border: "border-red-400/30",
+    bg: "bg-red-400/10",
+    badge: "border-red-400/30 text-red-400",
+  },
+};
+
+export const STATUS_CONFIG = {
+  pending: "bg-yellow-400/10 text-yellow-300 border-yellow-400/20",
+  shortlisted: "bg-blue-400/10 text-blue-300 border-blue-400/20",
+  rejected: "bg-red-400/10 text-red-300 border-red-400/20",
+  hired: "bg-green-400/10 text-green-300 border-green-400/20",
+};

@@ -40,6 +40,7 @@ const JobApplicantsPage = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [expandedId, setExpandedId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [togglingStatus, setTogglingStatus] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -96,6 +97,29 @@ const JobApplicantsPage = () => {
       alert(err.message);
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const toggleJobStatus = async () => {
+    if (!job) return;
+    const newStatus = job.status === "Active" ? "Blocked" : "Active";
+    try {
+      setTogglingStatus(true);
+      const res = await fetch(`${API_BASE}/job-postings/${jobId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setJob(data.data);
+    } catch (err) {
+      alert(err.message || "Failed to update job status");
+    } finally {
+      setTogglingStatus(false);
     }
   };
 
@@ -168,6 +192,52 @@ const JobApplicantsPage = () => {
             </div>
           </div>
         </div>
+
+        {/* ── JOB STATUS TOGGLE ── */}
+        {job && (
+          <div className="mb-8 flex items-center gap-4 p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+            <div className="flex-1">
+              <p className="text-xs text-white/40 uppercase tracking-wider font-medium mb-1">
+                Application Status
+              </p>
+              <p className={`text-sm font-semibold ${
+                job.status === "Active"
+                  ? "text-emerald-300"
+                  : job.status === "Expired"
+                    ? "text-red-300"
+                    : "text-yellow-300"
+              }`}>
+                {job.status === "Active"
+                  ? "Accepting applications"
+                  : job.status === "Expired"
+                    ? "Job has expired"
+                    : "Applications closed"}
+              </p>
+            </div>
+
+            {job.status !== "Expired" ? (
+              <button
+                onClick={toggleJobStatus}
+                disabled={togglingStatus}
+                className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition shadow-md ${
+                  job.status === "Active"
+                    ? "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30"
+                    : "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30"
+                } ${togglingStatus ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                {togglingStatus
+                  ? "Updating..."
+                  : job.status === "Active"
+                    ? "Close Applications"
+                    : "Reopen Applications"}
+              </button>
+            ) : (
+              <span className="px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
+                Cannot reopen
+              </span>
+            )}
+          </div>
+        )}
 
         {/* ── STAT CARDS ── */}
         <div className="grid grid-cols-4 gap-3 mb-8">
