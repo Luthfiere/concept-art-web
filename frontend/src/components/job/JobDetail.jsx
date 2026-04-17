@@ -6,7 +6,7 @@ const formatSalary = (job) => {
   if (!salary_min && !salary_max) return null;
   const fmt = (n) => Number(n).toLocaleString("en-US");
   const cur = salary_currency || "IDR";
-  if (salary_min && salary_max) return `${cur} ${fmt(salary_min)}–${fmt(salary_max)}`;
+  if (salary_min && salary_max) return `${cur} ${fmt(salary_min)}\u2013${fmt(salary_max)}`;
   if (salary_min) return `${cur} ${fmt(salary_min)}+`;
   return `Up to ${cur} ${fmt(salary_max)}`;
 };
@@ -26,7 +26,7 @@ const STATUS_STYLES = {
   Active: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
   Draft: "bg-white/5 border-white/10 text-gray-400",
   Expired: "bg-red-500/10 border-red-500/30 text-red-300",
-  Blocked: "bg-red-500/10 border-red-500/30 text-red-300",
+  Blocked: "bg-yellow-500/10 border-yellow-500/30 text-yellow-300",
 };
 
 const JobDetail = ({ job }) => {
@@ -48,7 +48,6 @@ const JobDetail = ({ job }) => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-
     if (!selectedFile) return;
 
     const allowedTypes = [
@@ -78,7 +77,6 @@ const JobDetail = ({ job }) => {
 
     try {
       setLoading(true);
-
       const formData = new FormData();
       formData.append("cv", file);
       formData.append("cover_letter", coverLetter);
@@ -106,6 +104,10 @@ const JobDetail = ({ job }) => {
     salary,
   ].filter(Boolean);
 
+  const isActive = job.status === "Active";
+  const isBlocked = job.status === "Blocked";
+  const isExpired = job.status === "Expired";
+
   return (
     <div className="col-span-12 lg:col-span-7">
       <div
@@ -128,15 +130,27 @@ const JobDetail = ({ job }) => {
           </div>
 
           {metaItems.length > 0 && (
-            <p className="text-sm text-gray-300">{metaItems.join(" • ")}</p>
+            <p className="text-sm text-gray-300">{metaItems.join(" \u2022 ")}</p>
           )}
 
           {(posted || expires) && (
             <p className="text-xs text-gray-500 mt-2">
               {posted && <>Posted {posted}</>}
-              {posted && expires && <> · </>}
+              {posted && expires && <> &middot; </>}
               {expires && <>Expires {expires}</>}
             </p>
+          )}
+
+          {/* Status banners */}
+          {isExpired && (
+            <div className="mt-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <p className="text-sm text-red-300">This job posting has expired and is no longer accepting applications.</p>
+            </div>
+          )}
+          {isBlocked && (
+            <div className="mt-4 px-4 py-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <p className="text-sm text-yellow-300">This job is no longer accepting applications.</p>
+            </div>
           )}
 
           <div className="border-t border-white/5 my-6" />
@@ -160,56 +174,77 @@ const JobDetail = ({ job }) => {
             Apply for this position
           </h3>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                Cover letter
-              </label>
-              <textarea
-                placeholder="Introduce yourself, highlight relevant experience…"
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                rows={5}
-                className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition resize-none"
-              />
+          {!isActive ? (
+            <div className={`px-4 py-6 rounded-xl border text-center ${
+              isExpired
+                ? "bg-red-500/5 border-red-500/20"
+                : "bg-yellow-500/5 border-yellow-500/20"
+            }`}>
+              <p className={`text-sm font-medium ${
+                isExpired ? "text-red-300" : "text-yellow-300"
+              }`}>
+                {isExpired
+                  ? "This job posting has expired"
+                  : isBlocked
+                    ? "This job is no longer accepting applications"
+                    : "This job is not yet published"}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                You cannot apply to this position at this time.
+              </p>
             </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                CV / Resume
-              </label>
-              <label className="flex items-center gap-3 bg-[#0f1323] border border-white/10 rounded-lg px-4 py-3 cursor-pointer hover:border-yellow-400/40 transition">
-                <span className="bg-white/5 border border-white/10 text-xs text-gray-200 px-3 py-1 rounded whitespace-nowrap">
-                  Choose file
-                </span>
-                <span className="text-xs text-gray-400 truncate">
-                  {file
-                    ? `${file.name} · ${(file.size / 1024).toFixed(0)} KB`
-                    : "PDF, DOC, or DOCX — max 2MB"}
-                </span>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
-                  className="hidden"
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  Cover letter
+                </label>
+                <textarea
+                  placeholder="Introduce yourself, highlight relevant experience\u2026"
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
+                  rows={5}
+                  className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition resize-none"
                 />
-              </label>
-            </div>
+              </div>
 
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={applyJob}
-                disabled={loading}
-                className={`px-6 py-2.5 rounded-lg font-semibold transition shadow-md ${
-                  loading
-                    ? "bg-yellow-400/50 text-black/60 cursor-not-allowed"
-                    : "bg-yellow-400 hover:bg-yellow-300 text-black hover:shadow-yellow-400/30"
-                }`}
-              >
-                {loading ? "Submitting…" : "Apply now"}
-              </button>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  CV / Resume
+                </label>
+                <label className="flex items-center gap-3 bg-[#0f1323] border border-white/10 rounded-lg px-4 py-3 cursor-pointer hover:border-yellow-400/40 transition">
+                  <span className="bg-white/5 border border-white/10 text-xs text-gray-200 px-3 py-1 rounded whitespace-nowrap">
+                    Choose file
+                  </span>
+                  <span className="text-xs text-gray-400 truncate">
+                    {file
+                      ? `${file.name} \u00b7 ${(file.size / 1024).toFixed(0)} KB`
+                      : "PDF, DOC, or DOCX \u2014 max 2MB"}
+                  </span>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={applyJob}
+                  disabled={loading}
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition shadow-md ${
+                    loading
+                      ? "bg-yellow-400/50 text-black/60 cursor-not-allowed"
+                      : "bg-yellow-400 hover:bg-yellow-300 text-black hover:shadow-yellow-400/30"
+                  }`}
+                >
+                  {loading ? "Submitting\u2026" : "Apply now"}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

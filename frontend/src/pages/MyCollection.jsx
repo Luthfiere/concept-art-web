@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { useChat } from "../context/ChatContext";
 import { isTokenExpired } from "../services/api";
+import { STATUS_CONFIG } from "../components/collection/constants";
+import ArtCollectionCard from "../components/collection/ArtCollectionCard";
+import PostCollectionCard from "../components/collection/PostCollectionCard";
+import CommunityCollectionCard from "../components/collection/CommunityCollectionCard";
+import JobCollectionCard from "../components/collection/JobCollectionCard";
+import ApplicationCollectionCard from "../components/collection/ApplicationCollectionCard";
 
 const API_BASE = "http://localhost:5000/api";
 
@@ -21,60 +27,6 @@ const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
     />
   </svg>
 );
-
-const TYPE_CONFIG = {
-  art: {
-    label: "Art",
-    dot: "bg-amber-400",
-    dotGlow: "shadow-amber-400/50",
-    text: "text-amber-400",
-    border: "border-amber-400/30",
-    bg: "bg-amber-400/10",
-    badge: "border-amber-400/30 text-amber-400",
-  },
-  post: {
-    label: "Post",
-    dot: "bg-blue-400",
-    dotGlow: "shadow-blue-400/50",
-    text: "text-blue-400",
-    border: "border-blue-400/30",
-    bg: "bg-blue-400/10",
-    badge: "border-blue-400/30 text-blue-400",
-  },
-  community: {
-    label: "Community",
-    dot: "bg-violet-400",
-    dotGlow: "shadow-violet-400/50",
-    text: "text-violet-400",
-    border: "border-violet-400/30",
-    bg: "bg-violet-400/10",
-    badge: "border-violet-400/30 text-violet-400",
-  },
-  job: {
-    label: "Job",
-    dot: "bg-emerald-400",
-    dotGlow: "shadow-emerald-400/50",
-    text: "text-emerald-400",
-    border: "border-emerald-400/30",
-    bg: "bg-emerald-400/10",
-    badge: "border-emerald-400/30 text-emerald-400",
-  },
-  application: {
-    label: "Application",
-    dot: "bg-red-400",
-    dotGlow: "shadow-red-400/50",
-    text: "text-red-400",
-    border: "border-red-400/30",
-    bg: "bg-red-400/10",
-    badge: "border-red-400/30 text-red-400",
-  },
-};
-const STATUS_CONFIG = {
-  pending: "bg-yellow-400/10 text-yellow-300 border-yellow-400/20",
-  shortlisted: "bg-blue-400/10 text-blue-300 border-blue-400/20",
-  rejected: "bg-red-400/10 text-red-300 border-red-400/20",
-  hired: "bg-green-400/10 text-green-300 border-green-400/20",
-};
 
 const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
   if (!app) return null;
@@ -403,17 +355,14 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
   );
 };
 
-const FILTERS = ["all", "art", "post", "community", "job", "application"];
-
 const MyCollection = () => {
   const navigate = useNavigate();
   const [arts, setArts] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
-  const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [hoveredId, setHoveredId] = useState(null);
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
+  const [postsMode, setPostsMode] = useState("post");
   const [selectedApplication, setSelectedApplication] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -488,23 +437,12 @@ const MyCollection = () => {
     fetchData();
   }, [user, token]);
 
-  const collection = [
-    ...arts.map((a) => ({ ...a, type: a.category })),
-    ...jobs.map((j) => ({ ...j, type: "job" })),
-    ...applications.map((a) => ({ ...a, type: "application" })),
-  ];
-
-  const filtered = collection.filter((item) =>
-    filter === "all" ? true : item.type === filter,
-  );
-
-  const counts = FILTERS.reduce((acc, f) => {
-    acc[f] =
-      f === "all"
-        ? collection.length
-        : collection.filter((i) => i.type === f).length;
-    return acc;
-  }, {});
+  // Split arts by category
+  const artOnly = arts.filter((a) => a.category === "art");
+  const postOnly = arts.filter((a) => a.category === "post");
+  const communityOnly = arts.filter((a) => a.category === "community");
+  const activePosts = postsMode === "post" ? postOnly : communityOnly;
+  const totalCount = arts.length + jobs.length + applications.length;
 
   const handleDelete = async (item) => {
     if (!window.confirm("Hapus item ini?")) return;
@@ -644,50 +582,6 @@ const MyCollection = () => {
     }
   };
 
-  const renderMedia = (item) => {
-    const firstMedia = item.media?.[0];
-    if (!firstMedia) {
-      if (item.type === "post") {
-        return (
-          <div className="w-full h-full flex items-end p-5 bg-gradient-to-br from-[#0d1b2a] to-[#1a2744]">
-            <p className="text-sm text-white font-semibold leading-snug line-clamp-4 opacity-90">
-              {item.title}
-            </p>
-          </div>
-        );
-      }
-      return (
-        <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#0f0f1a] to-[#1a1030]">
-          <span className="text-4xl opacity-10">🎨</span>
-          <span className="text-[10px] text-white/20 tracking-widest uppercase">
-            No Media
-          </span>
-        </div>
-      );
-    }
-    const src = firstMedia.media;
-    const isVideo = src?.match(/\.(mp4|webm|ogg)$/i);
-    if (isVideo) {
-      return (
-        <video
-          src={src}
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
-      );
-    }
-    return (
-      <img
-        src={src}
-        alt={item.title}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-      />
-    );
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020408] via-[#06091a] to-[#080c20]">
@@ -716,196 +610,149 @@ const MyCollection = () => {
             <h1 className="text-3xl font-bold tracking-tight">My Collection</h1>
           </div>
           <p className="text-white/35 text-sm ml-[15px] tracking-wide">
-            {collection.length} items — arts, posts, jobs & applications
+            {totalCount} items — arts, posts, jobs applications
           </p>
         </div>
 
-        {/* FILTER TABS */}
-        <div className="flex flex-wrap gap-2 mb-10 p-1.5 bg-white/[0.03] border border-white/[0.06] rounded-2xl w-fit">
-          {FILTERS.map((f) => {
-            const cfg = TYPE_CONFIG[f];
-            const isActive = filter === f;
-            return (
+        {/* ──── ART SECTION ──── */}
+        <section className="mb-12">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-[3px] h-6 rounded-sm bg-gradient-to-b from-amber-400 to-orange-500" />
+            <h2 className="text-xl font-bold tracking-tight">Art</h2>
+            <span className="text-xs text-white/30">{artOnly.length} items</span>
+          </div>
+
+          {artOnly.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {artOnly.map((art) => (
+                <ArtCollectionCard
+                  key={`art-${art.id}`}
+                  item={{ ...art, type: "art" }}
+                  onClick={() => !isEditOpen && handleOpen({ ...art, type: "art" })}
+                  onEdit={() => handleEdit({ ...art, type: "art" })}
+                  onDelete={() => handleDelete({ ...art, type: "art" })}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border border-white/[0.06] rounded-xl">
+              <p className="text-white/20 text-sm">No artworks yet</p>
+            </div>
+          )}
+        </section>
+
+        {/* DIVIDER */}
+        <div className="border-t border-white/5 mb-12" />
+
+        {/* ──── JOBS & APPLICATIONS SECTION ──── */}
+        <section className="mb-12">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-[3px] h-6 rounded-sm bg-gradient-to-b from-emerald-400 to-teal-500" />
+            <h2 className="text-xl font-bold tracking-tight">Jobs Applications</h2>
+            <span className="text-xs text-white/30">
+              {jobs.length} jobs &middot; {applications.length} applications
+            </span>
+          </div>
+
+          {jobs.length > 0 || applications.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+              {jobs.map((job) => (
+                <JobCollectionCard
+                  key={`job-${job.id}`}
+                  item={{ ...job, type: "job" }}
+                  onClick={() => !isEditOpen && handleOpen({ ...job, type: "job" })}
+                  onEdit={() => handleEdit({ ...job, type: "job" })}
+                  onDelete={() => handleDelete({ ...job, type: "job" })}
+                />
+              ))}
+              {applications.map((app) => (
+                <ApplicationCollectionCard
+                  key={`application-${app.id}`}
+                  item={{ ...app, type: "application" }}
+                  onClick={() => !isEditOpen && handleOpen({ ...app, type: "application" })}
+                  onEdit={() => handleEdit({ ...app, type: "application" })}
+                  onDelete={() => handleDelete({ ...app, type: "application" })}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border border-white/[0.06] rounded-xl">
+              <p className="text-white/20 text-sm">No jobs or applications yet</p>
+            </div>
+          )}
+        </section>
+
+        {/* DIVIDER */}
+        <div className="border-t border-white/5 mb-12" />
+
+        {/* ──── IDEATION / COMMUNITY SECTION ──── */}
+        <section>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-[3px] h-6 rounded-sm bg-gradient-to-b from-blue-400 to-violet-500" />
+            <h2 className="text-xl font-bold tracking-tight">
+              {postsMode === "post" ? "Ideation" : "Community"}
+            </h2>
+
+            {/* Pill toggle */}
+            <div className="flex items-center bg-white/5 rounded-lg p-0.5">
               <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`
-                  flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold
-                  tracking-wide capitalize transition-all duration-200 border
-                  ${
-                    isActive
-                      ? f === "all"
-                        ? "bg-white/10 text-white border-white/20"
-                        : `${cfg.bg} ${cfg.text} ${cfg.border}`
-                      : "bg-transparent text-white/35 border-transparent hover:text-white/60"
-                  }
-                `}
+                onClick={() => setPostsMode("post")}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                  postsMode === "post"
+                    ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25"
+                    : "text-gray-400 hover:text-gray-200"
+                }`}
               >
-                {f !== "all" && (
-                  <span
-                    className={`
-                    w-1.5 h-1.5 rounded-full inline-block transition-all
-                    ${isActive ? `${cfg.dot} shadow-sm` : "bg-white/20"}
-                  `}
-                  />
-                )}
-                {f === "all" ? "All" : cfg?.label}
-                <span
-                  className={`
-                  text-[10px] px-1.5 py-px rounded-full transition-all
-                  ${
-                    isActive
-                      ? f === "all"
-                        ? "bg-white/15 text-white"
-                        : `bg-white/10 ${cfg.text}`
-                      : "bg-white/5 text-white/25"
-                  }
-                `}
-                >
-                  {counts[f]}
+                Ideation
+                <span className={`ml-1 text-[10px] ${postsMode === "post" ? "text-blue-200" : "text-gray-600"}`}>
+                  {postOnly.length}
                 </span>
               </button>
-            );
-          })}
-        </div>
+              <button
+                onClick={() => setPostsMode("community")}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                  postsMode === "community"
+                    ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
+                    : "text-gray-400 hover:text-gray-200"
+                }`}
+              >
+                Community
+                <span className={`ml-1 text-[10px] ${postsMode === "community" ? "text-emerald-200" : "text-gray-600"}`}>
+                  {communityOnly.length}
+                </span>
+              </button>
+            </div>
+          </div>
 
-        {/* GRID */}
-        {filtered.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {filtered.map((item) => {
-              const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.art;
-              const isHovered = hoveredId === `${item.type}-${item.id}`;
-              return (
-                <div
-                  key={`${item.type}-${item.id}`}
-                  onClick={(e) => {
-                    if (isEditOpen) return; // 🔥 cegah click pas modal buka
-                    handleOpen(item);
-                  }}
-                  onMouseEnter={() => setHoveredId(`${item.type}-${item.id}`)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  className={`
-                    group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer
-                    bg-[#0a0d1a] border transition-all duration-300
-                    ${
-                      isHovered
-                        ? `${cfg.border} -translate-y-1 scale-[1.01] shadow-2xl`
-                        : "border-white/[0.06] shadow-lg"
-                    }
-                  `}
-                >
-                  {/* MEDIA */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {["art", "post", "community"].includes(item.type) &&
-                      renderMedia(item)}
-
-                    {item.type === "job" && (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-5 bg-gradient-to-br from-[#0a1f0f] via-[#0d2818] to-[#071a10]">
-                        <span className="text-3xl opacity-60">💼</span>
-                        <p className="text-white/80 text-sm font-semibold text-center leading-snug line-clamp-3">
-                          {item.title}
-                        </p>
-                      </div>
-                    )}
-
-                    {item.type === "application" && (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-5 bg-gradient-to-br from-[#1a0808] via-[#200d0d] to-[#120606]">
-                        <span className="text-3xl opacity-60">📋</span>
-                        <p className="text-white/40 text-[11px] tracking-wide">
-                          Applied to Job
-                        </p>
-                        <p className="text-red-400 text-lg font-bold font-mono">
-                          #{item.job_id}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* GRADIENT OVERLAY */}
-                  <div
-                    className={`
-                    pointer-events-none
-                    absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent
-                    transition-opacity duration-300
-                    ${isHovered ? "opacity-100" : "opacity-50"}
-                  `}
+          {activePosts.length > 0 ? (
+            <div
+              key={postsMode}
+              className="animate-fade-in grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start"
+            >
+              {activePosts.map((item) => {
+                const type = item.category;
+                const Card = type === "community" ? CommunityCollectionCard : PostCollectionCard;
+                return (
+                  <Card
+                    key={`${type}-${item.id}`}
+                    item={{ ...item, type }}
+                    onClick={() => !isEditOpen && handleOpen({ ...item, type })}
+                    onEdit={() => handleEdit({ ...item, type })}
+                    onDelete={() => handleDelete({ ...item, type })}
                   />
-
-                  {/* TYPE BADGE */}
-                  <div
-                    className={`
-                    absolute top-2 left-2 flex items-center gap-1.5
-                    bg-black/55 backdrop-blur-md border rounded-lg px-2 py-1
-                    ${cfg.badge}
-                  `}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                    <span className="text-[9px] font-bold tracking-widest uppercase">
-                      {cfg.label}
-                    </span>
-                  </div>
-
-                  {/* HOVER CONTENT */}
-                  <div
-                    className={`
-                    absolute bottom-0 left-0 right-0 p-3 transition-all duration-300
-                    ${isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}
-                  `}
-                  >
-                    {item.title && (
-                      <p className="text-xs font-semibold text-white leading-snug line-clamp-2 mb-2">
-                        {item.title}
-                      </p>
-                    )}
-
-                    {/* ACTIONS */}
-                    <div className="flex gap-1.5">
-                      {item.type !== "application" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(item);
-                          }}
-                          className="flex-1 py-1.5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md text-white text-[11px] font-semibold tracking-wide hover:bg-white/20 transition-all"
-                        >
-                          Edit
-                        </button>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(item);
-                        }}
-                        className={`
-                          py-1.5 rounded-lg border border-red-400/30 bg-red-400/15 backdrop-blur-md
-                          text-red-400 text-[11px] font-semibold hover:bg-red-400/30 transition-all
-                          ${item.type === "application" ? "flex-1" : "w-8"}
-                        `}
-                      >
-                        {item.type === "application" ? "Withdraw" : "🗑"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          /* EMPTY STATE */
-          <div className="flex flex-col items-center justify-center py-28 gap-4">
-            <div className="w-20 h-20 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-4xl">
-              📂
+                );
+              })}
             </div>
-            <div className="text-center">
-              <p className="text-white/50 text-sm font-semibold mb-1">
-                No items found
-              </p>
-              <p className="text-white/20 text-xs">
-                Try a different filter or add something new
+          ) : (
+            <div className="text-center py-12 border border-white/[0.06] rounded-xl">
+              <p className="text-white/20 text-sm">
+                {postsMode === "post"
+                  ? "No ideation posts yet"
+                  : "No community posts yet"}
               </p>
             </div>
-          </div>
-        )}
+          )}
+        </section>
       </div>
       {isEditOpen && selectedItem && (
         <>
