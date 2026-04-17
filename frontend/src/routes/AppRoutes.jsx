@@ -11,6 +11,7 @@ import PostForm from "../pages/PostForm";
 import PostDetail from "../pages/PostDetail";
 import MyCollection from "../pages/MyCollection";
 import JobApplicantsPage from "../pages/JobApplicantsPage";
+import Devlogs from "../pages/DevLogs";
 
 const AppRoutes = () => {
   return (
@@ -65,6 +66,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <MyCollection />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/DevLogs"
+        element={
+          <ProtectedRoute>
+            <Devlogs />
           </ProtectedRoute>
         }
       />
