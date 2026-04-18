@@ -11,10 +11,10 @@ const PostJobPage = () => {
     <div className="w-full min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Post a Job</h1>
-          <p className="text-sm text-gray-400 mt-2">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold text-white">Post a Job</h1>
+          <p className="text-xs sm:text-sm text-gray-400 mt-2">
             Share an opportunity with the concept-art and game-dev community.
           </p>
         </div>
@@ -22,8 +22,8 @@ const PostJobPage = () => {
         {canPost ? (
           <PostJobForm />
         ) : (
-          <div className="rounded-xl border border-yellow-400/30 bg-yellow-400/5 p-8 text-center">
-            <h2 className="text-xl font-semibold text-yellow-300 mb-3">
+          <div className="rounded-xl border border-yellow-400/30 bg-yellow-400/5 p-5 sm:p-8 text-center">
+            <h2 className="text-lg sm:text-xl font-semibold text-yellow-300 mb-3">
               Upgrade required
             </h2>
             <p className="text-sm text-gray-300 mb-6 leading-relaxed">

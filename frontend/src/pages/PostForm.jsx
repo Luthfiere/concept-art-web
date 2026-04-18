@@ -101,7 +101,7 @@ const PostForm = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto px-6 py-6 animate-fade-in-up">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 animate-fade-in-up">
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
@@ -116,7 +116,7 @@ const PostForm = () => {
         {/* Card container */}
         <div className="bg-white/[0.03] border border-white/5 rounded-xl overflow-hidden">
           {/* Header bar */}
-          <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+          <div className="px-4 sm:px-5 py-3 border-b border-white/5 flex items-center flex-wrap gap-2 justify-between">
             <h1 className="text-base font-semibold">
               {isCommunity ? "Community Post" : "Share an Idea"}
             </h1>
@@ -153,14 +153,14 @@ const PostForm = () => {
           </div>
 
           {/* Form body */}
-          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
             {/* Title */}
             <input
               name="title"
               value={form.title}
               onChange={handleChange}
               placeholder="Title *"
-              className="w-full px-0 py-2 bg-transparent border-b border-white/10 focus:border-yellow-500/50 outline-none text-lg text-gray-100 placeholder-gray-600 transition-all duration-200"
+              className="w-full px-0 py-2 bg-transparent border-b border-white/10 focus:border-yellow-500/50 outline-none text-base sm:text-lg text-gray-100 placeholder-gray-600 transition-all duration-200"
               required
             />
 
@@ -174,13 +174,13 @@ const PostForm = () => {
                   ? "What's on your mind? Share a discussion, tutorial, or insight..."
                   : "Describe your game concept, storyline, or collaboration idea..."
               }
-              rows={8}
+              rows={6}
               className="w-full px-0 py-2 bg-transparent outline-none text-sm text-gray-200 placeholder-gray-600 resize-none leading-relaxed"
             />
 
             {/* Tag + Visibility — inline row */}
-            <div className="flex gap-3">
-              <div className="flex-1">
+            <div className="flex flex-wrap gap-3">
+              <div className="flex-1 min-w-[150px]">
                 <input
                   name="tag"
                   value={form.tag}
@@ -239,7 +239,7 @@ const PostForm = () => {
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
-                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white text-[9px] flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
                     >
                       &times;
                     </button>

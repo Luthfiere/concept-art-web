@@ -157,15 +157,15 @@ const Home = () => {
       </section>
 
       {/* ──── DIVIDER ──── */}
-      <div className="px-6">
+      <div className="px-4 sm:px-6">
         <div className="border-t border-white/5" />
       </div>
 
       {/* ──── POSTS SECTION ──── */}
       <section id="posts-section" className="scroll-mt-14 pt-2">
         {/* Header: title + pill toggle + description */}
-        <div className="px-6 pt-8 pb-1">
-          <div className="flex items-center gap-3">
+        <div className="px-4 sm:px-6 pt-8 pb-1">
+          <div className="flex items-center flex-wrap gap-3">
             <h2 className="text-lg font-bold text-white tracking-tight">
               {postsMode === "ideation" ? "Ideation" : "Community"}
             </h2>
@@ -229,7 +229,7 @@ const Home = () => {
           count={filteredPosts.length}
         />
 
-        <div className="px-6 pb-20">
+        <div className="px-4 sm:px-6 pb-20">
           <div
             key={postsMode}
             className="animate-fade-in grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"

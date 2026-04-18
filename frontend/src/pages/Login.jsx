@@ -40,7 +40,7 @@ const Login = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-black overflow-hidden text-white">
+    <div className="relative min-h-screen flex items-center justify-center px-4 bg-black overflow-hidden text-white">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
 
@@ -57,11 +57,11 @@ const Login = () => {
 
       {/* Login Card */}
       <div
-        className="relative bg-gray-900/80 backdrop-blur-md p-8 rounded-xl w-96 
-        shadow-[0_20px_60px_rgba(0,0,0,0.6)] 
+        className="relative bg-gray-900/80 backdrop-blur-md p-6 sm:p-8 rounded-xl w-full max-w-sm
+        shadow-[0_20px_60px_rgba(0,0,0,0.6)]
         border border-gray-700"
       >
-        <h2 className="text-3xl font-bold mb-6 text-center text-yellow-400 tracking-wide">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-yellow-400 tracking-wide">
           Welcome Back
         </h2>
 

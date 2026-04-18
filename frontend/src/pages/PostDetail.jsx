@@ -148,12 +148,12 @@ const PostDetail = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 py-6 flex gap-6">
+      <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
         {/* LEFT - MAIN POST */}
-        <div className="flex-1">
-          <div className="bg-[#111427] rounded-xl p-4 flex gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="bg-[#111427] rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4">
             {/* VOTE COLUMN */}
-            <div className="flex flex-col items-center text-gray-400">
+            <div className="flex flex-col items-center text-gray-400 shrink-0">
               <button
                 onClick={handleLike}
                 className={`text-lg ${liked ? "text-yellow-500" : ""}`}
@@ -169,9 +169,9 @@ const PostDetail = () => {
             </div>
 
             {/* CONTENT */}
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 min-w-0 space-y-4">
               {/* Title */}
-              <h1 className="text-xl font-bold">{post.title}</h1>
+              <h1 className="text-lg sm:text-xl font-bold break-words">{post.title}</h1>
 
               {/* Author */}
               <p className="text-xs text-gray-400">
@@ -192,7 +192,7 @@ const PostDetail = () => {
                             key={i}
                             src={src}
                             controls
-                            className="w-full max-h-[500px] object-contain rounded"
+                            className="w-full max-h-[60vh] sm:max-h-[500px] object-contain rounded"
                           />
                         );
                       }
@@ -203,7 +203,7 @@ const PostDetail = () => {
                           <img
                             key={i}
                             src={src}
-                            className="w-full max-h-[500px] object-contain rounded"
+                            className="w-full max-h-[60vh] sm:max-h-[500px] object-contain rounded"
                           />
                         );
                       }
@@ -250,7 +250,7 @@ const PostDetail = () => {
                       key={i}
                       src={mediaSrc(img)}
                       onClick={() => setCurrentIndex(i)}
-                      className={`w-20 h-14 object-cover rounded cursor-pointer ${
+                      className={`w-16 h-12 sm:w-20 sm:h-14 shrink-0 object-cover rounded cursor-pointer ${
                         i === currentIndex
                           ? "ring-2 ring-yellow-500"
                           : "opacity-60"
@@ -273,21 +273,21 @@ const PostDetail = () => {
           </div>
 
           {/* COMMENTS */}
-          <div className="bg-[#111427] rounded-xl p-4 mt-4">
+          <div className="bg-[#111427] rounded-xl p-3 sm:p-4 mt-4">
             <h3 className="font-semibold mb-4">Comments ({comments.length})</h3>
 
             {/* Input */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-4 min-w-0">
               <input
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="flex-1 bg-[#1a1d2e] p-2 rounded text-sm"
+                className="flex-1 min-w-0 bg-[#1a1d2e] p-2 rounded text-sm"
                 placeholder="Write a comment..."
               />
               <button
                 onClick={handleComment}
-                className="bg-yellow-500 px-4 rounded text-black text-sm"
+                className="shrink-0 bg-yellow-500 px-3 sm:px-4 rounded text-black text-sm"
               >
                 Post
               </button>
@@ -315,7 +315,7 @@ const PostDetail = () => {
         </div>
 
         {/* RIGHT - SIDEBAR */}
-        <div className="w-72 space-y-4">
+        <div className="w-full lg:w-72 shrink-0 space-y-4">
           <div className="bg-[#111427] rounded-xl p-4">
             <p className="font-semibold mb-2">About Artist</p>
 

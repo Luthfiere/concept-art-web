@@ -32,7 +32,7 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center text-white relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center px-4 text-white relative overflow-hidden"
       style={{
         background: "linear-gradient(to bottom, #050816, #0b0f2a)",
       }}
@@ -51,8 +51,8 @@ export default function Register() {
       ></div>
 
       {/* CONTENT */}
-      <div className="relative bg-[#111427] p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
+      <div className="relative bg-[#111427] p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 className="text-xl sm:text-2xl font-bold mb-6 text-center">Create Account</h1>
 
         <div className="space-y-4">
           <input

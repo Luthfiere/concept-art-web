@@ -153,11 +153,11 @@ const JobApplicantsPage = () => {
     <div className="min-h-screen bg-[#020408] text-white">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* ── BACK ── */}
         <button
           onClick={() => navigate(-1)}
-          className="group flex items-center gap-2 text-white/30 hover:text-yellow-400 text-sm mb-10 transition-colors duration-200"
+          className="group flex items-center gap-2 text-white/30 hover:text-yellow-400 text-sm mb-6 sm:mb-10 transition-colors duration-200"
         >
           <span className="group-hover:-translate-x-1 transition-transform duration-200">
             ←
@@ -166,25 +166,25 @@ const JobApplicantsPage = () => {
         </button>
 
         {/* ── PAGE HEADER ── */}
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-10">
           <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
+            <div className="min-w-0">
               <p className="text-yellow-400 text-xs tracking-[0.2em] uppercase font-medium mb-2">
                 Job Applicants
               </p>
-              <h1 className="text-3xl font-bold text-white leading-tight">
+              <h1 className="text-xl sm:text-3xl font-bold text-white leading-tight break-words">
                 {job?.title || "Job Detail"}
               </h1>
               {job?.company_name && (
-                <p className="text-white/40 text-sm mt-1">{job.company_name}</p>
+                <p className="text-white/40 text-xs sm:text-sm mt-1">{job.company_name}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2">
-              <span className="text-2xl font-bold text-white">
+            <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-3 sm:px-4 py-2">
+              <span className="text-xl sm:text-2xl font-bold text-white">
                 {applicants.length}
               </span>
-              <span className="text-white/40 text-sm leading-tight">
+              <span className="text-white/40 text-xs sm:text-sm leading-tight">
                 Total
                 <br />
                 Applicants
@@ -195,8 +195,8 @@ const JobApplicantsPage = () => {
 
         {/* ── JOB STATUS TOGGLE ── */}
         {job && (
-          <div className="mb-8 flex items-center gap-4 p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
-            <div className="flex-1">
+          <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+            <div className="flex-1 min-w-0">
               <p className="text-xs text-white/40 uppercase tracking-wider font-medium mb-1">
                 Application Status
               </p>
@@ -240,7 +240,7 @@ const JobApplicantsPage = () => {
         )}
 
         {/* ── STAT CARDS ── */}
-        <div className="grid grid-cols-4 gap-3 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 sm:mb-8">
           {[
             {
               key: "pending",
@@ -268,10 +268,10 @@ const JobApplicantsPage = () => {
               onClick={() =>
                 setActiveFilter(activeFilter === key ? "all" : key)
               }
-              className={`p-4 rounded-xl border bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-200 text-left
+              className={`p-3 sm:p-4 rounded-xl border bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-200 text-left
                 ${activeFilter === key ? border + " " + "bg-white/[0.06]" : "border-white/[0.06]"}`}
             >
-              <p className={`text-2xl font-bold ${color}`}>
+              <p className={`text-xl sm:text-2xl font-bold ${color}`}>
                 {counts[key] || 0}
               </p>
               <p className="text-white/40 text-xs capitalize mt-0.5">{key}</p>
@@ -318,9 +318,9 @@ const JobApplicantsPage = () => {
                 className="group border border-white/[0.07] hover:border-white/[0.15] bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl transition-all duration-200"
               >
                 {/* CARD HEADER */}
-                <div className="flex items-center gap-4 p-5">
+                <div className="flex items-center flex-wrap gap-3 sm:gap-4 p-4 sm:p-5">
                   {/* Avatar initials */}
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-yellow-400/20 to-yellow-400/5 border border-yellow-400/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-yellow-400/20 to-yellow-400/5 border border-yellow-400/20 flex items-center justify-center flex-shrink-0">
                     <span className="text-yellow-300 text-sm font-bold">
                       {String(app.applicant_id).slice(-2).toUpperCase()}
                     </span>
@@ -342,7 +342,7 @@ const JobApplicantsPage = () => {
 
                   {/* Status badge */}
                   <span
-                    className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border ${cfg.style}`}
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs rounded-full border ${cfg.style}`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                     {cfg.label}
@@ -361,7 +361,7 @@ const JobApplicantsPage = () => {
 
                 {/* EXPANDED DETAIL */}
                 {isExpanded && (
-                  <div className="px-5 pb-5 border-t border-white/[0.06] pt-4">
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-white/[0.06] pt-4">
                     {app.cover_letter && (
                       <div className="mb-4">
                         <p className="text-white/30 text-xs uppercase tracking-widest mb-2">
@@ -386,7 +386,7 @@ const JobApplicantsPage = () => {
                 )}
 
                 {/* ACTION BUTTONS */}
-                <div className="flex gap-2 px-5 pb-5">
+                <div className="flex flex-wrap gap-2 px-4 sm:px-5 pb-4 sm:pb-5">
                   {app.status === "pending" && (
                     <>
                       <button

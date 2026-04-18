@@ -37,7 +37,7 @@ const JobDetail = ({ job }) => {
   if (!job) {
     return (
       <div className="col-span-12 lg:col-span-7">
-        <div className="bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl h-[calc(100vh-240px)] flex flex-col items-center justify-center text-center px-6 animate-fade-in">
+        <div className="bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl min-h-[200px] lg:h-[calc(100vh-240px)] flex flex-col items-center justify-center text-center px-6 py-8 animate-fade-in">
           <p className="text-sm text-gray-500">
             Select a job to view details.
           </p>
@@ -112,12 +112,12 @@ const JobDetail = ({ job }) => {
     <div className="col-span-12 lg:col-span-7">
       <div
         key={job.id}
-        className="animate-fade-in bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl h-[calc(100vh-240px)] overflow-y-auto"
+        className="animate-fade-in bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl lg:h-[calc(100vh-240px)] overflow-y-auto"
       >
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           {/* Header */}
-          <div className="flex items-start justify-between gap-4 mb-3">
-            <h2 className="text-2xl font-bold text-white leading-tight">
+          <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3">
+            <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight break-words min-w-0">
               {job.title}
             </h2>
             {job.status && (

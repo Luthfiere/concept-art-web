@@ -57,7 +57,7 @@ const FilterToolbar = ({
   }, []);
 
   return (
-    <div className="px-6 py-3 space-y-3">
+    <div className="px-4 sm:px-6 py-3 space-y-3">
       {/* Row 1: Sort + Search + Count */}
       <div className="flex items-center gap-3">
         {/* Sort dropdown — art only */}
@@ -113,7 +113,7 @@ const FilterToolbar = ({
         </div>
 
         {/* Count */}
-        <span className="text-xs text-gray-500 tabular-nums shrink-0">
+        <span className="hidden sm:inline text-xs text-gray-500 tabular-nums shrink-0">
           {count} items
         </span>
       </div>

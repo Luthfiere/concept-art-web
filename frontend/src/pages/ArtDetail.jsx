@@ -180,20 +180,20 @@ const ArtDetail = () => {
         {/* ──── LEFT: Image viewer ──── */}
         <div className="lg:flex-1 bg-black flex flex-col">
           {/* Image/Video display */}
-          <div className="group relative flex-1 flex items-center justify-center min-h-[50vh] lg:min-h-0">
+          <div className="group relative flex-1 flex items-center justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-0">
             {isVideo(art.images[currentIndex]) ? (
               <video
                 key={currentIndex}
                 src={mediaSrc(art.images[currentIndex])}
                 controls
-                className="w-full h-full max-h-[85vh] object-contain animate-fade-in"
+                className="w-full h-full max-h-[60vh] lg:max-h-[85vh] object-contain animate-fade-in"
               />
             ) : (
               <img
                 key={currentIndex}
                 src={mediaSrc(art.images[currentIndex])}
                 alt={art.title}
-                className="w-full h-full max-h-[85vh] object-contain animate-fade-in"
+                className="w-full h-full max-h-[60vh] lg:max-h-[85vh] object-contain animate-fade-in"
               />
             )}
 
@@ -210,7 +210,7 @@ const ArtDetail = () => {
                       prev === 0 ? art.images.length - 1 : prev - 1,
                     )
                   }
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
                 </button>
@@ -221,7 +221,7 @@ const ArtDetail = () => {
                       prev === art.images.length - 1 ? 0 : prev + 1,
                     )
                   }
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                 </button>
@@ -235,13 +235,13 @@ const ArtDetail = () => {
 
           {/* Thumbnail strip */}
           {art.images.length > 1 && (
-            <div className="bg-[#0a0d1f] border-t border-white/5 px-4 py-3">
+            <div className="bg-[#0a0d1f] border-t border-white/5 px-3 sm:px-4 py-2 sm:py-3">
               <div className="flex gap-2 overflow-x-auto p-1 -m-1">
                 {art.images.map((img, i) => (
                   <div
                     key={i}
                     onClick={() => setCurrentIndex(i)}
-                    className={`relative w-20 h-14 rounded-md cursor-pointer shrink-0 overflow-hidden transition-all duration-200 ${
+                    className={`relative w-16 h-12 sm:w-20 sm:h-14 rounded-md cursor-pointer shrink-0 overflow-hidden transition-all duration-200 ${
                       i === currentIndex
                         ? "ring-2 ring-yellow-500 ring-offset-1 ring-offset-[#0a0d1f]"
                         : "opacity-50 hover:opacity-100"
@@ -263,8 +263,8 @@ const ArtDetail = () => {
         </div>
 
         {/* ──── RIGHT: Info panel (scrollable) ──── */}
-        <div className="lg:w-[380px] xl:w-[420px] lg:h-[calc(100vh-64px)] lg:overflow-y-auto border-l border-white/5 bg-[#0a0d1f] shrink-0">
-          <div className="p-5 space-y-0">
+        <div className="w-full lg:w-[380px] xl:w-[420px] lg:h-[calc(100vh-64px)] lg:overflow-y-auto lg:border-l border-t lg:border-t-0 border-white/5 bg-[#0a0d1f] shrink-0">
+          <div className="p-4 sm:p-5 space-y-0">
             {/* Back button */}
             <button
               onClick={() => navigate(-1)}
@@ -291,7 +291,7 @@ const ArtDetail = () => {
 
             {/* Title + Tag */}
             <div className="mb-4">
-              <h1 className="text-lg font-bold text-white leading-snug">
+              <h1 className="text-base sm:text-lg font-bold text-white leading-snug">
                 {art.title}
               </h1>
               <span className="inline-block mt-1.5 bg-yellow-500/10 text-yellow-500 text-[11px] font-medium px-2.5 py-0.5 rounded-md">
@@ -358,20 +358,20 @@ const ArtDetail = () => {
               </h3>
 
               {/* Comment input */}
-              <div className="flex gap-2 mb-4">
+              <div className="flex gap-2 mb-4 min-w-0">
                 <input
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onFocus={() => requireLogin()}
-                  className="flex-1 bg-white/5 border border-white/10 px-3 py-2 rounded-lg text-sm text-gray-200 outline-none focus:border-yellow-500/50 focus:bg-white/[0.07] placeholder-gray-500 transition-all duration-200"
+                  className="flex-1 min-w-0 bg-white/5 border border-white/10 px-3 py-2 rounded-lg text-sm text-gray-200 outline-none focus:border-yellow-500/50 focus:bg-white/[0.07] placeholder-gray-500 transition-all duration-200"
                   placeholder={
                     isLoggedIn ? "Add a comment..." : "Sign in to comment..."
                   }
                 />
                 <button
                   onClick={handleComment}
-                  className="bg-yellow-500 px-4 rounded-lg text-black text-xs font-semibold hover:bg-yellow-400 transition-colors duration-200"
+                  className="shrink-0 bg-yellow-500 px-3 sm:px-4 rounded-lg text-black text-xs font-semibold hover:bg-yellow-400 transition-colors duration-200"
                 >
                   Post
                 </button>

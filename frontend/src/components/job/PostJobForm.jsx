@@ -73,7 +73,7 @@ const PostJobForm = () => {
   return (
     <form
       onSubmit={handlePublish}
-      className="bg-[#111427]/80 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-xl space-y-8"
+      className="bg-[#111427]/80 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl space-y-6 sm:space-y-8"
     >
       {banner && (
         <div
