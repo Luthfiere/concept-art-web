@@ -2,6 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api from "../services/api";
+import { sanitizeFields } from "../utils/sanitize";
+
+const MB = 1024 * 1024;
+const MAX_IMAGE = 5 * MB;
+const MAX_VIDEO = 30 * MB;
+const MAX_DOC = 10 * MB;
+const MAX_FILES = 6;
+const ACCEPT = "image/*,video/*,.pdf,.doc,.docx,.txt,.rtf,.md,.csv,.ppt,.pptx,.odt,.odp";
 
 const PostForm = () => {
   const navigate = useNavigate();
@@ -34,7 +42,28 @@ const PostForm = () => {
   };
 
   const addFiles = (incoming) => {
-    setFiles((prev) => [...prev, ...incoming]);
+    const rejected = [];
+    const accepted = [];
+    const currentCount = files.length;
+
+    for (const f of incoming) {
+      if (accepted.length + currentCount >= MAX_FILES) {
+        rejected.push(`${f.name} (max ${MAX_FILES} files)`);
+        continue;
+      }
+      const isImg = f.type.startsWith("image/");
+      const isVid = f.type.startsWith("video/");
+      const cap = isVid ? MAX_VIDEO : isImg ? MAX_IMAGE : MAX_DOC;
+      const label = isVid ? "videos" : isImg ? "images" : "documents";
+      if (f.size > cap) {
+        rejected.push(`${f.name} (max ${cap / MB}MB for ${label})`);
+        continue;
+      }
+      accepted.push(f);
+    }
+
+    if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
+    if (rejected.length) alert("Some files were skipped:\n" + rejected.join("\n"));
   };
 
   const removeFile = (index) => {
@@ -57,20 +86,16 @@ const PostForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title) {
+    const payload = sanitizeFields(form, ["title", "description", "tag"]);
+    if (!payload.title) {
       alert("Title is required");
       return;
     }
-    if (!form.description) {
+    if (!payload.description) {
       alert("Description is required for a post");
       return;
     }
     setLoading(true);
-
-    const payload = {
-      ...form,
-      category: form.category,
-    };
 
     try {
       const res = await api.post("/concept-arts", payload);
@@ -249,59 +274,65 @@ const PostForm = () => {
             )}
 
             {/* Bottom bar: attach + post */}
-            <div className="flex items-center justify-between pt-3 border-t border-white/5">
-              {/* Attach button */}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors duration-200"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
+            <div className="pt-3 border-t border-white/5 space-y-2">
+              <p className="text-[10px] text-gray-600">
+                Images up to 5MB &middot; Videos up to 30MB &middot; Docs up to 10MB &middot; Max {MAX_FILES} files
+              </p>
+              <div className="flex items-center justify-between">
+                {/* Attach button */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors duration-200"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159M15.75 15.75l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                  />
-                </svg>
-                Attach media
-                {files.length > 0 && (
-                  <span className="text-gray-600">({files.length})</span>
-                )}
-              </button>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159M15.75 15.75l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+                    />
+                  </svg>
+                  Attach media
+                  {files.length > 0 && (
+                    <span className="text-gray-600">({files.length})</span>
+                  )}
+                </button>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFileInput}
-                className="hidden"
-              />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={ACCEPT}
+                  onChange={handleFileInput}
+                  className="hidden"
+                />
 
-              {/* Post button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className={`px-6 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
-                  loading
-                    ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
-                    : "bg-yellow-500 text-black hover:bg-yellow-400"
-                }`}
-              >
-                {loading ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                    Posting...
-                  </>
-                ) : (
-                  "Post"
-                )}
-              </button>
+                {/* Post button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`px-6 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
+                    loading
+                      ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
+                      : "bg-yellow-500 text-black hover:bg-yellow-400"
+                  }`}
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    "Post"
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         </div>

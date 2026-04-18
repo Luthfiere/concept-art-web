@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api from "../services/api";
+import { sanitizeFields } from "../utils/sanitize";
+
+const MB = 1024 * 1024;
+const MAX_IMAGE = 5 * MB;
+const MAX_VIDEO = 30 * MB;
+const MAX_FILES = 6;
+const ACCEPT = "image/*,video/*";
 
 const PostArt = () => {
   const navigate = useNavigate();
@@ -24,7 +31,32 @@ const PostArt = () => {
   };
 
   const addFiles = (incoming) => {
-    setFiles((prev) => [...prev, ...incoming]);
+    const rejected = [];
+    const accepted = [];
+    const currentCount = files.length;
+
+    for (const f of incoming) {
+      if (accepted.length + currentCount >= MAX_FILES) {
+        rejected.push(`${f.name} (max ${MAX_FILES} files)`);
+        continue;
+      }
+      const isImg = f.type.startsWith("image/");
+      const isVid = f.type.startsWith("video/");
+      if (!isImg && !isVid) {
+        rejected.push(`${f.name} (only images or videos)`);
+        continue;
+      }
+      const cap = isVid ? MAX_VIDEO : MAX_IMAGE;
+      if (f.size > cap) {
+        const capMB = cap / MB;
+        rejected.push(`${f.name} (max ${capMB}MB for ${isVid ? "videos" : "images"})`);
+        continue;
+      }
+      accepted.push(f);
+    }
+
+    if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
+    if (rejected.length) alert("Some files were skipped:\n" + rejected.join("\n"));
   };
 
   const removeFile = (index) => {
@@ -53,14 +85,15 @@ const PostArt = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title) {
+    const payload = sanitizeFields(form, ["title", "description", "tag"]);
+    if (!payload.title) {
       alert("Title is required");
       return;
     }
     setLoading(true);
 
     try {
-      const res = await api.post("/concept-arts", form);
+      const res = await api.post("/concept-arts", payload);
       const artId = res.data.art.id;
 
       if (files.length > 0) {
@@ -162,10 +195,13 @@ const PostArt = () => {
                     Drag & drop or click to browse
                   </p>
                   <p className="text-[10px] text-gray-600">
-                    Images, videos, and documents
+                    Images up to 5MB &middot; Videos up to 30MB &middot; Max {MAX_FILES} files
+                  </p>
+                  <p className="text-[9px] text-gray-700 mt-0.5">
+                    PNG, JPG, WEBP, GIF, AVIF, MP4, WEBM, MOV, OGG
                   </p>
                 </div>
-                <input ref={fileInputRef} type="file" multiple onChange={handleFileInput} className="hidden" />
+                <input ref={fileInputRef} type="file" multiple accept={ACCEPT} onChange={handleFileInput} className="hidden" />
               </div>
 
               {/* Preview grid */}

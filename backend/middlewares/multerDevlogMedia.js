@@ -11,23 +11,32 @@ function slugify(text) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-// Dev logs support images, gifs, and short video clips
-const allowedMimeTypes = [
+const MB = 1024 * 1024;
+const SIZE = { media: 30 * MB };
+
+const ALLOWED_MIMES = [
   'image/png',
   'image/jpeg',
   'image/jpg',
   'image/webp',
   'image/gif',
+  'image/avif',
   'video/mp4',
-  'video/webm'
+  'video/webm',
+  'video/quicktime',
+  'video/ogg',
+];
+const ALLOWED_EXTS = [
+  '.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif',
+  '.mp4', '.webm', '.mov', '.ogv', '.ogg',
 ];
 
 const fileFilter = (req, file, cb) => {
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Allowed: PNG, JPG, JPEG, WEBP, GIF, MP4, WEBM'), false);
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (ALLOWED_MIMES.includes(file.mimetype) && ALLOWED_EXTS.includes(ext)) {
+    return cb(null, true);
   }
+  cb(new Error('Invalid file type. Allowed: images (PNG, JPG, WEBP, GIF, AVIF) or videos (MP4, WEBM, MOV, OGG)'), false);
 };
 
 const storage = multer.diskStorage({
@@ -40,7 +49,6 @@ const storage = multer.diskStorage({
         return cb(new Error('log_id is required for upload path'), null);
       }
 
-      // Cache the log lookup so it only runs once for multi-file uploads
       const log = req._devLog || await DevLog.getById(log_id);
       req._devLog = log;
 
@@ -71,6 +79,8 @@ const storage = multer.diskStorage({
 
 const uploadDevLogMedia = multer({
   storage,
+  fileFilter,
+  limits: { fileSize: SIZE.media, files: 8 },
 });
 
 export default uploadDevLogMedia;

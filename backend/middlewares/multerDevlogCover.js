@@ -11,28 +11,31 @@ function slugify(text) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-const allowedMimeTypes = [
+const MB = 1024 * 1024;
+const SIZE = { cover: 5 * MB };
+
+const ALLOWED_MIMES = [
   'image/png',
   'image/jpeg',
   'image/jpg',
   'image/webp',
-  'image/gif'
+  'image/gif',
+  'image/avif',
 ];
+const ALLOWED_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'];
 
 const fileFilter = (req, file, cb) => {
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Allowed: PNG, JPG, JPEG, WEBP, GIF'), false);
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (ALLOWED_MIMES.includes(file.mimetype) && ALLOWED_EXTS.includes(ext)) {
+    return cb(null, true);
   }
+  cb(new Error('Invalid file type. Allowed: PNG, JPG, JPEG, WEBP, GIF, AVIF'), false);
 };
 
 const storage = multer.diskStorage({
 
   destination: async (req, file, cb) => {
     try {
-      // On CREATE — title comes from req.body
-      // On UPDATE — we look up the existing log title
       let folderName;
 
       const { id } = req.params;
@@ -47,7 +50,6 @@ const storage = multer.diskStorage({
 
         folderName = `${id}-${slugify(log.title)}`;
       } else {
-        // On create, title must be in body
         const title = req.body?.title || 'untitled';
         folderName = `new-${slugify(title)}-${Date.now()}`;
       }
@@ -72,6 +74,8 @@ const storage = multer.diskStorage({
 
 const uploadDevLogCover = multer({
   storage,
+  fileFilter,
+  limits: { fileSize: SIZE.cover, files: 1 },
 });
 
 export default uploadDevLogCover;
