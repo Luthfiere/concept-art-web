@@ -50,10 +50,10 @@ const JobPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
 
-      <div className="w-full mx-auto px-6 py-6">
+      <div className="w-full mx-auto px-4 sm:px-6 py-6">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold">Job Hiring</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold">Job Hiring</h1>
+          <p className="text-xs sm:text-sm text-gray-400 mt-1">
             Find your next role in the game-art community.
           </p>
         </div>

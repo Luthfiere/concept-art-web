@@ -11,18 +11,22 @@ function slugify(text) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-const allowedMimeTypes = [
+const MB = 1024 * 1024;
+const SIZE = { resume: 2 * MB };
+
+const ALLOWED_MIMES = [
   'application/pdf',
   'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
+const ALLOWED_EXTS = ['.pdf', '.doc', '.docx'];
 
-const fileFilter = async (req, file, cb) => {
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Allowed: PDF, DOC, DOCX'), false);
+const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (ALLOWED_MIMES.includes(file.mimetype) && ALLOWED_EXTS.includes(ext)) {
+    return cb(null, true);
   }
+  cb(new Error('Invalid file type. Allowed: PDF, DOC, DOCX'), false);
 };
 
 const storage = multer.diskStorage({
@@ -66,6 +70,7 @@ const storage = multer.diskStorage({
 const uploadResume = multer({
   storage,
   fileFilter,
+  limits: { fileSize: SIZE.resume, files: 1 },
 });
 
 export default uploadResume;

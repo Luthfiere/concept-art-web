@@ -41,12 +41,12 @@ const SectionNav = ({ artCount, postsCount }) => {
 
   return (
     <div className="sticky top-0 z-40 bg-[#050816]/80 backdrop-blur-md border-b border-white/5">
-      <div className="max-w-[1400px] mx-auto px-6 flex items-center gap-1">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center gap-1">
         {links.map((link) => (
           <button
             key={link.key}
             onClick={() => scrollTo(link.id)}
-            className={`relative px-5 py-3.5 text-sm font-medium transition-colors duration-200 ${
+            className={`relative px-3 py-2.5 sm:px-5 sm:py-3.5 text-sm font-medium transition-colors duration-200 ${
               active === link.key
                 ? "text-yellow-500"
                 : "text-gray-400 hover:text-gray-200"

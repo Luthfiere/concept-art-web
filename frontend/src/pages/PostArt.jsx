@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api from "../services/api";
+import { sanitizeFields } from "../utils/sanitize";
+
+const MB = 1024 * 1024;
+const MAX_IMAGE = 5 * MB;
+const MAX_VIDEO = 30 * MB;
+const MAX_FILES = 6;
+const ACCEPT = "image/*,video/*";
 
 const PostArt = () => {
   const navigate = useNavigate();
@@ -24,7 +31,32 @@ const PostArt = () => {
   };
 
   const addFiles = (incoming) => {
-    setFiles((prev) => [...prev, ...incoming]);
+    const rejected = [];
+    const accepted = [];
+    const currentCount = files.length;
+
+    for (const f of incoming) {
+      if (accepted.length + currentCount >= MAX_FILES) {
+        rejected.push(`${f.name} (max ${MAX_FILES} files)`);
+        continue;
+      }
+      const isImg = f.type.startsWith("image/");
+      const isVid = f.type.startsWith("video/");
+      if (!isImg && !isVid) {
+        rejected.push(`${f.name} (only images or videos)`);
+        continue;
+      }
+      const cap = isVid ? MAX_VIDEO : MAX_IMAGE;
+      if (f.size > cap) {
+        const capMB = cap / MB;
+        rejected.push(`${f.name} (max ${capMB}MB for ${isVid ? "videos" : "images"})`);
+        continue;
+      }
+      accepted.push(f);
+    }
+
+    if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
+    if (rejected.length) alert("Some files were skipped:\n" + rejected.join("\n"));
   };
 
   const removeFile = (index) => {
@@ -53,14 +85,15 @@ const PostArt = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title) {
+    const payload = sanitizeFields(form, ["title", "description", "tag"]);
+    if (!payload.title) {
       alert("Title is required");
       return;
     }
     setLoading(true);
 
     try {
-      const res = await api.post("/concept-arts", form);
+      const res = await api.post("/concept-arts", payload);
       const artId = res.data.art.id;
 
       if (files.length > 0) {
@@ -88,7 +121,7 @@ const PostArt = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-6 py-6 animate-fade-in-up">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 animate-fade-in-up">
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
@@ -145,7 +178,7 @@ const PostArt = () => {
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
                 className={`relative border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer transition-all duration-200 ${
-                  previews.length > 0 ? "min-h-[180px]" : "min-h-[340px]"
+                  previews.length > 0 ? "min-h-[140px] sm:min-h-[180px]" : "min-h-[200px] sm:min-h-[280px] lg:min-h-[340px]"
                 } ${
                   dragOver
                     ? "border-yellow-500 bg-yellow-500/5"
@@ -162,15 +195,18 @@ const PostArt = () => {
                     Drag & drop or click to browse
                   </p>
                   <p className="text-[10px] text-gray-600">
-                    Images, videos, and documents
+                    Images up to 5MB &middot; Videos up to 30MB &middot; Max {MAX_FILES} files
+                  </p>
+                  <p className="text-[9px] text-gray-700 mt-0.5">
+                    PNG, JPG, WEBP, GIF, AVIF, MP4, WEBM, MOV, OGG
                   </p>
                 </div>
-                <input ref={fileInputRef} type="file" multiple onChange={handleFileInput} className="hidden" />
+                <input ref={fileInputRef} type="file" multiple accept={ACCEPT} onChange={handleFileInput} className="hidden" />
               </div>
 
               {/* Preview grid */}
               {previews.length > 0 && (
-                <div className="grid grid-cols-4 gap-1.5">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
                   {previews.map((src, i) => (
                     <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-white/5">
                       {isVideo(files[i]) ? (
@@ -186,7 +222,7 @@ const PostArt = () => {
                       <button
                         type="button"
                         onClick={() => removeFile(i)}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white text-[10px] flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
                       >
                         &times;
                       </button>
@@ -200,7 +236,7 @@ const PostArt = () => {
             </div>
 
             {/* RIGHT — Form fields */}
-            <div className="lg:w-[380px] xl:w-[420px] shrink-0 space-y-3">
+            <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0 space-y-3">
               <div>
                 <label className="text-xs font-medium text-gray-400 mb-1 block">
                   Description
@@ -210,13 +246,13 @@ const PostArt = () => {
                   value={form.description}
                   onChange={handleChange}
                   placeholder="Describe your artwork, inspiration, techniques used..."
-                  rows={10}
+                  rows={6}
                   className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-sm text-gray-200 placeholder-gray-600 resize-none transition-all duration-200"
                 />
               </div>
 
-              <div className="flex gap-3">
-                <div className="flex-1">
+              <div className="flex flex-wrap gap-3">
+                <div className="flex-1 min-w-[150px]">
                   <label className="text-xs font-medium text-gray-400 mb-1 block">
                     Tag
                   </label>

@@ -55,10 +55,10 @@ const ChatWidget = () => {
 
   return (
     <>
-      {/* Floating chat button — bottom-left to avoid FAB on the right */}
+      {/* Floating chat button — hidden on mobile (navbar chat icon takes over) */}
       <button
         onClick={toggleChat}
-        className={`fixed bottom-8 left-8 z-50 w-14 h-14 rounded-full shadow-lg shadow-black/40 flex items-center justify-center transition-all duration-200 ${
+        className={`hidden sm:flex fixed bottom-8 left-8 z-50 w-14 h-14 rounded-full shadow-lg shadow-black/40 items-center justify-center transition-all duration-200 ${
           isOpen
             ? "bg-gray-700 text-white hover:bg-gray-600"
             : "bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-110 hover:shadow-yellow-500/25"

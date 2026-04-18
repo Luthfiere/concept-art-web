@@ -2,6 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api from "../services/api";
+import { sanitizeFields } from "../utils/sanitize";
+
+const MB = 1024 * 1024;
+const MAX_IMAGE = 5 * MB;
+const MAX_VIDEO = 30 * MB;
+const MAX_DOC = 10 * MB;
+const MAX_FILES = 6;
+const ACCEPT = "image/*,video/*,.pdf,.doc,.docx,.txt,.rtf,.md,.csv,.ppt,.pptx,.odt,.odp";
 
 const PostForm = () => {
   const navigate = useNavigate();
@@ -34,7 +42,28 @@ const PostForm = () => {
   };
 
   const addFiles = (incoming) => {
-    setFiles((prev) => [...prev, ...incoming]);
+    const rejected = [];
+    const accepted = [];
+    const currentCount = files.length;
+
+    for (const f of incoming) {
+      if (accepted.length + currentCount >= MAX_FILES) {
+        rejected.push(`${f.name} (max ${MAX_FILES} files)`);
+        continue;
+      }
+      const isImg = f.type.startsWith("image/");
+      const isVid = f.type.startsWith("video/");
+      const cap = isVid ? MAX_VIDEO : isImg ? MAX_IMAGE : MAX_DOC;
+      const label = isVid ? "videos" : isImg ? "images" : "documents";
+      if (f.size > cap) {
+        rejected.push(`${f.name} (max ${cap / MB}MB for ${label})`);
+        continue;
+      }
+      accepted.push(f);
+    }
+
+    if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
+    if (rejected.length) alert("Some files were skipped:\n" + rejected.join("\n"));
   };
 
   const removeFile = (index) => {
@@ -57,20 +86,16 @@ const PostForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title) {
+    const payload = sanitizeFields(form, ["title", "description", "tag"]);
+    if (!payload.title) {
       alert("Title is required");
       return;
     }
-    if (!form.description) {
+    if (!payload.description) {
       alert("Description is required for a post");
       return;
     }
     setLoading(true);
-
-    const payload = {
-      ...form,
-      category: form.category,
-    };
 
     try {
       const res = await api.post("/concept-arts", payload);
@@ -101,7 +126,7 @@ const PostForm = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto px-6 py-6 animate-fade-in-up">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 animate-fade-in-up">
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
@@ -116,7 +141,7 @@ const PostForm = () => {
         {/* Card container */}
         <div className="bg-white/[0.03] border border-white/5 rounded-xl overflow-hidden">
           {/* Header bar */}
-          <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+          <div className="px-4 sm:px-5 py-3 border-b border-white/5 flex items-center flex-wrap gap-2 justify-between">
             <h1 className="text-base font-semibold">
               {isCommunity ? "Community Post" : "Share an Idea"}
             </h1>
@@ -153,14 +178,14 @@ const PostForm = () => {
           </div>
 
           {/* Form body */}
-          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
             {/* Title */}
             <input
               name="title"
               value={form.title}
               onChange={handleChange}
               placeholder="Title *"
-              className="w-full px-0 py-2 bg-transparent border-b border-white/10 focus:border-yellow-500/50 outline-none text-lg text-gray-100 placeholder-gray-600 transition-all duration-200"
+              className="w-full px-0 py-2 bg-transparent border-b border-white/10 focus:border-yellow-500/50 outline-none text-base sm:text-lg text-gray-100 placeholder-gray-600 transition-all duration-200"
               required
             />
 
@@ -174,13 +199,13 @@ const PostForm = () => {
                   ? "What's on your mind? Share a discussion, tutorial, or insight..."
                   : "Describe your game concept, storyline, or collaboration idea..."
               }
-              rows={8}
+              rows={6}
               className="w-full px-0 py-2 bg-transparent outline-none text-sm text-gray-200 placeholder-gray-600 resize-none leading-relaxed"
             />
 
             {/* Tag + Visibility — inline row */}
-            <div className="flex gap-3">
-              <div className="flex-1">
+            <div className="flex flex-wrap gap-3">
+              <div className="flex-1 min-w-[150px]">
                 <input
                   name="tag"
                   value={form.tag}
@@ -239,7 +264,7 @@ const PostForm = () => {
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
-                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white text-[9px] flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
                     >
                       &times;
                     </button>
@@ -249,59 +274,65 @@ const PostForm = () => {
             )}
 
             {/* Bottom bar: attach + post */}
-            <div className="flex items-center justify-between pt-3 border-t border-white/5">
-              {/* Attach button */}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors duration-200"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
+            <div className="pt-3 border-t border-white/5 space-y-2">
+              <p className="text-[10px] text-gray-600">
+                Images up to 5MB &middot; Videos up to 30MB &middot; Docs up to 10MB &middot; Max {MAX_FILES} files
+              </p>
+              <div className="flex items-center justify-between">
+                {/* Attach button */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors duration-200"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159M15.75 15.75l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                  />
-                </svg>
-                Attach media
-                {files.length > 0 && (
-                  <span className="text-gray-600">({files.length})</span>
-                )}
-              </button>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159M15.75 15.75l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+                    />
+                  </svg>
+                  Attach media
+                  {files.length > 0 && (
+                    <span className="text-gray-600">({files.length})</span>
+                  )}
+                </button>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFileInput}
-                className="hidden"
-              />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={ACCEPT}
+                  onChange={handleFileInput}
+                  className="hidden"
+                />
 
-              {/* Post button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className={`px-6 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
-                  loading
-                    ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
-                    : "bg-yellow-500 text-black hover:bg-yellow-400"
-                }`}
-              >
-                {loading ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                    Posting...
-                  </>
-                ) : (
-                  "Post"
-                )}
-              </button>
+                {/* Post button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`px-6 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
+                    loading
+                      ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
+                      : "bg-yellow-500 text-black hover:bg-yellow-400"
+                  }`}
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    "Post"
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         </div>

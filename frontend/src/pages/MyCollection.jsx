@@ -60,14 +60,14 @@ const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70"
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg bg-[#0f1323] p-6 rounded-2xl"
+        className="w-full max-w-lg bg-[#0f1323] p-5 sm:p-6 rounded-2xl max-h-[90vh] overflow-y-auto"
       >
         <h2 className="text-lg font-bold mb-4">Application Detail</h2>
 
@@ -146,7 +146,7 @@ const EditArtModal = ({ form, setForm, onClose, onSubmit }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70"
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-4"
       onMouseDown={(e) => {
         e.stopPropagation(); // 🔥 penting
         if (e.target === e.currentTarget) onClose();
@@ -155,7 +155,7 @@ const EditArtModal = ({ form, setForm, onClose, onSubmit }) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-[#0f1323] p-6 rounded-2xl"
+        className="w-full max-w-md bg-[#0f1323] p-5 sm:p-6 rounded-2xl max-h-[90vh] overflow-y-auto"
       >
         <h2 className="mb-4 font-bold">Edit Art</h2>
 
@@ -229,7 +229,7 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70"
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-4"
       onMouseDown={(e) => {
         e.stopPropagation(); // 🔥 penting
         if (e.target === e.currentTarget) onClose();
@@ -238,7 +238,7 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg bg-[#0f1323] p-6 rounded-2xl"
+        className="w-full max-w-lg bg-[#0f1323] p-5 sm:p-6 rounded-2xl max-h-[90vh] overflow-y-auto"
       >
         <h2 className="mb-4 font-bold">Edit Job</h2>
 
@@ -602,12 +602,12 @@ const MyCollection = () => {
 
       <Navbar />
 
-      <div className="relative z-10 w-full px-6 md:px-8 pt-10 pb-20">
+      <div className="relative z-10 w-full px-4 sm:px-6 md:px-8 pt-6 sm:pt-10 pb-16 sm:pb-20">
         {/* HEADER */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-[3px] h-7 rounded-sm bg-gradient-to-b from-amber-400 to-red-400" />
-            <h1 className="text-3xl font-bold tracking-tight">My Collection</h1>
+            <h1 className="text-xl sm:text-3xl font-bold tracking-tight">My Collection</h1>
           </div>
           <p className="text-white/35 text-sm ml-[15px] tracking-wide">
             {totalCount} items — arts, posts, jobs applications

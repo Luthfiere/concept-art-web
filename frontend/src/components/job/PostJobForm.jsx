@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../services/api";
+import { sanitizeFields } from "../../utils/sanitize";
 
 const WORK_OPTION = ["On-site", "Hybrid", "Remote"];
 const WORK_TYPE = ["Full-time", "Part-time", "Contract", "Casual"];
@@ -43,7 +44,8 @@ const PostJobForm = () => {
     setSubmitting(true);
     setBanner(null);
     try {
-      await api.post("/job-postings", { ...form, status });
+      const clean = sanitizeFields(form, ["title", "description", "job_location"]);
+      await api.post("/job-postings", { ...clean, status });
       setBanner({
         type: "success",
         message: status === "Draft" ? "Draft saved." : "Job published!",
@@ -73,7 +75,7 @@ const PostJobForm = () => {
   return (
     <form
       onSubmit={handlePublish}
-      className="bg-[#111427]/80 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-xl space-y-8"
+      className="bg-[#111427]/80 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl space-y-6 sm:space-y-8"
     >
       {banner && (
         <div

@@ -97,10 +97,10 @@ const ArtCard = ({ art, index }) => {
       {/* Bottom gradient — always partially visible */}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
 
-      {/* Metadata — slides up on hover */}
-      <div className="absolute inset-x-0 bottom-0 p-3 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-        <p className="text-sm font-semibold text-white truncate">{art.title}</p>
-        <div className="flex items-center justify-between mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
+      {/* Metadata — always visible on mobile, slides up on hover (md+) */}
+      <div className="absolute inset-x-0 bottom-0 p-2 sm:p-3 md:translate-y-2 md:group-hover:translate-y-0 transition-transform duration-300">
+        <p className="text-xs sm:text-sm font-semibold text-white truncate">{art.title}</p>
+        <div className="flex items-center justify-between mt-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-75">
           <span
             className="
             text-[10px] px-2 py-0.5 rounded-full

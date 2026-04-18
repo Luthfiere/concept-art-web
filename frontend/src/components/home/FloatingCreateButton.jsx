@@ -73,7 +73,7 @@ const FloatingCreateButton = ({ onCreatePost }) => {
   return (
     <div
       ref={fabRef}
-      className="fixed bottom-8 right-8 z-50 flex flex-col-reverse items-end gap-3"
+      className="hidden sm:flex fixed sm:bottom-8 sm:right-8 z-50 flex-col-reverse items-end gap-3"
     >
       {/* Main FAB */}
       <button

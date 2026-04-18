@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../../services/api";
+import { sanitizeFields } from "../../utils/sanitize";
+
+const MB = 1024 * 1024;
+const MAX_IMAGE = 5 * MB;
+const MAX_VIDEO = 30 * MB;
+const MAX_DOC = 10 * MB;
+const MAX_FILES = 6;
+const ACCEPT = "image/*,video/*,.pdf,.doc,.docx,.txt,.rtf,.md,.csv,.ppt,.pptx,.odt,.odp";
 
 const PostFormModal = ({ isOpen, onClose, initialType = "post", onSuccess }) => {
   const fileInputRef = useRef(null);
@@ -37,7 +45,28 @@ const PostFormModal = ({ isOpen, onClose, initialType = "post", onSuccess }) => 
   };
 
   const addFiles = (incoming) => {
-    setFiles((prev) => [...prev, ...incoming]);
+    const rejected = [];
+    const accepted = [];
+    const currentCount = files.length;
+
+    for (const f of incoming) {
+      if (accepted.length + currentCount >= MAX_FILES) {
+        rejected.push(`${f.name} (max ${MAX_FILES} files)`);
+        continue;
+      }
+      const isImg = f.type.startsWith("image/");
+      const isVid = f.type.startsWith("video/");
+      const cap = isVid ? MAX_VIDEO : isImg ? MAX_IMAGE : MAX_DOC;
+      const label = isVid ? "videos" : isImg ? "images" : "documents";
+      if (f.size > cap) {
+        rejected.push(`${f.name} (max ${cap / MB}MB for ${label})`);
+        continue;
+      }
+      accepted.push(f);
+    }
+
+    if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
+    if (rejected.length) alert("Some files were skipped:\n" + rejected.join("\n"));
   };
 
   const removeFile = (index) => {
@@ -60,17 +89,16 @@ const PostFormModal = ({ isOpen, onClose, initialType = "post", onSuccess }) => 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title) {
+    const payload = sanitizeFields(form, ["title", "description", "tag"]);
+    if (!payload.title) {
       alert("Title is required");
       return;
     }
-    if (!form.description) {
+    if (!payload.description) {
       alert("Description is required for a post");
       return;
     }
     setLoading(true);
-
-    const payload = { ...form };
 
     try {
       const res = await api.post("/concept-arts", payload);
@@ -252,7 +280,11 @@ const PostFormModal = ({ isOpen, onClose, initialType = "post", onSuccess }) => 
           )}
 
           {/* Bottom bar */}
-          <div className="flex items-center justify-between pt-3 border-t border-white/5">
+          <div className="pt-3 border-t border-white/5 space-y-2">
+            <p className="text-[10px] text-gray-600">
+              Images up to 5MB &middot; Videos up to 30MB &middot; Docs up to 10MB &middot; Max {MAX_FILES} files
+            </p>
+            <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -271,6 +303,7 @@ const PostFormModal = ({ isOpen, onClose, initialType = "post", onSuccess }) => 
               ref={fileInputRef}
               type="file"
               multiple
+              accept={ACCEPT}
               onChange={handleFileInput}
               className="hidden"
             />
@@ -293,6 +326,7 @@ const PostFormModal = ({ isOpen, onClose, initialType = "post", onSuccess }) => 
                 "Post"
               )}
             </button>
+            </div>
           </div>
         </form>
       </div>
