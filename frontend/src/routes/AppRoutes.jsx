@@ -12,6 +12,7 @@ import PostDetail from "../pages/PostDetail";
 import MyCollection from "../pages/MyCollection";
 import JobApplicantsPage from "../pages/JobApplicantsPage";
 import Devlogs from "../pages/DevLogs";
+import DevlogDetail from "../components/DevLogs/DevLogDetail";
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
       <Route path="/art/:id" element={<ArtDetail />} />
       <Route path="/post/:id" element={<PostDetail />} />
       <Route path="/job/:id" element={<JobApplicantsPage />} />
+      <Route path="/devlog/:id" element={<DevlogDetail />} />
 
       <Route
         path="/Job"
