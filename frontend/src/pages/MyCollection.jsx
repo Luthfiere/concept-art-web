@@ -507,6 +507,7 @@ const MyCollection = () => {
   const handleOpen = (item) => {
     if (item.type === "art") navigate(`/art/${item.id}`);
     if (item.type === "post") navigate(`/post/${item.id}`);
+    if (item.type === "community") navigate(`/post/${item.id}`);
     if (item.type === "job") navigate(`/job/${item.id}`);
 
     if (item.type === "application") {
