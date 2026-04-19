@@ -8,7 +8,6 @@ DROP TABLE IF EXISTS core_job_applications CASCADE;
 DROP TABLE IF EXISTS core_job_posting CASCADE;
 DROP TABLE IF EXISTS core_messages CASCADE;
 DROP TABLE IF EXISTS core_conversations CASCADE;
-DROP TABLE IF EXISTS core_community_page CASCADE;
 DROP TABLE IF EXISTS core_concept_art_tags CASCADE;
 DROP TABLE IF EXISTS core_art_media CASCADE;
 DROP TABLE IF EXISTS core_concept_art CASCADE;
@@ -162,18 +161,4 @@ CREATE TABLE core_dev_log_media (
     media VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
-
-
--- 5. Create Community Page table
-CREATE TABLE core_community_page (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    type VARCHAR(100),
-    image VARCHAR(255),
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
 
