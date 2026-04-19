@@ -59,6 +59,10 @@ const BADGE_COLORS = {
 };
 
 export default function Devlogs() {
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [mediaPreview, setMediaPreview] = useState([]);
+  const [isDraggingMedia, setIsDraggingMedia] = useState(false);
+  const [dragIndex, setDragIndex] = useState(null);
   const [devlogs, setDevlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
@@ -78,9 +82,34 @@ export default function Devlogs() {
   });
   const [submitting, setSubmitting] = useState(false);
 
+  const handleMediaChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    setMediaFiles(files);
+
+    const previews = files.map((file) => ({
+      url: URL.createObjectURL(file),
+      type: file.type,
+    }));
+
+    setMediaPreview(previews);
+  };
+
   useEffect(() => {
     fetchDevlogs(activeFilter);
   }, [activeFilter]);
+
+  const processFiles = (files) => {
+    const fileArray = Array.from(files);
+
+    const previews = fileArray.map((file) => ({
+      url: URL.createObjectURL(file),
+      type: file.type,
+    }));
+
+    setMediaFiles((prev) => [...prev, ...fileArray]);
+    setMediaPreview((prev) => [...prev, ...previews]);
+  };
 
   const fetchDevlogs = async (category) => {
     setLoading(true);
@@ -156,6 +185,9 @@ export default function Devlogs() {
     setSubmitting(true);
 
     try {
+      // =========================
+      // 1. CREATE DEVLOG
+      // =========================
       const formData = new FormData();
       formData.append("title", form.title);
       formData.append("content", form.content);
@@ -177,9 +209,34 @@ export default function Devlogs() {
       });
 
       const result = await res.json();
-
       if (!res.ok) throw new Error(result.message);
 
+      const devlogId = result.data.id;
+
+      // =========================
+      // 2. UPLOAD MEDIA (MULTIPLE)
+      // =========================
+      if (mediaFiles.length > 0) {
+        const mediaForm = new FormData();
+
+        mediaFiles.forEach((file) => {
+          mediaForm.append("media", file);
+        });
+
+        mediaForm.append("log_id", devlogId);
+
+        await fetch(`${API_BASE}/devlog-media/log/${devlogId}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: mediaForm,
+        });
+      }
+
+      // =========================
+      // RESET
+      // =========================
       setShowModal(false);
       setForm({
         title: "",
@@ -191,9 +248,12 @@ export default function Devlogs() {
         cover_image: null,
       });
 
-      alert("Post Success");
+      setMediaFiles([]);
+      setMediaPreview([]);
 
-      fetchDevlogs(activeFilter); // refresh list
+      alert("Post Success 🚀");
+
+      fetchDevlogs(activeFilter);
     } catch (err) {
       console.error(err);
       alert("Failed to create devlog");
@@ -388,7 +448,7 @@ export default function Devlogs() {
                     ? "border-yellow-400 bg-yellow-400/10 scale-[1.02]"
                     : "border-white/10 hover:border-yellow-400"
                 }`}
-            > 
+            >
               <input
                 ref={fileInputRef}
                 type="file"
@@ -428,6 +488,94 @@ export default function Devlogs() {
                 <div className="text-gray-500 text-sm">
                   <p className="mb-1">Drag & drop cover image here</p>
                   <p className="text-xs text-gray-600">or click to upload</p>
+                </div>
+              )}
+            </div>
+
+            {/* DEVLOG MEDIA */}
+            <div
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDraggingMedia(false);
+                processFiles(e.dataTransfer.files);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingMedia(true);
+              }}
+              onDragLeave={() => setIsDraggingMedia(false)}
+              className={`w-full mb-4 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition
+                ${
+                  isDraggingMedia
+                    ? "border-yellow-400 bg-yellow-400/10"
+                    : "border-white/10 hover:border-yellow-400"
+                }`}
+            >
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={handleMediaChange}
+                className="hidden"
+                id="mediaUpload"
+              />
+
+              <label htmlFor="mediaUpload" className="cursor-pointer">
+                <p className="text-sm text-gray-400">
+                  Drag & drop media here or click to upload
+                </p>
+              </label>
+
+              {/* Preview */}
+              {mediaPreview.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mt-3">
+                  {mediaPreview.map((m, i) => {
+                    const isVideo = m.type.startsWith("video");
+
+                    return (
+                      <div
+                        key={i}
+                        className="relative group rounded-lg overflow-hidden border border-white/10 bg-black"
+                      >
+                        {isVideo ? (
+                          <video
+                            src={m.url}
+                            className="w-full h-28 object-cover opacity-90 group-hover:opacity-100 transition"
+                          />
+                        ) : (
+                          <img
+                            src={m.url}
+                            className="w-full h-28 object-cover group-hover:scale-105 transition"
+                          />
+                        )}
+
+                        {/* TYPE BADGE */}
+                        <div className="absolute top-1 left-1 text-[10px] px-2 py-[2px] rounded bg-black/70 text-white">
+                          {isVideo ? "VIDEO" : "IMAGE"}
+                        </div>
+
+                        {/* REMOVE BUTTON */}
+                        <button
+                          onClick={() => {
+                            setMediaFiles((prev) =>
+                              prev.filter((_, idx) => idx !== i),
+                            );
+                            setMediaPreview((prev) =>
+                              prev.filter((_, idx) => idx !== i),
+                            );
+                          }}
+                          className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded opacity-0 group-hover:opacity-100 transition"
+                        >
+                          ✕
+                        </button>
+
+                        {/* HOVER OVERLAY */}
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-xs text-white pointer-events-none">
+                          Preview
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

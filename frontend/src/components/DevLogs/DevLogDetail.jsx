@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import api, { isTokenExpired } from "../../services/api";
 import Navbar from "../layout/Navbar";
 
 const API_BASE = "http://localhost:5000/api";
@@ -10,12 +11,38 @@ export default function DevlogDetail() {
   const navigate = useNavigate();
   const [devlog, setDevlog] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [likes, setLikes] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [media, setMedia] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [totalcomments, setTotalComments] = useState([]);
+  const [likeLoading, setLikeLoading] = useState(false);
+  const [lightbox, setLightbox] = useState(null); // { url, index }
+  const isLoggedIn = !isTokenExpired();
+  const storedUser = localStorage.getItem("user");
+  const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
+
+  const getAvatar = (user) => {
+    if (user?.profile_image) {
+      return user.profile_image.startsWith("http")
+        ? user.profile_image
+        : `${BASE_URL}/${user.profile_image}`;
+    }
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${user?.username || "user"}`;
+  };
 
   useEffect(() => {
     fetchDevlog();
+    fetchDevLogDetails();
     const handleScroll = () => setScrolled(window.scrollY > 60);
+    const handleKeyDown = (e) => { if (e.key === "Escape") setLightbox(null); };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const fetchDevlog = async () => {
@@ -39,6 +66,28 @@ export default function DevlogDetail() {
     }
   };
 
+  const fetchDevLogDetails = async () => {
+    try {
+      const [likeres, commentres, mediares] = await Promise.all([
+        api.get(`/likes/devlog/${id}`),
+        api.get(`/comments/devlog/${id}`),
+        api.get(`/devlog-media/log/${id}`),
+      ]);
+
+      setLikes(likeres.data.data.length);
+      setComments(commentres.data.data);
+      setTotalComments(commentres.data.total);
+      setMedia(mediares.data.data);
+
+      if (isLoggedIn) {
+        const statusRes = await api.get(`/likes/devlog/${id}/status`);
+        setLiked(!!statusRes.data.liked);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleDateString("en-US", {
       month: "long",
@@ -46,21 +95,59 @@ export default function DevlogDetail() {
       year: "numeric",
     });
 
-  const getInitials = (name = "") =>
-    name
-      .split(" ")
-      .map((w) => w[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const handleLike = async () => {
+    if (!isLoggedIn) {
+      alert("Login dulu");
+      return;
+    }
+    setLikeLoading(true);
+    try {
+      if (liked) {
+        await api.delete(`/likes`, { data: { entity_type: "devlog", entity_id: id } });
+        setLikes((prev) => prev - 1);
+        setLiked(false);
+      } else {
+        await api.post(`/likes`, { entity_type: "devlog", entity_id: id });
+        setLikes((prev) => prev + 1);
+        setLiked(true);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
+
+  const handleComment = async () => {
+    if (!newComment.trim()) return;
+    try {
+      const res = await api.post(`/comments/devlog/${id}`, { comment: newComment });
+      setComments((prev) => [res.data.data, ...prev]);
+      setNewComment("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const imageMedia = media.filter((m) => {
+    const file = m.file_path || m.media;
+    return file && !/\.(mp4|webm|ogg)$/i.test(file);
+  });
+
+  const openLightbox = (url, index) => setLightbox({ url, index });
+
+  const lightboxNav = (dir) => {
+    const next = (lightbox.index + dir + imageMedia.length) % imageMedia.length;
+    const file = imageMedia[next].file_path || imageMedia[next].media;
+    const url = file.startsWith("http") ? file : `${BASE_URL}/${file}`;
+    setLightbox({ url, index: next });
+  };
 
   if (!devlog) {
     return (
-      <div className="min-h-screen bg-[#1a1a2e] flex flex-col items-center justify-center gap-4">
-        <div className="w-10 h-10 border-2 border-[#fa5c5c] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[#888] text-sm tracking-widest uppercase">
-          Loading devlog
-        </p>
+      <div className="min-h-screen bg-[#050816] flex flex-col items-center justify-center gap-4">
+        <div className="w-10 h-10 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+        <p className="text-[#888] text-sm tracking-widest uppercase">Loading devlog</p>
       </div>
     );
   }
@@ -71,181 +158,346 @@ export default function DevlogDetail() {
 
       {/* HERO */}
       {devlog.cover_image ? (
-        <div className="relative w-full h-[420px] overflow-hidden">
+        <div className="relative w-full h-[460px] overflow-hidden">
           <img
             src={devlog.cover_image}
             alt={devlog.title}
-            className="w-full h-full object-cover brightness-90 hover:scale-[1.02] transition"
+            className="w-full h-full object-cover brightness-75"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f2a] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-[#050816]/40 to-transparent" />
+
+          {/* Title overlay on hero */}
+          <div className="absolute bottom-0 left-0 right-0 px-6 pb-10 max-w-6xl mx-auto w-full">
+            <span className="inline-block text-xs uppercase tracking-widest text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-3 py-1 rounded mb-3">
+              {devlog.category || "Devlog"}
+            </span>
+            <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl">
+              {devlog.title}
+            </h1>
+          </div>
         </div>
       ) : (
-        <div className="w-full h-[320px] bg-gradient-to-br from-[#050816] via-[#0b0f2a] to-[#111827]" />
+        <div className="w-full h-[120px] bg-gradient-to-br from-[#050816] to-[#0b0f2a]" />
       )}
 
       {/* BACK */}
-      <div className="max-w-6xl mx-auto px-6 pt-10">
+      <div className="max-w-6xl mx-auto px-6 pt-8">
         <button
           onClick={() => navigate(-1)}
-          className="text-sm text-gray-400 hover:text-yellow-400 flex items-center gap-2 mb-8"
+          className="text-sm text-gray-500 hover:text-yellow-400 flex items-center gap-2 mb-8 transition"
         >
           ← Back to devlogs
         </button>
       </div>
 
-      {/* MAIN */}
-      <div className="max-w-6xl mx-auto px-6 pb-20 grid md:grid-cols-[1fr_280px] gap-10">
+      {/* MAIN LAYOUT */}
+      <div className="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-[1fr_260px] gap-12">
+
         {/* ARTICLE */}
         <article>
-          {/* CATEGORY */}
-          <span className="text-xs uppercase tracking-widest text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-3 py-1 rounded">
-            {devlog.category || "Devlog"}
-          </span>
-
-          {/* TITLE */}
-          <h1 className="text-3xl md:text-4xl font-bold mt-4 mb-4 leading-tight">
-            {devlog.title}
-          </h1>
-
-          {/* TAGS */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {devlog.genre && (
-              <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-300">
-                {devlog.genre}
+          {/* Show category + title only if NO cover image */}
+          {!devlog.cover_image && (
+            <div className="mb-6">
+              <span className="text-xs uppercase tracking-widest text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-3 py-1 rounded">
+                {devlog.category || "Devlog"}
               </span>
-            )}
-            {devlog.tag && (
-              <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400 hover:text-yellow-400 hover:border-yellow-400/40 transition">
-                #{devlog.tag}
-              </span>
-            )}
-          </div>
+              <h1 className="text-3xl md:text-4xl font-bold mt-4 leading-tight">
+                {devlog.title}
+              </h1>
+            </div>
+          )}
 
-          {/* META */}
-          <div className="flex items-center gap-4 border-y border-white/10 py-4 mb-8">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-black flex items-center justify-center text-sm font-bold">
-              {getInitials(devlog.username)}
+          {/* META ROW */}
+          <div className="flex items-center gap-3 py-4 mb-6 border-y border-white/10">
+            <img
+              src={getAvatar(devlog)}
+              alt="avatar"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-white/10"
+            />
+            <div>
+              <p className="text-sm font-semibold text-gray-100 leading-tight">{devlog.username}</p>
+              <p className="text-xs text-gray-500">{formatDate(devlog.created_at)}</p>
             </div>
 
-            <div className="text-sm font-medium text-gray-200">
-              {devlog.username}
+            {/* spacer */}
+            <div className="flex-1" />
+
+            {/* TAGS inline */}
+            <div className="flex gap-2">
+              {devlog.genre && (
+                <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400">
+                  {devlog.genre}
+                </span>
+              )}
+              {devlog.tag && (
+                <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400 hover:text-yellow-400 hover:border-yellow-400/40 transition">
+                  #{devlog.tag}
+                </span>
+              )}
             </div>
 
-            <span className="text-gray-600">·</span>
-
-            <div className="text-sm text-gray-400">
-              {formatDate(devlog.created_at)}
-            </div>
+            {/* LIKE BUTTON inline */}
+            <button
+              onClick={handleLike}
+              disabled={likeLoading}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition border ${
+                liked
+                  ? "bg-yellow-400 text-black border-yellow-400"
+                  : "bg-transparent text-gray-400 border-white/15 hover:border-yellow-400/40 hover:text-yellow-400"
+              }`}
+            >
+              <span>{liked ? "❤️" : "🤍"}</span>
+              <span>{likes}</span>
+            </button>
           </div>
 
           {/* CONTENT */}
-          <div className="text-gray-300 leading-relaxed whitespace-pre-line text-[15px]">
+          <div className="text-gray-300 leading-relaxed text-[15px] whitespace-pre-line mb-10">
             {devlog.content}
+          </div>
+
+          {/* MEDIA GRID */}
+          {media.length > 0 && (
+            <div className="mb-12">
+              <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">Media</p>
+              <div
+                className={`grid gap-3 ${
+                  media.length === 1
+                    ? "grid-cols-1"
+                    : media.length === 2
+                    ? "grid-cols-2"
+                    : "grid-cols-2 md:grid-cols-3"
+                }`}
+              >
+                {media.map((m, idx) => {
+                  const file = m.file_path || m.media;
+                  if (!file) return null;
+                  const url = file.startsWith("http") ? file : `${BASE_URL}/${file}`;
+                  const isVideo = /\.(mp4|webm|ogg)$/i.test(file);
+                  const imgIndex = imageMedia.findIndex((im) => (im.file_path || im.media) === file);
+
+                  return isVideo ? (
+                    <video
+                      key={m.id}
+                      src={url}
+                      controls
+                      className="rounded-xl w-full aspect-video object-cover bg-white/5"
+                    />
+                  ) : (
+                    <div
+                      key={m.id}
+                      className="overflow-hidden rounded-xl group relative cursor-zoom-in"
+                      onClick={() => openLightbox(url, imgIndex)}
+                    >
+                      <img
+                        src={url}
+                        alt=""
+                        className="w-full aspect-video object-cover group-hover:scale-105 transition duration-300 group-hover:brightness-75"
+                      />
+                      {/* zoom hint */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
+                        <div className="bg-black/50 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-white text-lg">
+                          ⤢
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* COMMENTS */}
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-6">
+              <h3 className="text-base font-semibold">Comments</h3>
+              <span className="text-xs text-gray-500 bg-white/5 border border-white/10 rounded-full px-2 py-0.5">
+                {totalcomments}
+              </span>
+            </div>
+
+            {/* INPUT */}
+            {isLoggedIn && (
+              <div className="mb-8 flex gap-3">
+                <img
+                  src={getAvatar(JSON.parse(storedUser || "{}"))}
+                  alt="you"
+                  className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-1"
+                />
+                <div className="flex-1">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Write a comment..."
+                    rows={3}
+                    className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-yellow-400/50 rounded-xl p-3 text-sm text-white placeholder:text-gray-600 outline-none transition resize-none"
+                  />
+                  <div className="flex justify-end mt-2">
+                    <button
+                      onClick={handleComment}
+                      disabled={!newComment.trim()}
+                      className="bg-yellow-400 disabled:opacity-40 text-black px-5 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition"
+                    >
+                      Post
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* COMMENT LIST */}
+            <div className="space-y-5">
+              {comments.map((c) => (
+                <div key={c.id} className="flex gap-3">
+                  <img
+                    src={getAvatar(c)}
+                    alt="avatar"
+                    className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-0.5"
+                  />
+                  <div className="flex-1 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3">
+                    <p className="text-sm font-medium text-gray-200 mb-0.5">{c.username}</p>
+                    <p className="text-sm text-gray-400 leading-relaxed">{c.comment}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </article>
 
         {/* SIDEBAR */}
-        <aside className="space-y-5">
+        <aside className="space-y-4 self-start sticky top-6">
+
           {/* ABOUT */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3">
-              About
-            </p>
-
-            <p className="text-sm text-gray-200 mb-4">{devlog.title}</p>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-gray-400">
-                <span>Genre</span>
+          <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5">
+            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">About</p>
+            <p className="text-sm text-gray-200 font-medium mb-4 leading-snug">{devlog.title}</p>
+            <div className="space-y-2.5 text-sm divide-y divide-white/5">
+              <div className="flex justify-between pt-0">
+                <span className="text-gray-500">Genre</span>
                 <span className="text-gray-300">{devlog.genre || "—"}</span>
               </div>
-
-              <div className="flex justify-between text-gray-400">
-                <span>Category</span>
+              <div className="flex justify-between pt-2.5">
+                <span className="text-gray-500">Category</span>
                 <span className="text-gray-300">{devlog.category || "—"}</span>
               </div>
-
-              <div className="flex justify-between text-gray-400">
-                <span>Published</span>
-                <span className="text-gray-300">
-                  {formatDate(devlog.created_at)}
-                </span>
+              <div className="flex justify-between pt-2.5">
+                <span className="text-gray-500">Published</span>
+                <span className="text-gray-300 text-right text-xs">{formatDate(devlog.created_at)}</span>
               </div>
             </div>
           </div>
 
-          {/* STATS (REAL DATA) */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3">
-              Stats
-            </p>
-
-            <div className="flex justify-between text-sm text-gray-400 mb-2">
-              <span>Views</span>
-              <span className="text-gray-300">
-                {(devlog.views || 0).toLocaleString()}
-              </span>
+          {/* STATS */}
+          <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5">
+            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">Stats</p>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "Views", value: (devlog.views || 0).toLocaleString() },
+                { label: "Likes", value: (likes || 0).toLocaleString() },
+                { label: "Comments", value: (totalcomments || 0).toLocaleString() },
+              ].map((s) => (
+                <div key={s.label} className="bg-white/5 rounded-lg px-3 py-3 text-center">
+                  <p className="text-lg font-semibold text-white">{s.value}</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">{s.label}</p>
+                </div>
+              ))}
             </div>
-
-            <div className="flex justify-between text-sm text-gray-400 mb-2">
-              <span>Likes</span>
-              <span className="text-gray-300">
-                {(devlog.like_count || 0).toLocaleString()}
-              </span>
-            </div>
-
-            <div className="flex justify-between text-sm text-gray-400">
-              <span>Comments</span>
-              <span className="text-gray-300">
-                {(devlog.comment_count || 0).toLocaleString()}
-              </span>
-            </div>
-          </div>
-
-          {/* SHARE (SIMPLE VERSION) */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3">
-              Share
-            </p>
-
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                alert("Link copied!");
-              }}
-              className="w-full bg-yellow-400 text-black py-2 rounded text-sm font-semibold hover:bg-yellow-300 transition"
-            >
-              Copy Link
-            </button>
           </div>
 
           {/* AUTHOR */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-4">
-              Author
-            </p>
-
+          <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5">
+            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">Author</p>
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-black flex items-center justify-center font-bold">
-                {getInitials(devlog.username)}
-              </div>
-
+              <img
+                src={getAvatar(devlog)}
+                alt="avatar"
+                className="w-11 h-11 rounded-full object-cover ring-2 ring-white/10"
+              />
               <div>
-                <p className="text-sm font-medium text-white">
-                  {devlog.username}
-                </p>
+                <p className="text-sm font-medium text-white">{devlog.username}</p>
                 <p className="text-xs text-gray-500">indie developer</p>
               </div>
             </div>
           </div>
+
+          {/* SHARE */}
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              alert("Link copied!");
+            }}
+            className="w-full bg-yellow-400 text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-yellow-300 transition"
+          >
+            Copy Link
+          </button>
         </aside>
       </div>
+
+      {/* LIGHTBOX */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setLightbox(null)}
+        >
+          {/* Close */}
+          <button
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white text-lg flex items-center justify-center transition"
+            onClick={() => setLightbox(null)}
+          >
+            ✕
+          </button>
+
+          {/* Prev */}
+          {imageMedia.length > 1 && (
+            <button
+              className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition"
+              onClick={(e) => { e.stopPropagation(); lightboxNav(-1); }}
+            >
+              ‹
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={lightbox.url}
+            alt=""
+            className="max-h-[88vh] max-w-[88vw] rounded-xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          {imageMedia.length > 1 && (
+            <button
+              className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition"
+              onClick={(e) => { e.stopPropagation(); lightboxNav(1); }}
+            >
+              ›
+            </button>
+          )}
+
+          {/* Counter */}
+          {imageMedia.length > 1 && (
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {imageMedia.map((_, i) => (
+                <div
+                  key={i}
+                  className={`rounded-full transition-all duration-200 ${
+                    i === lightbox.index
+                      ? "w-5 h-1.5 bg-yellow-400"
+                      : "w-1.5 h-1.5 bg-white/30"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* SCROLL TO TOP */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-6 right-6 w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center transition ${
-          scrolled ? "opacity-100" : "opacity-0 pointer-events-none"
+        className={`fixed bottom-6 right-6 w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center shadow-lg transition-all duration-300 ${
+          scrolled ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
         }`}
       >
         ↑
