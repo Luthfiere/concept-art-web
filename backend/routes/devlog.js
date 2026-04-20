@@ -9,7 +9,7 @@ import multerErrorHandler from '../middlewares/multerErrorHandler.js';
 // Public reads — anyone can browse devlogs without logging in
 router.get('/', DevLogController.getAll);
 router.get('/category/:category', DevLogController.getByCategory);
-router.get('/user/:user_id', DevLogController.getByUser);
+router.get('/user/:user_id', authToken, DevLogController.getByUser);
 router.get('/:id', DevLogController.getById);
 
 // Writes require auth

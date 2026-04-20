@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { useChat } from "../context/ChatContext";
@@ -33,12 +33,6 @@ const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
-
-
-
-
-
-
 const MyCollection = () => {
   const navigate = useNavigate();
   const [arts, setArts] = useState([]);
@@ -50,8 +44,10 @@ const MyCollection = () => {
   const [postsMode, setPostsMode] = useState("post");
   const [selectedApplication, setSelectedApplication] = useState(null);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user] = useState(() => JSON.parse(localStorage.getItem("user")));
   const token = localStorage.getItem("token");
+
+  const hasFetched = useRef(false);
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -90,7 +86,11 @@ const MyCollection = () => {
   }, [user, token, navigate]);
 
   useEffect(() => {
-    if (!user || !token) return;
+    if (hasFetched.current) return;
+    if (!user?.id || !token) return;
+
+    hasFetched.current = true;
+
     const fetchData = async () => {
       try {
         const [artRes, jobRes, appRes, devlogRes] = await Promise.all([
@@ -105,6 +105,7 @@ const MyCollection = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
+
         const [artData, jobData, appData, devlogData] = await Promise.all([
           artRes.json(),
           jobRes.json(),
@@ -112,6 +113,7 @@ const MyCollection = () => {
           devlogRes.json(),
         ]);
 
+        // ART MEDIA
         const arts = artData.art || [];
         const artsWithMedia = await Promise.all(
           arts.map(async (art) => {
@@ -125,6 +127,7 @@ const MyCollection = () => {
           }),
         );
 
+        // DEVLOG MEDIA
         const devs = devlogData.data || [];
         const devsWithMedia = await Promise.all(
           devs.map(async (log) => {
@@ -137,7 +140,7 @@ const MyCollection = () => {
               );
               const data = await res.json();
               return { ...log, media: data.data || [] };
-            } catch (error) {
+            } catch {
               return { ...log, media: [] };
             }
           }),
@@ -153,8 +156,9 @@ const MyCollection = () => {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, [user, token]);
+  }, [user?.id, token]); // ✅ dependency aman
 
   // Split arts by category
   const artOnly = arts.filter((a) => a.category === "art");
