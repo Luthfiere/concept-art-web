@@ -77,6 +77,28 @@ class JobPosting {
     `, [id]);
     return result.rows[0];
   }
+
+  static async updateReportState(id, { report_count, warned_at, status }) {
+    const result = await db.query(`
+      UPDATE core_job_posting
+      SET report_count = $1,
+          warned_at = COALESCE($2::timestamptz, warned_at),
+          status = COALESCE($3::job_status_type, status),
+          updated_at = NOW()
+      WHERE id = $4
+      RETURNING *
+    `, [report_count, warned_at, status, id]);
+    return result.rows[0];
+  }
+
+  static async countActiveByUser(user_id) {
+    const result = await db.query(`
+      SELECT COUNT(*)::int AS count
+      FROM core_job_posting
+      WHERE user_id = $1 AND status = 'Active'
+    `, [user_id]);
+    return result.rows[0].count;
+  }
 }
 
 export default JobPosting;

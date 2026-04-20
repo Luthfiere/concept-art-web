@@ -6,6 +6,24 @@ const WORK_OPTION = ["On-site", "Hybrid", "Remote"];
 const WORK_TYPE = ["Full-time", "Part-time", "Contract", "Casual"];
 const CURRENCIES = ["AUD", "HKD", "IDR", "MYR", "NZD", "PHP", "SGD", "THB", "USD"];
 
+// Canonical game-dev roles — suggestions only (not enforced)
+const GAME_DEV_TITLES = [
+  "Concept Artist", "Senior Concept Artist", "Character Artist", "Environment Artist",
+  "Prop Artist", "Texture Artist", "Lighting Artist", "VFX Artist", "Technical Artist",
+  "Rigging Artist", "UI Artist", "2D Artist", "3D Modeler", "3D Character Artist",
+  "3D Environment Artist",
+  "Character Animator", "Creature Animator", "Cinematic Animator", "Technical Animator",
+  "Gameplay Programmer", "Engine Programmer", "Graphics Programmer", "Network Programmer",
+  "Tools Programmer", "AI Programmer", "UI Programmer", "Build / DevOps Engineer",
+  "Unity Developer", "Unreal Developer", "Godot Developer", "C++ Engine Programmer",
+  "Game Designer", "Level Designer", "Systems Designer", "Combat Designer",
+  "Narrative Designer", "UX Designer", "Economy Designer",
+  "Sound Designer", "Composer", "Audio Programmer", "Voice Director",
+  "Producer", "Associate Producer", "Project Manager", "Scrum Master",
+  "QA Tester", "QA Lead", "Test Engineer", "Automation Engineer",
+  "Game Writer", "Localization Specialist", "Community Manager", "LiveOps Manager",
+];
+
 const EMPTY_FORM = {
   title: "",
   description: "",
@@ -101,9 +119,18 @@ const PostJobForm = () => {
             value={form.title}
             onChange={handleChange}
             placeholder="e.g. Senior Concept Artist"
+            list="game-dev-titles"
             className={inputCls}
             required
           />
+          <datalist id="game-dev-titles">
+            {GAME_DEV_TITLES.map((t) => (
+              <option key={t} value={t} />
+            ))}
+          </datalist>
+          <p className="text-[11px] text-gray-500 mt-1.5">
+            Start typing to see common game-development roles.
+          </p>
         </div>
 
         <div>

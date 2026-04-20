@@ -39,13 +39,23 @@ const JobCard = ({ job, setSelectedJob, selectedJob, index = 0 }) => {
           : "bg-[#111427]/60 border-white/5 hover:bg-white/[0.04] hover:translate-x-[2px] hover:border-white/10"
       }`}
     >
-      <h3
-        className={`text-sm font-semibold truncate ${
-          isSelected ? "text-yellow-300" : "text-white"
-        }`}
-      >
-        {job.title}
-      </h3>
+      <div className="flex items-center gap-1.5">
+        <h3
+          className={`text-sm font-semibold truncate ${
+            isSelected ? "text-yellow-300" : "text-white"
+          }`}
+        >
+          {job.title}
+        </h3>
+        {(job.report_count ?? 0) >= 15 && (
+          <span
+            title="This posting has been reported by multiple users"
+            className="shrink-0 text-[10px] leading-none text-amber-400"
+          >
+            &#9888;
+          </span>
+        )}
+      </div>
 
       {job.job_location && (
         <p className="text-xs text-gray-400 mt-1 truncate">

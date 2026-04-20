@@ -82,6 +82,21 @@ const seed = async () => {
       );
     }
 
+    // 7. survey subscriptions — auto-provision 2-year 'paid' plans for any user seeded
+    // as pro/corporate so invited thesis testers can post immediately without Midtrans.
+    for (const user of usersData) {
+      if (user.role === 'pro' || user.role === 'corporate') {
+        const plan = user.role === 'pro' ? 'pro_monthly' : 'corporate_monthly';
+        const amount = user.role === 'pro' ? 49000 : 249000;
+        await db.query(
+          `INSERT INTO core_subscriptions
+           (user_id, plan, amount, currency, midtrans_order_id, status, active_from, active_until)
+           VALUES ($1, $2::subscription_plan, $3, 'IDR', $4, 'paid', NOW(), NOW() + INTERVAL '2 years')`,
+          [user.id, plan, amount, `survey-seed-${user.id}`]
+        );
+      }
+    }
+
     // Reset sequences so new inserts don't collide with seed IDs
     await db.query(`SELECT setval('master_users_id_seq', (SELECT MAX(id) FROM master_users))`);
     await db.query(`SELECT setval('core_concept_art_id_seq', (SELECT MAX(id) FROM core_concept_art))`);
@@ -89,6 +104,7 @@ const seed = async () => {
     await db.query(`SELECT setval('core_likes_id_seq', (SELECT MAX(id) FROM core_likes))`);
     await db.query(`SELECT setval('core_comments_id_seq', (SELECT MAX(id) FROM core_comments))`);
     await db.query(`SELECT setval('core_job_posting_id_seq', (SELECT MAX(id) FROM core_job_posting))`);
+    await db.query(`SELECT setval('core_subscriptions_id_seq', COALESCE((SELECT MAX(id) FROM core_subscriptions), 1))`);
 
     await db.query('COMMIT');
     console.log('Seed completed successfully');

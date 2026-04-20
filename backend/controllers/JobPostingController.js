@@ -1,4 +1,10 @@
 import JobPosting from '../model/JobPostingModel.js';
+import Subscription from '../model/SubscriptionModel.js';
+import { THRESHOLDS } from '../services/reportThresholdService.js';
+
+const ACTIVE_POST_CAP = { pro: 3, corporate: 15 };
+const MIN_TITLE_LENGTH = 8;
+const MAX_TITLE_LENGTH = 100;
 
 function parseDate(dateStr) {
   if (!dateStr) return null;
@@ -6,6 +12,11 @@ function parseDate(dateStr) {
   if (isNaN(d.getTime())) return null;
   return d.toISOString();
 }
+
+const EDITABLE_FIELDS = [
+  'title', 'description', 'job_location', 'work_option', 'work_type',
+  'salary_min', 'salary_max', 'salary_currency', 'expired_at',
+];
 
 class JobPostingController {
 
@@ -73,22 +84,56 @@ class JobPostingController {
 
   static async create(req, res) {
     try {
-      const { user_id } = req.user;
+      const { user_id, role } = req.user;
       const { title, description, job_location, work_option, work_type, salary_min, salary_max, salary_currency, status, expired_at } = req.body;
 
       if (!title) {
         return res.status(400).json({ message: 'Title is required' });
       }
 
+      const trimmedTitle = String(title).trim();
+      if (trimmedTitle.length < MIN_TITLE_LENGTH || trimmedTitle.length > MAX_TITLE_LENGTH) {
+        return res.status(400).json({
+          message: `Title must be ${MIN_TITLE_LENGTH}-${MAX_TITLE_LENGTH} characters`,
+        });
+      }
+
+      // Only count active-post cap if publishing directly (Active) — Drafts don't count
+      const intendedStatus = status || 'Draft';
+      if (intendedStatus === 'Active') {
+        const cap = ACTIVE_POST_CAP[role];
+        if (cap !== undefined) {
+          const activeCount = await JobPosting.countActiveByUser(user_id);
+          if (activeCount >= cap) {
+            return res.status(400).json({
+              message: `Active post limit reached (${cap}). Close an existing posting to publish a new one.`,
+            });
+          }
+        }
+      }
+
       const job = await JobPosting.create({
-        user_id, title, description, job_location,
-        work_option, work_type, salary_min, salary_max,
-        salary_currency, status, expired_at: parseDate(expired_at)
+        user_id,
+        title: trimmedTitle,
+        description,
+        job_location,
+        work_option,
+        work_type,
+        salary_min,
+        salary_max,
+        salary_currency,
+        status,
+        expired_at: parseDate(expired_at),
       });
+
+      // If the user's active subscription is a per-post plan, consume one credit now
+      if (req._perPostSub) {
+        await Subscription.decrementPostsRemaining(req._perPostSub.id);
+      }
 
       return res.status(201).json({
         message: 'Job posting created successfully',
-        data: job
+        data: job,
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -122,6 +167,20 @@ class JobPostingController {
       if (salary_currency) fields.salary_currency = salary_currency;
       if (status) fields.status = status;
       if (expired_at !== undefined) fields.expired_at = parseDate(expired_at);
+
+      const touchedFields = Object.keys(fields);
+      const hasNonStatusEdit = touchedFields.some((k) => EDITABLE_FIELDS.includes(k));
+
+      if (existing.status === 'Active' && hasNonStatusEdit) {
+        if ((existing.report_count ?? 0) < THRESHOLDS.WARN) {
+          return res.status(400).json({
+            message: 'Active postings cannot be edited. Close the post and repost to make changes.',
+          });
+        }
+        fields.status = 'Draft';
+        fields.report_count = 0;
+        fields.warned_at = null;
+      }
 
       const updated = await JobPosting.update(id, fields);
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 
 const API_BASE = "http://localhost:5000/api";
@@ -77,6 +77,7 @@ export default function Devlogs() {
     cover_image: null,
   });
   const [submitting, setSubmitting] = useState(false);
+  const isLoggedIn = !!localStorage.getItem("token");
 
   useEffect(() => {
     fetchDevlogs(activeFilter);
@@ -91,7 +92,7 @@ export default function Devlogs() {
           ? `${API_BASE}/devlog`
           : `${API_BASE}/devlog/category/${category}`;
       const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const result = await res.json();
       const raw = result.data || [];
@@ -216,12 +217,21 @@ export default function Devlogs() {
             </p>
           </div>
 
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-black text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
-          >
-            <span className="text-base">+</span> New Devlog
-          </button>
+          {isLoggedIn ? (
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-black text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
+            >
+              <span className="text-base">+</span> New Devlog
+            </button>
+          ) : (
+            <Link
+              to="/login?redirect=/DevLogs"
+              className="flex items-center gap-2 bg-yellow-400/80 hover:bg-yellow-300 text-black text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
+            >
+              Sign in to post
+            </Link>
+          )}
         </div>
 
         {/* Filter */}
