@@ -49,7 +49,7 @@ export default function DevlogDetail() {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE}/devlog/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const result = await res.json();
       const log = result.data;

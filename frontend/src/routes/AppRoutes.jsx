@@ -13,6 +13,8 @@ import MyCollection from "../pages/MyCollection";
 import JobApplicantsPage from "../pages/JobApplicantsPage";
 import Devlogs from "../pages/DevLogs";
 import DevlogDetail from "../components/DevLogs/DevLogDetail";
+import Subscription from "../pages/Subscription";
+import SubscriptionCallback from "../pages/SubscriptionCallback";
 
 const AppRoutes = () => {
   return (
@@ -27,14 +29,7 @@ const AppRoutes = () => {
       <Route path="/job/:id" element={<JobApplicantsPage />} />
       <Route path="/devlog/:id" element={<DevlogDetail />} />
 
-      <Route
-        path="/Job"
-        element={
-          <ProtectedRoute>
-            <JobPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/Job" element={<JobPage />} />
 
       <Route
         path="/JobPost"
@@ -72,15 +67,25 @@ const AppRoutes = () => {
         }
       />
 
+      <Route path="/DevLogs" element={<Devlogs />} />
+
       <Route
-        path="/DevLogs"
+        path="/subscription"
         element={
           <ProtectedRoute>
-            <Devlogs />
+            <Subscription />
           </ProtectedRoute>
         }
       />
 
+      <Route
+        path="/subscription/callback"
+        element={
+          <ProtectedRoute>
+            <SubscriptionCallback />
+          </ProtectedRoute>
+        }
+      />
 
     </Routes>
   );

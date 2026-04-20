@@ -2,6 +2,7 @@ import { useState } from "react";
 import { loginUser } from "../features/auth/authService";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import noise from "../assets/images/noise.png";
+import Captcha from "../components/Captcha";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Login = () => {
     password: "",
   });
 
+  const [captchaToken, setCaptchaToken] = useState(null);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
@@ -25,8 +27,13 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
+    if (!captchaToken) {
+      setError("Please complete the captcha.");
+      return;
+    }
+
     try {
-      const response = await loginUser(form);
+      const response = await loginUser({ ...form, captcha_token: captchaToken });
 
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
@@ -96,9 +103,14 @@ const Login = () => {
             />
           </div>
 
+          <div className="mb-4 flex justify-center">
+            <Captcha onChange={setCaptchaToken} />
+          </div>
+
           <button
             type="submit"
-            className="w-full bg-yellow-500 text-black py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-all duration-200 hover:scale-[1.02]"
+            disabled={!captchaToken}
+            className="w-full bg-yellow-500 disabled:bg-yellow-500/40 disabled:cursor-not-allowed text-black py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-all duration-200 hover:scale-[1.02] disabled:hover:scale-100"
           >
             Sign In
           </button>

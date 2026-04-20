@@ -1,4 +1,6 @@
 -- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS core_job_reports CASCADE;
+DROP TABLE IF EXISTS core_subscriptions CASCADE;
 DROP TABLE IF EXISTS core_comments CASCADE;
 DROP TABLE IF EXISTS core_likes CASCADE;
 DROP TABLE IF EXISTS core_dev_log_media CASCADE;
@@ -25,6 +27,9 @@ DROP TYPE IF EXISTS application_status CASCADE;
 DROP TYPE IF EXISTS dev_log_status CASCADE;
 DROP TYPE IF EXISTS dev_log_category CASCADE;
 DROP TYPE IF EXISTS entity_type CASCADE;
+DROP TYPE IF EXISTS subscription_plan CASCADE;
+DROP TYPE IF EXISTS payment_status CASCADE;
+DROP TYPE IF EXISTS report_reason CASCADE;
 
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate');
@@ -32,12 +37,15 @@ CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
 CREATE TYPE art_category AS ENUM('art', 'post', 'community'); -- for art & post without art
 CREATE TYPE work_option_type AS ENUM ('On-site', 'Hybrid', 'Remote');
 CREATE TYPE work_type_type AS ENUM ('Full-time', 'Part-time', 'Contract', 'Casual');
-CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked');
+CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked', 'Auto-Closed');
 CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'USD');
 CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'hired');
 CREATE TYPE dev_log_status AS ENUM ('Draft', 'Published', 'Archived');
 CREATE TYPE dev_log_category AS ENUM ('major_update', 'minor_update', 'patch_notes', 'announcement', 'feature', 'bugfix', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion', 'tutorial', 'culture', 'marketing');
 CREATE TYPE entity_type AS ENUM ('art', 'devlog', 'forum');
+CREATE TYPE subscription_plan AS ENUM ('pro_monthly', 'corporate_monthly', 'pro_per_post', 'corporate_per_post');
+CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'expired');
+CREATE TYPE report_reason AS ENUM ('off_scope', 'spam', 'scam', 'duplicate', 'inappropriate', 'other');
 
 
 
@@ -115,14 +123,16 @@ CREATE TABLE core_job_posting (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL, -- e.g. 'Senior Concept Artist'
-    description TEXT, 
-    job_location VARCHAR(255), 
-    work_option work_option_type, 
-    work_type work_type_type,             
-    salary_min INTEGER,                    
-    salary_max INTEGER,                   
+    description TEXT,
+    job_location VARCHAR(255),
+    work_option work_option_type,
+    work_type work_type_type,
+    salary_min INTEGER,
+    salary_max INTEGER,
     salary_currency currency_type DEFAULT 'IDR',
     status job_status_type DEFAULT 'Draft',
+    report_count INTEGER NOT NULL DEFAULT 0,
+    warned_at TIMESTAMPTZ,
     expired_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -137,7 +147,36 @@ CREATE TABLE core_job_applications (
     cv VARCHAR(255),
     applied_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (job_id, applicant_id)  
+    UNIQUE (job_id, applicant_id)
+);
+
+-- Subscriptions
+CREATE TABLE core_subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    plan subscription_plan NOT NULL,
+    amount INTEGER NOT NULL,
+    currency currency_type NOT NULL DEFAULT 'IDR',
+    midtrans_order_id VARCHAR(100) UNIQUE,
+    status payment_status NOT NULL DEFAULT 'pending',
+    active_from TIMESTAMPTZ,
+    active_until TIMESTAMPTZ,
+    posts_remaining INTEGER,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX idx_subscriptions_user_active
+    ON core_subscriptions (user_id, status, active_until);
+
+-- Job reports (community moderation; one report per user per post)
+CREATE TABLE core_job_reports (
+    id SERIAL PRIMARY KEY,
+    job_id INTEGER NOT NULL REFERENCES core_job_posting(id) ON DELETE CASCADE,
+    reporter_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+    reason report_reason NOT NULL,
+    note TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (job_id, reporter_id)
 );
 
 -- 4. Create Dev Log table

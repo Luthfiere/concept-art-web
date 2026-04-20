@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import noise from "../assets/images/noise.png";
+import Captcha from "../components/Captcha";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ export default function Register() {
     password: "",
   });
 
+  const [captchaToken, setCaptchaToken] = useState(null);
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -20,13 +23,16 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
+    if (!captchaToken) {
+      alert("Please complete the captcha.");
+      return;
+    }
     try {
-      await api.post("/register", form);
+      await api.post("/register", { ...form, captcha_token: captchaToken });
       alert("Register success!");
       navigate("/");
     } catch (err) {
-      console.error(err);
-      alert("Register failed");
+      alert(err.response?.data?.message || "Register failed");
     }
   };
 
@@ -77,9 +83,14 @@ export default function Register() {
             className="w-full p-3 rounded-xl bg-[#1b1f3a] outline-none focus:ring-2 focus:ring-yellow-500"
           />
 
+          <div className="flex justify-center">
+            <Captcha onChange={setCaptchaToken} />
+          </div>
+
           <button
             onClick={handleRegister}
-            className="w-full bg-yellow-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition"
+            disabled={!captchaToken}
+            className="w-full bg-yellow-500 disabled:bg-yellow-500/40 disabled:cursor-not-allowed text-black py-3 rounded-xl font-semibold hover:scale-105 disabled:hover:scale-100 transition"
           >
             Register
           </button>
