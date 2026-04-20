@@ -44,6 +44,12 @@ export const TYPE_CONFIG = {
     bg: "bg-red-400/10",
     badge: "border-red-400/30 text-red-400",
   },
+  devlog: {
+    label: "Devlog",
+    dot: "bg-indigo-400",
+    border: "border-indigo-400/40",
+    badge: "border-indigo-400/30 text-indigo-300",
+  },
 };
 
 export const STATUS_CONFIG = {
