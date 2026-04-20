@@ -60,9 +60,16 @@ const PostArt = () => {
   };
 
   const removeFile = (index) => {
-    URL.revokeObjectURL(previews[index]);
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+  setFiles((prevFiles) => {
+    const newFiles = prevFiles.filter((_, i) => i !== index);
+    return newFiles;
+  });
+
+  setPreviews((prevPreviews) => {
+    URL.revokeObjectURL(prevPreviews[index]);
+    return prevPreviews.filter((_, i) => i !== index);
+  });
+};
 
   useEffect(() => {
     const urls = files.map((f) => URL.createObjectURL(f));

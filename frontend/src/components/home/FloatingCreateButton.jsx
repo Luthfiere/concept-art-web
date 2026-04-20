@@ -65,7 +65,19 @@ const FloatingCreateButton = ({ onCreatePost }) => {
   }, []);
 
   const actions = [
-    { label: "Post Art", key: "art", action: () => navigate("/post-art"), icon: <ImageIcon /> },
+    {
+      label: "Post Art", key: "art", action: () => {
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          navigate("/login?redirect=/post-art");
+        } else {
+          navigate("/post-art");
+        }
+      },
+      icon: <ImageIcon />
+    },
     { label: "Share Idea", key: "idea", action: () => onCreatePost?.("post"), icon: <LightbulbIcon /> },
     { label: "Community Post", key: "community", action: () => onCreatePost?.("community"), icon: <ChatIcon /> },
   ];
@@ -78,9 +90,8 @@ const FloatingCreateButton = ({ onCreatePost }) => {
       {/* Main FAB */}
       <button
         onClick={() => setOpen(!open)}
-        className={`w-14 h-14 rounded-full bg-yellow-500 text-black shadow-lg shadow-yellow-500/25 flex items-center justify-center hover:scale-110 hover:shadow-yellow-500/40 transition-all duration-200 ${
-          open ? "rotate-45" : ""
-        }`}
+        className={`w-14 h-14 rounded-full bg-yellow-500 text-black shadow-lg shadow-yellow-500/25 flex items-center justify-center hover:scale-110 hover:shadow-yellow-500/40 transition-all duration-200 ${open ? "rotate-45" : ""
+          }`}
       >
         <svg
           className="w-6 h-6"
