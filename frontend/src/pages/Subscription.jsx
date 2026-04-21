@@ -28,7 +28,7 @@ const Subscription = () => {
   });
 
   useEffect(() => {
-    Promise.all([api.get("/subscriptions/plans"), api.get("/subscriptions/me")])
+    Promise.all([api.get("/subscriptions/plans"), api.get("/subscriptions/")])
       .then(([plansRes, meRes]) => {
         setPlans(plansRes.data.data);
         setCurrentSub(meRes.data.data);

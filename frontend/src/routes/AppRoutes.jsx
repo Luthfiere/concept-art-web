@@ -15,6 +15,7 @@ import Devlogs from "../pages/DevLogs";
 import DevlogDetail from "../components/DevLogs/DevLogDetail";
 import Subscription from "../pages/Subscription";
 import SubscriptionCallback from "../pages/SubscriptionCallback";
+import SettingsPage from "../pages/SettingsPage";
 
 const AppRoutes = () => {
   return (
@@ -22,7 +23,6 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
 
       <Route path="/art/:id" element={<ArtDetail />} />
       <Route path="/post/:id" element={<PostDetail />} />
@@ -87,6 +87,14 @@ const AppRoutes = () => {
         }
       />
 
+      <Route
+        path="/Settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

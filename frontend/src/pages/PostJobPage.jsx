@@ -15,7 +15,7 @@ const PostJobPage = () => {
   useEffect(() => {
     if (!hasPayingRole) return;
     api
-      .get("/subscriptions/me")
+      .get("/subscriptions/")
       .then((res) => setSub(res.data.data))
       .catch(() => setSub(null))
       .finally(() => setLoadingSub(false));

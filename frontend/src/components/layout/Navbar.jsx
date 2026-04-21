@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Logo from "../../assets/images/Logo-White.png";
 import { useChat } from "../../context/ChatContext";
+const BASE_URL = "http://localhost:5000";
 
 const Navbar = () => {
   const storedUser = localStorage.getItem("user");
@@ -26,9 +27,9 @@ const Navbar = () => {
     window.location.reload();
   };
 
-  const avatar =
-    user?.profile_picture ||
-    `https://api.dicebear.com/7.x/initials/svg?seed=${user?.username}`;
+  const avatar = user?.profile_image
+    ? `${BASE_URL}/${user.profile_image}`
+    : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.username}`;
 
   const navLinks = [
     { name: "Art / Ideation Gallery", path: "/" },
@@ -50,12 +51,34 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
           aria-label="Toggle menu"
         >
           {mobileOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           )}
         </button>
@@ -104,7 +127,11 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
               </svg>
             </button>
 
@@ -159,57 +186,57 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
           </button>
 
           <div className="relative">
-          <button
-            onClick={() => setOpen(!open)}
-            className="rounded-full focus:ring-2 focus:ring-yellow-400"
-          >
-            <img
-              className="w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 transition"
-              src={avatar}
-              alt="avatar"
-            />
-          </button>
-
-          {open && (
-            <div
-              className="absolute right-0 mt-3 w-48
-        bg-[#111827] border border-white/10 rounded-xl shadow-xl backdrop-blur-lg"
+            <button
+              onClick={() => setOpen(!open)}
+              className="rounded-full focus:ring-2 focus:ring-yellow-400"
             >
-              <div className="px-4 py-3 text-sm border-b border-white/10">
-                <p className="text-white font-medium">{user.username}</p>
-                <p className="text-gray-400 truncate text-xs">{user.email}</p>
+              <img
+                className="w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 transition"
+                src={avatar}
+                alt="avatar"
+              />
+            </button>
+
+            {open && (
+              <div
+                className="absolute right-0 mt-3 w-48
+        bg-[#111827] border border-white/10 rounded-xl shadow-xl backdrop-blur-lg"
+              >
+                <div className="px-4 py-3 text-sm border-b border-white/10">
+                  <p className="text-white font-medium">{user.username}</p>
+                  <p className="text-gray-400 truncate text-xs">{user.email}</p>
+                </div>
+
+                <ul className="py-2 text-sm text-gray-300">
+                  <li>
+                    <Link
+                      to="/mycollection"
+                      className="block px-4 py-2 hover:bg-white/5"
+                    >
+                      My Collection
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link
+                      to="/settings"
+                      className="block px-4 py-2 hover:bg-white/5"
+                    >
+                      Settings
+                    </Link>
+                  </li>
+
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 hover:bg-white/5"
+                    >
+                      Sign out
+                    </button>
+                  </li>
+                </ul>
               </div>
-
-              <ul className="py-2 text-sm text-gray-300">
-                <li>
-                  <Link
-                    to="/mycollection"
-                    className="block px-4 py-2 hover:bg-white/5"
-                  >
-                    My Collection
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    to="/settings"
-                    className="block px-4 py-2 hover:bg-white/5"
-                  >
-                    Settings
-                  </Link>
-                </li>
-
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 hover:bg-white/5"
-                  >
-                    Sign out
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
+            )}
           </div>
         </div>
       ) : (
