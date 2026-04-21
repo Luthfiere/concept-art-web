@@ -61,6 +61,12 @@ export default function DevlogDetail() {
             : `${BASE_URL}/${log.cover_image}`
           : null,
       });
+
+      const isAuthor =
+        currentUserId && Number(currentUserId) === Number(log.user_id);
+      if (!isAuthor) {
+        api.post(`/devlog/${id}/view`).catch(() => {});
+      }
     } catch (err) {
       console.error(err);
     }

@@ -6,13 +6,13 @@ import authToken from '../middlewares/authMiddleware.js';
 import uploadDevLogCover from '../middlewares/multerDevlogCover.js';
 import multerErrorHandler from '../middlewares/multerErrorHandler.js';
 
-// Public reads — anyone can browse devlogs without logging in
 router.get('/', DevLogController.getAll);
 router.get('/category/:category', DevLogController.getByCategory);
 router.get('/user/:user_id', authToken, DevLogController.getByUser);
 router.get('/:id', DevLogController.getById);
 
-// Writes require auth
+router.post('/:id/view', DevLogController.incrementView);
+
 router.post(
   '/',
   authToken,

@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 import auths from './routes/auths.js';
+import users from './routes/users.js';
 import conceptArts from './routes/concept-arts.js';
 import artMedia from './routes/art-media.js';
 import likes from './routes/likes.js';
@@ -85,6 +86,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.use("/api", auths);
+app.use("/api/users", users);
 app.use("/api/concept-arts", conceptArts);
 app.use("/api/art-media", artMedia);
 app.use("/api/likes", likes);

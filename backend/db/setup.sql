@@ -55,7 +55,8 @@ CREATE TABLE master_users (
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role tier_type DEFAULT 'member'
+    role tier_type DEFAULT 'member',
+    profile_image VARCHAR(255)
 );
 
 -- 2. Create Concept Art table
@@ -67,6 +68,7 @@ CREATE TABLE core_concept_art (
     status status_type DEFAULT 'Open',
     tag TEXT,
     category art_category DEFAULT 'art',
+    views INTEGER,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -184,12 +186,13 @@ CREATE TABLE core_dev_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
-    content TEXT,                          
-    cover_image VARCHAR(255),              
+    content TEXT,
+    cover_image VARCHAR(255),
     category dev_log_category DEFAULT 'devlog',
     genre VARCHAR(255),
-    tag VARCHAR(255),                      
+    tag VARCHAR(255),
     status dev_log_status DEFAULT 'Draft',
+    views INTEGER,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

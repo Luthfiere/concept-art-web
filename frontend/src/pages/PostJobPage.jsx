@@ -45,7 +45,7 @@ const PostJobPage = () => {
             title="Sign in required"
             body="You need to sign in before posting a job."
             ctaLabel="Sign in"
-            to="/login"
+            to="/login?redirect=/JobPost"
           />
         ) : !hasPayingRole ? (
           <GateCard

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../services/api";
+import { registerUser } from "../features/auth/authService";
 import noise from "../assets/images/noise.png";
 import Captcha from "../components/Captcha";
 
@@ -28,8 +28,9 @@ export default function Register() {
       return;
     }
     try {
-      await api.post("/register", { ...form, captcha_token: captchaToken });
-      alert("Register success!");
+      const response = await registerUser({ ...form, captcha_token: captchaToken });
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
       navigate("/");
     } catch (err) {
       alert(err.response?.data?.message || "Register failed");
@@ -43,6 +44,13 @@ export default function Register() {
         background: "linear-gradient(to bottom, #050816, #0b0f2a)",
       }}
     >
+      <Link
+        to="/"
+        className="absolute top-5 left-5 z-10 flex items-center gap-1.5 text-sm text-gray-400 hover:text-yellow-400 transition"
+      >
+        <span>&larr;</span> Back to home
+      </Link>
+
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
       {/* Radial Glow */}

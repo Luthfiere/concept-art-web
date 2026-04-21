@@ -171,6 +171,25 @@ class DevLogController {
       return res.status(500).json({ message: err.message });
     }
   }
+
+  static async incrementView(req, res) {
+    try {
+      const { id } = req.params;
+
+      const updated = await DevLog.incrementViews(id);
+
+      if (!updated) {
+        return res.status(404).json({ message: 'Dev log not found' });
+      }
+
+      return res.status(200).json({
+        message: 'View recorded',
+        views: updated.views
+      });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  }
 }
 
 export default DevLogController;

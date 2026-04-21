@@ -9,6 +9,8 @@ router.get('/category/:category', ConceptArtController.getByCategory);
 router.get('/user/:user_id', ConceptArtController.getByUser);
 router.get('/:id', ConceptArtController.getById);
 
+router.post('/:id/view', ConceptArtController.incrementView);
+
 router.post('/', authToken, ConceptArtController.create);
 
 router.put('/:id', authToken, ConceptArtController.update);

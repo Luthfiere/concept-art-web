@@ -138,6 +138,16 @@ class DevLog {
     `, [id]);
     return result.rows[0];
   }
+
+  static async incrementViews(id) {
+    const result = await db.query(`
+      UPDATE core_dev_log
+      SET views = COALESCE(views, 0) + 1
+      WHERE id = $1
+      RETURNING views
+    `, [id]);
+    return result.rows[0];
+  }
 }
 
 export default DevLog;

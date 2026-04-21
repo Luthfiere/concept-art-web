@@ -69,7 +69,8 @@ class AuthController {
           id: user.id,
           email: user.email,
           username: user.username,
-          role: user.role
+          role: user.role,
+          profile_image: user.profile_image
         }
       });
 
@@ -114,13 +115,26 @@ class AuthController {
 
       logger.info(`User registered: ${email}`);
 
+      const payload = {
+        user_id: newUser.id,
+        email: newUser.email,
+        username: newUser.username,
+        role: newUser.role
+      };
+
+      const token = jwt.sign(payload, CONFIG.JWT_SECRET, {
+        expiresIn: '1h'
+      });
+
       return res.status(201).json({
         message: 'User registered successfully',
+        token,
         user: {
           id: newUser.id,
           email: newUser.email,
           username: newUser.username,
-          role: newUser.role
+          role: newUser.role,
+          profile_image: newUser.profile_image
         }
       });
 

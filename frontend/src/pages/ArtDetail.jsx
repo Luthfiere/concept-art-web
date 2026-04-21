@@ -83,9 +83,16 @@ const ArtDetail = () => {
           m.media.replace(/\\/g, "/"),
         );
 
-        setArt({ ...artRes.data.art, images });
+        const artData = artRes.data.art;
+        setArt({ ...artData, images });
         setLikes(likesRes.data.data.length);
         setComments(commentsRes.data.data);
+
+        const isAuthor =
+          currentUserId && Number(currentUserId) === Number(artData.user_id);
+        if (!isAuthor) {
+          api.post(`/concept-arts/${id}/view`).catch(() => {});
+        }
 
         if (isLoggedIn) {
           const statusRes = await api.get(`/likes/art/${id}/status`);

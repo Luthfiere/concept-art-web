@@ -16,6 +16,8 @@ const PostDetail = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const isLoggedIn = !isTokenExpired();
+  const storedUser = localStorage.getItem("user");
+  const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
 
   const isImage = (path) => /\.(jpg|jpeg|png|gif|webp)$/i.test(path);
 
@@ -41,6 +43,12 @@ const PostDetail = () => {
           images,
         };
         setPost(postData);
+
+        const isAuthor =
+          currentUserId && Number(currentUserId) === Number(raw.user_id);
+        if (!isAuthor) {
+          api.post(`/concept-arts/${id}/view`).catch(() => {});
+        }
 
         // likes (optional)
         try {

@@ -48,6 +48,13 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 bg-black overflow-hidden text-white">
+      <Link
+        to="/"
+        className="absolute top-5 left-5 z-10 flex items-center gap-1.5 text-sm text-gray-400 hover:text-yellow-400 transition"
+      >
+        <span>&larr;</span> Back to home
+      </Link>
+
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
 

@@ -38,13 +38,13 @@ class User {
     return result.rows[0];
   }
 
-  static async create({ email, username, password }) {    
+  static async create({ email, username, password }) {
     const result = await db.query(`
-      INSERT INTO master_users (email, username, password) 
-      VALUES ($1, $2, $3) 
-      RETURNING id, email, username, role
+      INSERT INTO master_users (email, username, password)
+      VALUES ($1, $2, $3)
+      RETURNING id, email, username, role, profile_image
     `, [email, username, password]);
-    
+
     return result.rows[0];
   }
 
