@@ -79,7 +79,7 @@ const ChatWidget = () => {
         <div className="fixed z-[55] sm:bottom-24 sm:left-8 sm:w-[380px] sm:h-[500px] sm:rounded-xl bottom-0 left-0 w-full h-full bg-[#0f1225] border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-fade-in">
           {/* Panel header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
-            <h3 className="text-sm font-semibold text-white">Chats</h3>
+            <h3 className="text-sm font-semibold text-white">Private Chats</h3>
             <button
               onClick={toggleChat}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-200"

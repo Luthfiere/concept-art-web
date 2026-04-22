@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
 import { useChat } from "../context/ChatContext";
+import { parseTags } from "../utils/sanitize";
 
 const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
   <svg
@@ -301,9 +302,16 @@ const ArtDetail = () => {
               <h1 className="text-base sm:text-lg font-bold text-white leading-snug">
                 {art.title}
               </h1>
-              <span className="inline-block mt-1.5 bg-yellow-500/10 text-yellow-500 text-[11px] font-medium px-2.5 py-0.5 rounded-md">
-                {art.tag}
-              </span>
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {parseTags(art.tag).map((t) => (
+                  <span
+                    key={t}
+                    className="inline-block bg-yellow-500/10 text-yellow-500 text-[11px] font-medium px-2.5 py-0.5 rounded-md"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
 
             {/* Like button + Stats */}

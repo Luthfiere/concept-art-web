@@ -1,4 +1,5 @@
 import CardActions from "./CardActions";
+import { parseTags } from "../../utils/sanitize";
 
 const HeartIcon = () => (
   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
@@ -24,10 +25,15 @@ const PostCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
 
       <div className="p-5">
         {/* Tag pill */}
-        <div className="flex items-center gap-2">
-          <span className="inline-block text-[11px] font-medium bg-blue-500/10 text-blue-400 px-2.5 py-0.5 rounded-full">
-            {item.tag}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {parseTags(item.tag).map((t) => (
+            <span
+              key={t}
+              className="inline-block text-[11px] font-medium bg-blue-500/10 text-blue-400 px-2.5 py-0.5 rounded-full"
+            >
+              {t}
+            </span>
+          ))}
         </div>
 
         {/* Title */}

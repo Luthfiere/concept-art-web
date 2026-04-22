@@ -75,60 +75,97 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
         <h2 className="text-lg font-semibold mb-4">Edit Devlog</h2>
 
         {/* TITLE */}
-        <input
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Title..."
-          className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
-        />
+        <div className="mb-3">
+          <label className="text-xs font-medium text-gray-400 mb-1 block">
+            Devlog Title <span className="text-red-400">*</span>
+          </label>
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder=" "
+            className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
+          />
+        </div>
 
         {/* CONTENT */}
-        <textarea
-          name="content"
-          value={form.content}
-          onChange={handleChange}
-          rows={4}
-          placeholder="Write your devlog..."
-          className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
-        />
+        <div className="mb-3">
+          <label className="text-xs font-medium text-gray-400 mb-1 block">
+            Description <span className="text-red-400">*</span>
+          </label>
+          <textarea
+            name="content"
+            value={form.content}
+            onChange={handleChange}
+            rows={4}
+            placeholder="Describe what you built, fixed, or learned in this update..."
+            className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
+          />
+        </div>
 
         {/* GENRE */}
-        <input
-          name="genre"
-          value={form.genre}
-          onChange={handleChange}
-          placeholder="Genre..."
-          className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
-        />
+        <div className="mb-3">
+          <label className="text-xs font-medium text-gray-400 mb-1 block">
+            Game Genre
+          </label>
+          <input
+            name="genre"
+            value={form.genre}
+            onChange={handleChange}
+            placeholder="e.g. 3D Platformer, FPS, Roguelike"
+            className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
+          />
+          <p className="text-[10px] text-gray-500 mt-1">
+            The kind of game you're making — shown on your devlog so readers know the context.
+          </p>
+        </div>
 
         {/* TAG */}
-        <input
-          name="tag"
-          value={form.tag}
-          onChange={handleChange}
-          placeholder="Tag..."
-          className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
-        />
+        <div className="mb-3">
+          <label className="text-xs font-medium text-gray-400 mb-1 block">
+            Tags
+          </label>
+          <input
+            name="tag"
+            value={form.tag}
+            onChange={handleChange}
+            placeholder="e.g. boss fight, AI, open world"
+            className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
+          />
+          <p className="text-[10px] text-gray-500 mt-1">
+            Specific features, systems, or topics covered. Separate multiple tags with commas.
+          </p>
+        </div>
 
         {/* STATUS */}
-        <select
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-          className="w-full mb-4 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm"
-        >
-          <option value="">Status</option>
-          <option value="Published">Published</option>
-          <option value="Draft">Draft</option>
-        </select>
+        <div className="mb-4">
+          <label className="text-xs font-medium text-gray-400 mb-1 block">
+            Visibility <span className="text-red-400">*</span>
+          </label>
+          <select
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+            className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm"
+          >
+            <option value="">Select status...</option>
+            <option value="Published">Published</option>
+            <option value="Draft">Draft</option>
+          </select>
+          <p className="text-[10px] text-gray-500 mt-1">
+            Draft keeps this hidden; Published makes it visible to everyone.
+          </p>
+        </div>
 
         {/* COVER */}
+        <label className="text-xs font-medium text-gray-400 mb-1 block">
+          Cover Image
+        </label>
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          className={`w-full mb-4 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer relative transition
+          className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer relative transition
             ${
               isDragging
                 ? "border-indigo-400 bg-indigo-400/10"
@@ -174,8 +211,14 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
             </div>
           )}
         </div>
+        <p className="text-[10px] text-gray-500 mb-3">
+          Appears at the top of your devlog and in feed previews.
+        </p>
 
         {/* MEDIA */}
+        <label className="text-xs font-medium text-gray-400 mb-1 block">
+          Additional Media
+        </label>
         <div
           onDrop={(e) => {
             e.preventDefault();
@@ -187,7 +230,7 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
             setIsDraggingMedia(true);
           }}
           onDragLeave={() => setIsDraggingMedia(false)}
-          className={`w-full mb-4 border-2 border-dashed rounded-lg p-4 text-center transition
+          className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center transition
             ${
               isDraggingMedia
                 ? "border-indigo-400 bg-indigo-400/10"
@@ -251,6 +294,9 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
             </div>
           )}
         </div>
+        <p className="text-[10px] text-gray-500 mb-3">
+          Screenshots or short clips that illustrate the update (optional).
+        </p>
 
         {/* ACTION */}
         <div className="flex justify-end gap-2">

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { parseTags } from "../../utils/sanitize";
 
 const BASE_URL = "http://localhost:5000";
 
@@ -90,9 +91,16 @@ const DevlogCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
 
         {/* TAG */}
         {item.tag && (
-          <p className="text-[10px] font-mono text-amber-300 tracking-wider mb-1">
-            #{item.tag}
-          </p>
+          <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-1">
+            {parseTags(item.tag).map((t) => (
+              <span
+                key={t}
+                className="text-[10px] font-mono text-amber-300 tracking-wider"
+              >
+                #{t}
+              </span>
+            ))}
+          </div>
         )}
 
         {/* CONTENT */}

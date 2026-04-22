@@ -261,7 +261,7 @@ const PostArt = () => {
               <div className="flex flex-wrap gap-3">
                 <div className="flex-1 min-w-[150px]">
                   <label className="text-xs font-medium text-gray-400 mb-1 block">
-                    Tag
+                    Tags
                   </label>
                   <input
                     name="tag"
@@ -270,6 +270,9 @@ const PostArt = () => {
                     placeholder="e.g. Fantasy, Sci-Fi"
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all duration-200"
                   />
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Separate multiple tags with commas.
+                  </p>
                 </div>
                 <div className="w-32">
                   <label className="text-xs font-medium text-gray-400 mb-1 block">

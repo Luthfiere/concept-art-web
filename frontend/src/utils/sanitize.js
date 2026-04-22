@@ -25,3 +25,9 @@ export const isValidEmail = (s) => validator.isEmail(String(s ?? ""));
 
 export const isValidURL = (s) =>
   validator.isURL(String(s ?? ""), { require_protocol: false });
+
+export const parseTags = (tag) =>
+  String(tag ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);

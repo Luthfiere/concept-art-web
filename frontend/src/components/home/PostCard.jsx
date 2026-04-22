@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { parseTags } from "../../utils/sanitize";
 
 const HeartIcon = () => (
   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
@@ -57,11 +58,16 @@ const PostCard = ({ post, index }) => {
 
       <div className="p-5">
         {/* Tag pill + community badge */}
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/10 text-emerald-400 px-2.5 py-0.5 rounded-full">
-            <ChatBubbleIcon />
-            {post.tag}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {parseTags(post.tag).map((t, i) => (
+            <span
+              key={t}
+              className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/10 text-emerald-400 px-2.5 py-0.5 rounded-full"
+            >
+              {i === 0 && <ChatBubbleIcon />}
+              {t}
+            </span>
+          ))}
         </div>
 
         {/* Title */}

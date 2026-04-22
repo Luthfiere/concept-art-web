@@ -394,65 +394,102 @@ export default function Devlogs() {
             <h2 className="text-lg font-semibold mb-4">Create Devlog</h2>
 
             {/* Title */}
-            <input
-              type="text"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="Title..."
-              className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-            />
+            <div className="mb-3">
+              <label className="text-xs font-medium text-gray-400 mb-1 block">
+                Devlog Title <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                placeholder=" "
+                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+              />
+            </div>
 
             {/* Content */}
-            <textarea
-              name="content"
-              value={form.content}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Write your devlog..."
-              className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-            />
+            <div className="mb-3">
+              <label className="text-xs font-medium text-gray-400 mb-1 block">
+                Description <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                name="content"
+                value={form.content}
+                onChange={handleChange}
+                rows={4}
+                placeholder="Describe what you built, fixed, or learned in this update..."
+                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+              />
+            </div>
 
             {/* Category */}
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none"
-            >
-              {CATEGORIES.filter((c) => c !== "all").map((cat) => (
-                <option key={cat} value={cat}>
-                  {CATEGORY_LABELS[cat]}
-                </option>
-              ))}
-            </select>
+            <div className="mb-3">
+              <label className="text-xs font-medium text-gray-400 mb-1 block">
+                Post Type <span className="text-red-400">*</span>
+              </label>
+              <select
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none"
+              >
+                {CATEGORIES.filter((c) => c !== "all").map((cat) => (
+                  <option key={cat} value={cat}>
+                    {CATEGORY_LABELS[cat]}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-gray-500 mt-1">
+                Pick the label that best describes this post (e.g. patch notes, feature, milestone).
+              </p>
+            </div>
 
             {/* Genre */}
-            <input
-              type="text"
-              name="genre"
-              value={form.genre}
-              onChange={handleChange}
-              placeholder="ex. 3D Platformer, First Person Shooter, 2D Platformer"
-              className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-            />
+            <div className="mb-3">
+              <label className="text-xs font-medium text-gray-400 mb-1 block">
+                Game Genre
+              </label>
+              <input
+                type="text"
+                name="genre"
+                value={form.genre}
+                onChange={handleChange}
+                placeholder="e.g. 3D Platformer, FPS, Roguelike"
+                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">
+                The kind of game you're making — shown on your devlog so readers know the context.
+              </p>
+            </div>
 
             {/* Tag */}
-            <input
-              type="text"
-              name="tag"
-              value={form.tag}
-              onChange={handleChange}
-              placeholder="ex. Boss, Ai, open world, survival"
-              className="w-full mb-3 px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-            />
+            <div className="mb-3">
+              <label className="text-xs font-medium text-gray-400 mb-1 block">
+                Tags
+              </label>
+              <input
+                type="text"
+                name="tag"
+                value={form.tag}
+                onChange={handleChange}
+                placeholder="e.g. boss fight, AI, open world"
+                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">
+                Specific features, systems, or topics covered. Separate multiple tags with commas.
+              </p>
+            </div>
 
             {/* Cover */}
+            <label className="text-xs font-medium text-gray-400 mb-1 block">
+              Cover Image
+            </label>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
-              className={`w-full mb-4 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition relative
+              className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition relative
                 ${
                   isDragging
                     ? "border-yellow-400 bg-yellow-400/10 scale-[1.02]"
@@ -501,8 +538,14 @@ export default function Devlogs() {
                 </div>
               )}
             </div>
+            <p className="text-[10px] text-gray-500 mb-3">
+              Appears at the top of your devlog and in feed previews.
+            </p>
 
             {/* DEVLOG MEDIA */}
+            <label className="text-xs font-medium text-gray-400 mb-1 block">
+              Additional Media
+            </label>
             <div
               onDrop={(e) => {
                 e.preventDefault();
@@ -514,7 +557,7 @@ export default function Devlogs() {
                 setIsDraggingMedia(true);
               }}
               onDragLeave={() => setIsDraggingMedia(false)}
-              className={`w-full mb-4 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition
+              className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition
                 ${
                   isDraggingMedia
                     ? "border-yellow-400 bg-yellow-400/10"
@@ -589,6 +632,9 @@ export default function Devlogs() {
                 </div>
               )}
             </div>
+            <p className="text-[10px] text-gray-500 mb-3">
+              Screenshots or short clips that illustrate the update (optional).
+            </p>
 
             {/* Actions */}
             <div className="flex justify-end gap-2">

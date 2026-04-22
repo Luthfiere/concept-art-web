@@ -1,4 +1,5 @@
 import CardActions from "./CardActions";
+import { parseTags } from "../../utils/sanitize";
 
 const ChatBubbleIcon = () => (
   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -34,11 +35,16 @@ const CommunityCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
 
       <div className="p-5">
         {/* Tag pill with chat icon */}
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/10 text-emerald-400 px-2.5 py-0.5 rounded-full">
-            <ChatBubbleIcon />
-            {item.tag}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {parseTags(item.tag).map((t, i) => (
+            <span
+              key={t}
+              className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/10 text-emerald-400 px-2.5 py-0.5 rounded-full"
+            >
+              {i === 0 && <ChatBubbleIcon />}
+              {t}
+            </span>
+          ))}
         </div>
 
         {/* Title */}

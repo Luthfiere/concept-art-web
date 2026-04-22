@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import { parseTags } from "../../utils/sanitize";
 
 const isVideo = (path) =>
   /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
@@ -100,17 +101,18 @@ const ArtCard = ({ art, index }) => {
       {/* Metadata — always visible on mobile, slides up on hover (md+) */}
       <div className="absolute inset-x-0 bottom-0 p-2 sm:p-3 md:translate-y-2 md:group-hover:translate-y-0 transition-transform duration-300">
         <p className="text-xs sm:text-sm font-semibold text-white truncate">{art.title}</p>
-        <div className="flex items-center justify-between mt-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-75">
-          <span
-            className="
-            text-[10px] px-2 py-0.5 rounded-full
-            bg-yellow-400/10 text-yellow-300 border border-yellow-400/20
-            font-medium
-            "
-          >
-            {art.tag}
-          </span>
-          <div className="flex items-center gap-2.5 text-[11px] text-gray-300">
+        <div className="flex items-center justify-between gap-2 mt-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-75">
+          <div className="flex flex-wrap gap-1 min-w-0">
+            {parseTags(art.tag).map((t) => (
+              <span
+                key={t}
+                className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-400/10 text-yellow-300 border border-yellow-400/20 font-medium"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center gap-2.5 text-[11px] text-gray-300 shrink-0">
             <span className="flex items-center gap-1">
               <HeartIcon /> {art.likes || 0}
             </span>

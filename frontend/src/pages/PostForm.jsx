@@ -206,17 +206,23 @@ const PostForm = () => {
             {/* Tag + Visibility — inline row */}
             <div className="flex flex-wrap gap-3">
               <div className="flex-1 min-w-[150px]">
+                <label className="text-[11px] font-medium text-gray-500 mb-1 block">
+                  Tags
+                </label>
                 <input
                   name="tag"
                   value={form.tag}
                   onChange={handleChange}
                   placeholder={
                     isCommunity
-                      ? "Tag: e.g. Discussion, Tutorial"
-                      : "Tag: e.g. Game Concept, Storyline"
+                      ? "e.g. Discussion, Tutorial"
+                      : "e.g. Game Concept, Storyline"
                   }
                   className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-xs text-gray-200 placeholder-gray-600 transition-all duration-200"
                 />
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Separate multiple tags with commas.
+                </p>
               </div>
               <select
                 name="status"

@@ -8,6 +8,7 @@ import IdeationCard from "../components/home/IdeationCard";
 import FloatingCreateButton from "../components/home/FloatingCreateButton";
 import PostFormModal from "../components/home/PostFormModal";
 import api from "../services/api";
+import { parseTags } from "../utils/sanitize";
 
 const isVideo = (path) =>
   /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
@@ -85,12 +86,15 @@ const Home = () => {
   );
 
   // Art filters
-  const artCategories = ["All", ...new Set(artOnly.map((a) => a.tag))];
+  const artCategories = [
+    "All",
+    ...new Set(artOnly.flatMap((a) => parseTags(a.tag))),
+  ];
 
   const filteredArtworks = artOnly
     .filter((art) => {
       if (selectedArtCategory === "All") return true;
-      return art.tag === selectedArtCategory;
+      return parseTags(art.tag).includes(selectedArtCategory);
     })
     .filter((art) => art.title.toLowerCase().includes(searchArt.toLowerCase()))
     .sort((a, b) => {
@@ -105,13 +109,13 @@ const Home = () => {
 
   const postCategories = [
     "All",
-    ...new Set(activePostsRaw.map((p) => p.tag)),
+    ...new Set(activePostsRaw.flatMap((p) => parseTags(p.tag))),
   ];
 
   const filteredPosts = activePostsRaw
     .filter((post) => {
       if (selectedPostCategory === "All") return true;
-      return post.tag === selectedPostCategory;
+      return parseTags(post.tag).includes(selectedPostCategory);
     })
     .filter((post) =>
       post.title.toLowerCase().includes(searchPost.toLowerCase()),
