@@ -83,16 +83,16 @@ const seed = async () => {
     }
 
     // 7. survey subscriptions — auto-provision 2-year 'paid' plans for any user seeded
-    // as pro/corporate so invited thesis testers can post immediately without Midtrans.
+    // as pro/corporate so invited thesis testers can post immediately without going through checkout.
     for (const user of usersData) {
       if (user.role === 'pro' || user.role === 'corporate') {
         const plan = user.role === 'pro' ? 'pro_monthly' : 'corporate_monthly';
         const amount = user.role === 'pro' ? 49000 : 249000;
         await db.query(
           `INSERT INTO core_subscriptions
-           (user_id, plan, amount, currency, midtrans_order_id, status, active_from, active_until)
-           VALUES ($1, $2::subscription_plan, $3, 'IDR', $4, 'paid', NOW(), NOW() + INTERVAL '2 years')`,
-          [user.id, plan, amount, `survey-seed-${user.id}`]
+           (user_id, plan, amount, currency, status, active_from, active_until)
+           VALUES ($1, $2::subscription_plan, $3, 'IDR', 'paid', NOW(), NOW() + INTERVAL '2 years')`,
+          [user.id, plan, amount]
         );
       }
     }

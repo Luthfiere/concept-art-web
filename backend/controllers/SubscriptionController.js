@@ -13,8 +13,6 @@ const ENV = process.env.NODE_ENV || 'development';
 const envFile = ENV === 'development' ? '.env.dev' : `.env.${ENV}`;
 dotenv.config({ path: path.resolve(__dirname, `../${envFile}`) });
 
-// Demo mode: no external payment gateway. Checkout instantly grants the subscription.
-// 6 months; after this window the hourly lapse cron downgrades the user back to 'member'.
 const SUBSCRIPTION_DURATION_DAYS = 180;
 
 const PLAN_CATALOG = {
@@ -61,8 +59,6 @@ class SubscriptionController {
     }
   }
 
-  // Demo checkout: no real payment. Inserts the subscription as already paid,
-  // flips user role immediately, and sets active_until to 6 months from now.
   static async checkout(req, res) {
     try {
       const { user_id } = req.user;
@@ -73,21 +69,19 @@ class SubscriptionController {
       }
 
       const { amount, role, postsRemaining } = PLAN_CATALOG[plan];
-      const order_id = `demo-${user_id}-${Date.now()}`;
 
-      await Subscription.create({
+      const createdSub = await Subscription.create({
         user_id,
         plan,
         amount,
         currency: 'IDR',
-        midtrans_order_id: order_id,
         posts_remaining: postsRemaining,
       });
 
-      const paidSub = await Subscription.markPaid(order_id, SUBSCRIPTION_DURATION_DAYS);
+      const paidSub = await Subscription.markPaid(createdSub.id, SUBSCRIPTION_DURATION_DAYS);
       await User.update(user_id, { role });
 
-      logger.info(`Demo subscription ${order_id} granted — user ${user_id} upgraded to ${role} until ${paidSub.active_until}`);
+      logger.info(`Demo subscription ${paidSub.id} granted — user ${user_id} upgraded to ${role} until ${paidSub.active_until}`);
 
       return res.status(201).json({
         message: 'Subscription activated',

@@ -159,7 +159,6 @@ CREATE TABLE core_subscriptions (
     plan subscription_plan NOT NULL,
     amount INTEGER NOT NULL,
     currency currency_type NOT NULL DEFAULT 'IDR',
-    midtrans_order_id VARCHAR(100) UNIQUE,
     status payment_status NOT NULL DEFAULT 'pending',
     active_from TIMESTAMPTZ,
     active_until TIMESTAMPTZ,
@@ -170,7 +169,7 @@ CREATE TABLE core_subscriptions (
 CREATE INDEX idx_subscriptions_user_active
     ON core_subscriptions (user_id, status, active_until);
 
--- Job reports (community moderation; one report per user per post)
+-- Job reports
 CREATE TABLE core_job_reports (
     id SERIAL PRIMARY KEY,
     job_id INTEGER NOT NULL REFERENCES core_job_posting(id) ON DELETE CASCADE,

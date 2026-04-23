@@ -1,23 +1,15 @@
 import db from '../db/connection.js';
 
 class Subscription {
-  static async create({ user_id, plan, amount, currency, midtrans_order_id, posts_remaining }) {
+  static async create({ user_id, plan, amount, currency, posts_remaining }) {
     const result = await db.query(
       `
       INSERT INTO core_subscriptions
-      (user_id, plan, amount, currency, midtrans_order_id, status, posts_remaining)
-      VALUES ($1, $2, $3, COALESCE($4, 'IDR')::currency_type, $5, 'pending', $6)
+      (user_id, plan, amount, currency, status, posts_remaining)
+      VALUES ($1, $2, $3, COALESCE($4, 'IDR')::currency_type, 'pending', $5)
       RETURNING *
     `,
-      [user_id, plan, amount, currency, midtrans_order_id, posts_remaining]
-    );
-    return result.rows[0];
-  }
-
-  static async getByOrderId(order_id) {
-    const result = await db.query(
-      `SELECT * FROM core_subscriptions WHERE midtrans_order_id = $1`,
-      [order_id]
+      [user_id, plan, amount, currency, posts_remaining]
     );
     return result.rows[0];
   }
@@ -53,7 +45,7 @@ class Subscription {
     return result.rows[0];
   }
 
-  static async markPaid(order_id, durationDays) {
+  static async markPaid(id, durationDays) {
     const result = await db.query(
       `
       UPDATE core_subscriptions
@@ -65,23 +57,10 @@ class Subscription {
             ELSE active_until
           END,
           updated_at = NOW()
-      WHERE midtrans_order_id = $2
+      WHERE id = $2
       RETURNING *
     `,
-      [String(durationDays), order_id]
-    );
-    return result.rows[0];
-  }
-
-  static async setStatus(order_id, status) {
-    const result = await db.query(
-      `
-      UPDATE core_subscriptions
-      SET status = $1::payment_status, updated_at = NOW()
-      WHERE midtrans_order_id = $2
-      RETURNING *
-    `,
-      [status, order_id]
+      [String(durationDays), id]
     );
     return result.rows[0];
   }
