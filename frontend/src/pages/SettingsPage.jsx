@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
+import { sanitizeFields, isValidEmail } from "../utils/sanitize";
 
 const API_BASE = "http://localhost:5000/api";
 const BASE_URL = "http://localhost:5000";
@@ -165,14 +166,25 @@ export default function SettingsPage() {
     setLoading(true);
 
     try {
+      const cleanForm = sanitizeFields(form, ["username", "email"]);
+
       const payload = {};
 
-      if (form.username) payload.username = form.username;
-      if (form.email) payload.email = form.email;
+      if (cleanForm.username) payload.username = cleanForm.username;
+      if (cleanForm.email) {
+        if (!isValidEmail(cleanForm.email)) {
+          throw new Error("Invalid email format");
+        }
+        payload.email = cleanForm.email;
+      }
 
       if (form.new_password) {
         if (form.new_password !== form.confirm_password) {
           throw new Error("Password confirmation does not match");
+        }
+
+        if (form.new_password.length < 6) {
+          throw new Error("Password must be at least 6 characters");
         }
 
         payload.new_password = form.new_password;
@@ -212,12 +224,11 @@ export default function SettingsPage() {
         confirm_password: "",
       }));
 
-      
       // 🔥 SUCCESS FEEDBACK
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
 
-      alert("success")
+      alert("success");
     } catch (err) {
       alert(err.message);
     } finally {
@@ -253,10 +264,9 @@ export default function SettingsPage() {
   };
 
   const avatarSrc =
-    preview ||
-    (user?.profile_image
+    user?.profile_image && !user.profile_image.includes("javascript:")
       ? `${BASE_URL}/${user.profile_image}`
-      : getDefaultAvatar());
+      : getDefaultAvatar();
 
   return (
     <div className="min-h-screen bg-[#0b0f1a] text-white">

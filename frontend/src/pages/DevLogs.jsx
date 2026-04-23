@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
+import { sanitizeText, sanitizeFields } from "../utils/sanitize";
 
 const API_BASE = "http://localhost:5000/api";
 const BASE_URL = "http://localhost:5000";
@@ -190,12 +191,21 @@ export default function Devlogs() {
       // 1. CREATE DEVLOG
       // =========================
       const formData = new FormData();
-      formData.append("title", form.title);
-      formData.append("content", form.content);
-      formData.append("category", form.category);
-      formData.append("genre", form.genre);
-      formData.append("tag", form.tag);
-      formData.append("status", form.status);
+      const cleanForm = sanitizeFields(form, [
+        "title",
+        "content",
+        "category",
+        "genre",
+        "tag",
+        "status",
+      ]);
+
+      formData.append("title", cleanForm.title);
+      formData.append("content", cleanForm.content);
+      formData.append("category", cleanForm.category);
+      formData.append("genre", cleanForm.genre);
+      formData.append("tag", cleanForm.tag);
+      formData.append("status", cleanForm.status);
 
       if (form.cover_image) {
         formData.append("cover_image", form.cover_image);
@@ -349,12 +359,12 @@ export default function Devlogs() {
 
                   {/* Title */}
                   <h2 className="text-sm font-semibold leading-snug line-clamp-2 mb-2">
-                    {log.title}
+                    {sanitizeText(log.title)}
                   </h2>
 
                   {/* Meta */}
                   <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                    <span>{log.author}</span>
+                    <span>{sanitizeText(log.author)}</span>
                     <span>·</span>
                     <span>
                       {log.created_at
@@ -369,7 +379,7 @@ export default function Devlogs() {
 
                   {/* Excerpt */}
                   <p className="text-sm text-gray-400 line-clamp-3 leading-relaxed">
-                    {log.excerpt}
+                    {sanitizeText(log.excerpt)}
                   </p>
 
                   {/* Footer */}
@@ -441,7 +451,8 @@ export default function Devlogs() {
                 ))}
               </select>
               <p className="text-[10px] text-gray-500 mt-1">
-                Pick the label that best describes this post (e.g. patch notes, feature, milestone).
+                Pick the label that best describes this post (e.g. patch notes,
+                feature, milestone).
               </p>
             </div>
 
@@ -459,7 +470,8 @@ export default function Devlogs() {
                 className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
               />
               <p className="text-[10px] text-gray-500 mt-1">
-                The kind of game you're making — shown on your devlog so readers know the context.
+                The kind of game you're making — shown on your devlog so readers
+                know the context.
               </p>
             </div>
 
@@ -477,7 +489,8 @@ export default function Devlogs() {
                 className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
               />
               <p className="text-[10px] text-gray-500 mt-1">
-                Specific features, systems, or topics covered. Separate multiple tags with commas.
+                Specific features, systems, or topics covered. Separate multiple
+                tags with commas.
               </p>
             </div>
 
