@@ -31,7 +31,7 @@ export default function Register() {
       const response = await registerUser({ ...form, captcha_token: captchaToken });
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       alert(err.response?.data?.message || "Register failed");
     }
@@ -106,7 +106,7 @@ export default function Register() {
 
         <p className="text-sm text-gray-400 text-center mt-6">
           Already have an account?{" "}
-          <Link to="/" className="text-yellow-500 hover:underline">
+          <Link to="/login" className="text-yellow-500 hover:underline">
             Sign In
           </Link>
         </p>
