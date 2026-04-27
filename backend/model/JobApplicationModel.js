@@ -30,6 +30,16 @@ class JobApplication {
     return result.rows;
   }
 
+  static async getByUserId(user_id) {
+    const result = await db.query(`
+      SELECT *
+      FROM core_job_applications
+      WHERE applicant_id = $1
+      ORDER BY applied_at DESC
+    `, [user_id]);
+    return result.rows;
+  }
+
   static async getByJobAndApplicant({ job_id, applicant_id }) {
     const result = await db.query(`
       SELECT *

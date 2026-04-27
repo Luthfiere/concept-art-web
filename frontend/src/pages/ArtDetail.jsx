@@ -92,7 +92,15 @@ const ArtDetail = () => {
         const isAuthor =
           currentUserId && Number(currentUserId) === Number(artData.user_id);
         if (!isAuthor) {
-          api.post(`/concept-arts/${id}/view`).catch(() => {});
+          api
+            .post(`/concept-arts/${id}/view`)
+            .then((res) => {
+              const v = res?.data?.views;
+              if (typeof v === "number") {
+                setArt((prev) => (prev ? { ...prev, views: v } : prev));
+              }
+            })
+            .catch(() => {});
         }
 
         if (isLoggedIn) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api, { isTokenExpired } from "../../services/api";
+import { parseTags } from "../../utils/sanitize";
 import Navbar from "../layout/Navbar";
 
 const API_BASE = "http://localhost:5000/api";
@@ -65,7 +66,15 @@ export default function DevlogDetail() {
       const isAuthor =
         currentUserId && Number(currentUserId) === Number(log.user_id);
       if (!isAuthor) {
-        api.post(`/devlog/${id}/view`).catch(() => {});
+        api
+          .post(`/devlog/${id}/view`)
+          .then((res) => {
+            const v = res?.data?.views;
+            if (typeof v === "number") {
+              setDevlog((prev) => (prev ? { ...prev, views: v } : prev));
+            }
+          })
+          .catch(() => {});
       }
     } catch (err) {
       console.error(err);
@@ -235,11 +244,14 @@ export default function DevlogDetail() {
                   {devlog.genre}
                 </span>
               )}
-              {devlog.tag && (
-                <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400 hover:text-yellow-400 hover:border-yellow-400/40 transition">
-                  #{devlog.tag}
+              {parseTags(devlog.tag).map((t) => (
+                <span
+                  key={t}
+                  className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400 hover:text-yellow-400 hover:border-yellow-400/40 transition"
+                >
+                  #{t}
                 </span>
-              )}
+              ))}
             </div>
 
             {/* LIKE BUTTON inline */}

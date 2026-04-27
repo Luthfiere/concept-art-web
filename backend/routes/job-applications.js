@@ -10,6 +10,7 @@ import multerErrorHandler from '../middlewares/multerErrorHandler.js';
 router.use(authToken);
 
 router.get('/job/:job_id', authorizeRole('pro', 'corporate'), JobApplicationController.getByJobId);
+router.get('/user/:user_id', JobApplicationController.getByUserId);
 router.get('/', JobApplicationController.getByApplicant);
 
 router.patch('/:id/status', authorizeRole('pro', 'corporate'), JobApplicationController.updateStatus);
