@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import api from "../../services/api";
 import { sanitizeText } from "../../utils/sanitize";
 
+const BASE_URL = "http://localhost:5000";
+
+const getAvatar = (user) => {
+  if (user?.profile_image) {
+    return user.profile_image.startsWith("http")
+      ? user.profile_image
+      : `${BASE_URL}/${user.profile_image}`;
+  }
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${user?.username || "user"}`;
+};
+
 const WARN_THRESHOLD = 15;
 
 const REPORT_REASONS = [
@@ -268,6 +279,23 @@ const JobDetail = ({ job }) => {
               {expires && <>Expires {expires}</>}
             </p>
           )}
+
+          {/* Poster */}
+          <div className="flex items-center gap-3 mt-4 py-3 border-y border-white/10">
+            <img
+              src={getAvatar(job)}
+              alt={`${job.username || "poster"} avatar`}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-white/10"
+            />
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-gray-500">
+                Posted by
+              </p>
+              <p className="text-sm font-semibold text-gray-100 leading-tight">
+                {job.username || "Unknown"}
+              </p>
+            </div>
+          </div>
 
           {/* Status banners */}
           {isExpired && (

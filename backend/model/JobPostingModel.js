@@ -3,38 +3,42 @@ import db from '../db/connection.js';
 class JobPosting {
   static async getAll() {
     const result = await db.query(`
-      SELECT *
-      FROM core_job_posting
-      ORDER BY created_at DESC
+      SELECT jp.*, u.username, u.profile_image
+      FROM core_job_posting jp
+      LEFT JOIN master_users u ON jp.user_id = u.id
+      ORDER BY jp.created_at DESC
     `);
     return result.rows;
   }
 
   static async getById(id) {
     const result = await db.query(`
-      SELECT *
-      FROM core_job_posting
-      WHERE id = $1
+      SELECT jp.*, u.username, u.profile_image
+      FROM core_job_posting jp
+      LEFT JOIN master_users u ON jp.user_id = u.id
+      WHERE jp.id = $1
     `, [id]);
     return result.rows[0];
   }
 
   static async getByUser(user_id) {
     const result = await db.query(`
-      SELECT *
-      FROM core_job_posting
-      WHERE user_id = $1
-      ORDER BY created_at DESC
+      SELECT jp.*, u.username, u.profile_image
+      FROM core_job_posting jp
+      LEFT JOIN master_users u ON jp.user_id = u.id
+      WHERE jp.user_id = $1
+      ORDER BY jp.created_at DESC
     `, [user_id]);
     return result.rows;
   }
 
   static async getByStatus(status) {
     const result = await db.query(`
-      SELECT *
-      FROM core_job_posting
-      WHERE status = $1
-      ORDER BY created_at DESC
+      SELECT jp.*, u.username, u.profile_image
+      FROM core_job_posting jp
+      LEFT JOIN master_users u ON jp.user_id = u.id
+      WHERE jp.status = $1
+      ORDER BY jp.created_at DESC
     `, [status]);
     return result.rows;
   }

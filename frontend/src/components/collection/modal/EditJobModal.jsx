@@ -1,4 +1,10 @@
 const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
+  const tomorrowISO = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  })();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -112,7 +118,9 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
           name="expired_at"
           value={form.expired_at || ""}
           onChange={handleChange}
-          className="w-full mb-4 p-2 bg-[#0a0d1a]"
+          onKeyDown={(e) => e.preventDefault()}
+          min={tomorrowISO}
+          className="w-full mb-4 p-2 bg-[#0a0d1a] [color-scheme:dark]"
         />
 
         <div className="flex gap-2">

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { parseTags } from "../../utils/sanitize";
 
 const isVideo = (path) =>
   /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
@@ -68,9 +69,16 @@ const IdeationCard = ({ post, index }) => {
       <div className="p-5">
         {/* Top row: tag + attachment indicator */}
         <div className="flex items-center justify-between">
-          <span className="inline-block text-[11px] font-medium bg-blue-500/10 text-blue-400 px-2.5 py-0.5 rounded-full">
-            {post.tag}
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {parseTags(post.tag).map((t) => (
+              <span
+                key={t}
+                className="inline-block text-[11px] font-medium bg-blue-500/10 text-blue-400 px-2.5 py-0.5 rounded-full"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
           {(hasDocument || hasImage || hasVideo) && (
             <span className="flex items-center gap-1 text-[10px] text-gray-500">
               <DocumentIcon />

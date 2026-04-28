@@ -41,6 +41,12 @@ const PostJobForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [banner, setBanner] = useState(null);
 
+  const tomorrowISO = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  })();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (banner) setBanner(null);
@@ -55,6 +61,14 @@ const PostJobForm = () => {
       setBanner({
         type: "error",
         message: "Minimum salary cannot exceed maximum salary.",
+      });
+      return;
+    }
+
+    if (form.expired_at && form.expired_at < tomorrowISO) {
+      setBanner({
+        type: "error",
+        message: "Expiration date must be in the future.",
       });
       return;
     }
@@ -253,7 +267,9 @@ const PostJobForm = () => {
             name="expired_at"
             value={form.expired_at}
             onChange={handleChange}
-            className={inputCls}
+            onKeyDown={(e) => e.preventDefault()}
+            min={tomorrowISO}
+            className={`${inputCls} [color-scheme:dark]`}
           />
           <p className="text-[11px] text-gray-500 mt-1.5">
             Posting will automatically move to &quot;Expired&quot; after this date.

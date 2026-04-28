@@ -98,6 +98,10 @@ class JobPostingController {
         });
       }
 
+      if (expired_at && new Date(expired_at) <= new Date()) {
+        return res.status(400).json({ message: 'Expiration date must be in the future' });
+      }
+
       // Only count active-post cap if publishing directly (Active) — Drafts don't count
       const intendedStatus = status || 'Draft';
       if (intendedStatus === 'Active') {
@@ -154,6 +158,10 @@ class JobPostingController {
 
       if (existing.user_id !== user_id) {
         return res.status(403).json({ message: 'Not authorized to update this job posting' });
+      }
+
+      if (expired_at && new Date(expired_at) <= new Date()) {
+        return res.status(400).json({ message: 'Expiration date must be in the future' });
       }
 
       const fields = {};

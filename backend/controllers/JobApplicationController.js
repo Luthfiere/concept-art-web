@@ -33,6 +33,21 @@ class JobApplicationController {
     }
   }
 
+  static async getByUserId(req, res) {
+    try {
+      const { user_id } = req.params;
+      const applications = await JobApplication.getByUserId(user_id);
+
+      return res.status(200).json({
+        message: 'List of applications by user',
+        total: applications.length,
+        data: applications
+      });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  }
+
   static async create(req, res) {
     try {
       const { user_id } = req.user;
