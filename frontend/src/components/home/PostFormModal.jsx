@@ -85,7 +85,7 @@ const PostFormModal = ({ isOpen, onClose, initialType = "post", onSuccess }) => 
     e.target.value = "";
   };
 
-  const isVideo = (file) => file.type.startsWith("video/");
+  const isVideo = (file) => file?.type?.startsWith("video/");
 
   const handleSubmit = async (e) => {
     e.preventDefault();

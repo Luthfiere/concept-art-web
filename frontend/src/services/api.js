@@ -37,9 +37,18 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+    const status = err.response?.status;
+    const url = err.config?.url;
+
+    // 🚨 skip redirect kalau lagi login/register
+    if (
+      (status === 401 || status === 403) &&
+      !url.includes("/login") &&
+      !url.includes("/register")
+    ) {
       clearAuthAndRedirect();
     }
+
     return Promise.reject(err);
   },
 );

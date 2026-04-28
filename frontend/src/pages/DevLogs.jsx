@@ -5,6 +5,7 @@ import { sanitizeText, sanitizeFields } from "../utils/sanitize";
 
 const API_BASE = "http://localhost:5000/api";
 const BASE_URL = "http://localhost:5000";
+const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
 
 const CATEGORIES = [
   "all",
@@ -72,6 +73,7 @@ export default function Devlogs() {
   const fileInputRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     title: "",
     content: "",
@@ -85,16 +87,37 @@ export default function Devlogs() {
   const isLoggedIn = !!localStorage.getItem("token");
 
   const handleMediaChange = (e) => {
-    const files = Array.from(e.target.files);
+    const files = e.target.files;
 
-    setMediaFiles(files);
+    const validFiles = [];
+    const previews = [];
+    let hasError = false;
 
-    const previews = files.map((file) => ({
-      url: URL.createObjectURL(file),
-      type: file.type,
-    }));
+    Array.from(files).forEach((file) => {
+      const isVideo = file.type.startsWith("video");
 
-    setMediaPreview(previews);
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        alert(`Video "${file.name}" melebihi 20MB`);
+        hasError = true;
+        return;
+      }
+
+      validFiles.push(file);
+      previews.push({
+        url: URL.createObjectURL(file),
+        type: file.type,
+      });
+    });
+
+    if (hasError) {
+      // 🔥 reset semua media
+      setMediaFiles([]);
+      setMediaPreview([]);
+      return;
+    }
+
+    setMediaFiles((prev) => [...prev, ...validFiles]);
+    setMediaPreview((prev) => [...prev, ...previews]);
   };
 
   useEffect(() => {
@@ -102,14 +125,36 @@ export default function Devlogs() {
   }, [activeFilter]);
 
   const processFiles = (files) => {
-    const fileArray = Array.from(files);
+    setError("");
 
-    const previews = fileArray.map((file) => ({
-      url: URL.createObjectURL(file),
-      type: file.type,
-    }));
+    const validFiles = [];
+    const previews = [];
+    let hasError = false;
 
-    setMediaFiles((prev) => [...prev, ...fileArray]);
+    Array.from(files).forEach((file) => {
+      const isVideo = file.type.startsWith("video");
+
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        setError(`Video "${file.name}" melebihi 20MB`);
+        hasError = true;
+        return;
+      }
+
+      validFiles.push(file);
+      previews.push({
+        url: URL.createObjectURL(file),
+        type: file.type,
+      });
+    });
+
+    if (hasError) {
+      // 🔥 reset semua media
+      setMediaFiles([]);
+      setMediaPreview([]);
+      return;
+    }
+
+    setMediaFiles((prev) => [...prev, ...validFiles]);
     setMediaPreview((prev) => [...prev, ...previews]);
   };
 
@@ -145,6 +190,16 @@ export default function Devlogs() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const incrementView = async (id) => {
+    try {
+      await fetch(`${API_BASE}/devlog/${id}/view`, {
+        method: "POST",
+      });
+    } catch (err) {
+      console.error("Failed to increment view:", err);
     }
   };
 
@@ -249,6 +304,7 @@ export default function Devlogs() {
       // RESET
       // =========================
       setShowModal(false);
+
       setForm({
         title: "",
         content: "",
@@ -259,6 +315,10 @@ export default function Devlogs() {
         cover_image: null,
       });
 
+      // 🔥 reset cover
+      setPreview(null);
+
+      // 🔥 reset media
       setMediaFiles([]);
       setMediaPreview([]);
 
@@ -331,7 +391,10 @@ export default function Devlogs() {
             {devlogs.map((log) => (
               <div
                 key={log.id}
-                onClick={() => navigate(`/devlog/${log.id}`)}
+                onClick={async () => {
+                  await incrementView(log.id);
+                  navigate(`/devlog/${log.id}`);
+                }}
                 className="bg-[#111827] rounded-xl border border-white/5 overflow-hidden hover:border-yellow-400/40 hover:shadow-lg transition-all duration-200 cursor-pointer"
               >
                 {/* Cover */}
@@ -400,257 +463,256 @@ export default function Devlogs() {
       </div>
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#0f172a] w-full max-w-lg rounded-xl p-6 border border-white/10 shadow-xl">
-            <h2 className="text-lg font-semibold mb-4">Create Devlog</h2>
-
-            {/* Title */}
-            <div className="mb-3">
-              <label className="text-xs font-medium text-gray-400 mb-1 block">
-                Devlog Title <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                placeholder=" "
-                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-              />
-            </div>
-
-            {/* Content */}
-            <div className="mb-3">
-              <label className="text-xs font-medium text-gray-400 mb-1 block">
-                Description <span className="text-red-400">*</span>
-              </label>
-              <textarea
-                name="content"
-                value={form.content}
-                onChange={handleChange}
-                rows={4}
-                placeholder="Describe what you built, fixed, or learned in this update..."
-                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-              />
-            </div>
-
-            {/* Category */}
-            <div className="mb-3">
-              <label className="text-xs font-medium text-gray-400 mb-1 block">
-                Post Type <span className="text-red-400">*</span>
-              </label>
-              <select
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none"
-              >
-                {CATEGORIES.filter((c) => c !== "all").map((cat) => (
-                  <option key={cat} value={cat}>
-                    {CATEGORY_LABELS[cat]}
-                  </option>
-                ))}
-              </select>
-              <p className="text-[10px] text-gray-500 mt-1">
-                Pick the label that best describes this post (e.g. patch notes,
-                feature, milestone).
-              </p>
-            </div>
-
-            {/* Genre */}
-            <div className="mb-3">
-              <label className="text-xs font-medium text-gray-400 mb-1 block">
-                Game Genre
-              </label>
-              <input
-                type="text"
-                name="genre"
-                value={form.genre}
-                onChange={handleChange}
-                placeholder="e.g. 3D Platformer, FPS, Roguelike"
-                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-              />
-              <p className="text-[10px] text-gray-500 mt-1">
-                The kind of game you're making — shown on your devlog so readers
-                know the context.
-              </p>
-            </div>
-
-            {/* Tag */}
-            <div className="mb-3">
-              <label className="text-xs font-medium text-gray-400 mb-1 block">
-                Tags
-              </label>
-              <input
-                type="text"
-                name="tag"
-                value={form.tag}
-                onChange={handleChange}
-                placeholder="e.g. boss fight, AI, open world"
-                className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-              />
-              <p className="text-[10px] text-gray-500 mt-1">
-                Specific features, systems, or topics covered. Separate multiple
-                tags with commas.
-              </p>
-            </div>
-
-            {/* Cover */}
-            <label className="text-xs font-medium text-gray-400 mb-1 block">
-              Cover Image
-            </label>
+          <div className="bg-[#0f172a] w-full max-w-lg rounded-xl border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
+            {/* SCROLL AREA */}
             <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition relative
-                ${
-                  isDragging
-                    ? "border-yellow-400 bg-yellow-400/10 scale-[1.02]"
-                    : "border-white/10 hover:border-yellow-400"
-                }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                name="cover_image"
-                accept="image/*"
-                onClick={(e) => {
-                  e.target.value = null; // 🔥 reset sebelum pilih file
-                }}
-                onChange={handleChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-
-              {preview ? (
-                <div className="relative">
-                  <img
-                    src={preview}
-                    alt="preview"
-                    className="w-full h-40 object-cover rounded-md"
-                  />
-
-                  {/* overlay */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-xs text-white transition">
-                    Change Image
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPreview(null);
-                        setForm((prev) => ({ ...prev, cover_image: null }));
-                      }}
-                      className="absolute top-2 right-2 bg-black/60 text-xs px-2 py-1 rounded"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-gray-500 text-sm">
-                  <p className="mb-1">Drag & drop cover image here</p>
-                  <p className="text-xs text-gray-600">or click to upload</p>
-                </div>
-              )}
-            </div>
-            <p className="text-[10px] text-gray-500 mb-3">
-              Appears at the top of your devlog and in feed previews.
-            </p>
-
-            {/* DEVLOG MEDIA */}
-            <label className="text-xs font-medium text-gray-400 mb-1 block">
-              Additional Media
-            </label>
-            <div
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDraggingMedia(false);
-                processFiles(e.dataTransfer.files);
+              className="p-6 overflow-y-auto
+        [&::-webkit-scrollbar]:w-2
+        [&::-webkit-scrollbar-track]:bg-[#020617]
+        [&::-webkit-scrollbar-thumb]:bg-[#1e293b]
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        hover:[&::-webkit-scrollbar-thumb]:bg-[#334155]"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#1e293b #020617",
               }}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDraggingMedia(true);
-              }}
-              onDragLeave={() => setIsDraggingMedia(false)}
-              className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition
-                ${
-                  isDraggingMedia
-                    ? "border-yellow-400 bg-yellow-400/10"
-                    : "border-white/10 hover:border-yellow-400"
-                }`}
             >
-              <input
-                type="file"
-                multiple
-                accept="image/*,video/*"
-                onChange={handleMediaChange}
-                className="hidden"
-                id="mediaUpload"
-              />
+              <h2 className="text-lg font-semibold mb-4">Create Devlog</h2>
 
-              <label htmlFor="mediaUpload" className="cursor-pointer">
-                <p className="text-sm text-gray-400">
-                  Drag & drop media here or click to upload
+              {/* Title */}
+              <div className="mb-3">
+                <label className="text-xs font-medium text-gray-400 mb-1 block">
+                  Devlog Title <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="mb-3">
+                <label className="text-xs font-medium text-gray-400 mb-1 block">
+                  Description <span className="text-red-400">*</span>
+                </label>
+                <textarea
+                  name="content"
+                  value={form.content}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="Describe what you built, fixed, or learned in this update..."
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+                />
+              </div>
+
+              {/* Category */}
+              <div className="mb-3">
+                <label className="text-xs font-medium text-gray-400 mb-1 block">
+                  Post Type <span className="text-red-400">*</span>
+                </label>
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none"
+                >
+                  {CATEGORIES.filter((c) => c !== "all").map((cat) => (
+                    <option key={cat} value={cat}>
+                      {CATEGORY_LABELS[cat]}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Pick the label that best describes this post (e.g. patch
+                  notes, feature, milestone).
                 </p>
+              </div>
+
+              {/* Genre */}
+              <div className="mb-3">
+                <label className="text-xs font-medium text-gray-400 mb-1 block">
+                  Game Genre
+                </label>
+                <input
+                  type="text"
+                  name="genre"
+                  value={form.genre}
+                  onChange={handleChange}
+                  placeholder="e.g. 3D Platformer, FPS, Roguelike"
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+                />
+                <p className="text-[10px] text-gray-500 mt-1">
+                  The kind of game you're making — shown on your devlog so
+                  readers know the context.
+                </p>
+              </div>
+
+              {/* Tag */}
+              <div className="mb-3">
+                <label className="text-xs font-medium text-gray-400 mb-1 block">
+                  Tags
+                </label>
+                <input
+                  type="text"
+                  name="tag"
+                  value={form.tag}
+                  onChange={handleChange}
+                  placeholder="e.g. boss fight, AI, open world"
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+                />
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Specific features, systems, or topics covered. Separate
+                  multiple tags with commas.
+                </p>
+              </div>
+
+              {/* Cover */}
+              <label className="text-xs font-medium text-gray-400 mb-1 block">
+                Cover Image
               </label>
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition relative
+            ${
+              isDragging
+                ? "border-yellow-400 bg-yellow-400/10 scale-[1.02]"
+                : "border-white/10 hover:border-yellow-400"
+            }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  name="cover_image"
+                  accept="image/*"
+                  onClick={(e) => (e.target.value = null)}
+                  onChange={handleChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
 
-              {/* Preview */}
-              {mediaPreview.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 mt-3">
-                  {mediaPreview.map((m, i) => {
-                    const isVideo = m.type.startsWith("video");
-
-                    return (
-                      <div
-                        key={i}
-                        className="relative group rounded-lg overflow-hidden border border-white/10 bg-black"
+                {preview ? (
+                  <div className="relative">
+                    <img
+                      src={preview}
+                      alt="preview"
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-xs text-white transition">
+                      Change Image
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreview(null);
+                          setForm((prev) => ({ ...prev, cover_image: null }));
+                        }}
+                        className="absolute top-2 right-2 bg-black/60 text-xs px-2 py-1 rounded"
                       >
-                        {isVideo ? (
-                          <video
-                            src={m.url}
-                            className="w-full h-28 object-cover opacity-90 group-hover:opacity-100 transition"
-                          />
-                        ) : (
-                          <img
-                            src={m.url}
-                            className="w-full h-28 object-cover group-hover:scale-105 transition"
-                          />
-                        )}
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-sm">
+                    <p className="mb-1">Drag & drop cover image here</p>
+                    <p className="text-xs text-gray-600">or click to upload</p>
+                  </div>
+                )}
+              </div>
+              <p className="text-[10px] text-gray-500 mb-3">
+                Appears at the top of your devlog and in feed previews.
+              </p>
 
-                        {/* TYPE BADGE */}
-                        <div className="absolute top-1 left-1 text-[10px] px-2 py-[2px] rounded bg-black/70 text-white">
-                          {isVideo ? "VIDEO" : "IMAGE"}
-                        </div>
+              {/* MEDIA */}
+              <label className="text-xs font-medium text-gray-400 mb-1 block">
+                Additional Media
+              </label>
+              <div
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDraggingMedia(false);
+                  processFiles(e.dataTransfer.files);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDraggingMedia(true);
+                }}
+                onDragLeave={() => setIsDraggingMedia(false)}
+                className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition
+            ${
+              isDraggingMedia
+                ? "border-yellow-400 bg-yellow-400/10"
+                : "border-white/10 hover:border-yellow-400"
+            }`}
+              >
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={handleMediaChange}
+                  className="hidden"
+                  id="mediaUpload"
+                />
 
-                        {/* REMOVE BUTTON */}
-                        <button
-                          onClick={() => {
-                            setMediaFiles((prev) =>
-                              prev.filter((_, idx) => idx !== i),
-                            );
-                            setMediaPreview((prev) =>
-                              prev.filter((_, idx) => idx !== i),
-                            );
-                          }}
-                          className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded opacity-0 group-hover:opacity-100 transition"
+                <label htmlFor="mediaUpload" className="cursor-pointer">
+                  <p className="text-sm text-gray-400">
+                    Drag & drop media here or click to upload
+                  </p>
+                </label>
+
+                {mediaPreview.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3 mt-3 max-h-60 overflow-y-auto">
+                    {mediaPreview.map((m, i) => {
+                      const isVideo = m.type.startsWith("video");
+
+                      return (
+                        <div
+                          key={i}
+                          className="relative group rounded-lg overflow-hidden border border-white/10 bg-black"
                         >
-                          ✕
-                        </button>
+                          {isVideo ? (
+                            <video
+                              src={m.url}
+                              className="w-full h-28 object-cover"
+                            />
+                          ) : (
+                            <img
+                              src={m.url}
+                              className="w-full h-28 object-cover"
+                            />
+                          )}
 
-                        {/* HOVER OVERLAY */}
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-xs text-white pointer-events-none">
-                          Preview
+                          <button
+                            onClick={() => {
+                              setMediaFiles((prev) =>
+                                prev.filter((_, idx) => idx !== i),
+                              );
+                              setMediaPreview((prev) =>
+                                prev.filter((_, idx) => idx !== i),
+                              );
+                            }}
+                            className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded"
+                          >
+                            ✕
+                          </button>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            <p className="text-[10px] text-gray-500 mb-3">
-              Screenshots or short clips that illustrate the update (optional).
-            </p>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
-            {/* Actions */}
-            <div className="flex justify-end gap-2">
+              <p className="text-[10px] text-gray-500 mb-3">
+                Screenshots or short clips that illustrate the update
+                (optional).
+              </p>
+            </div>
+
+            {/* ACTIONS */}
+            <div className="flex justify-end gap-2 p-4 border-t border-white/10 bg-[#0f172a] sticky bottom-0">
               <button
                 onClick={() => setShowModal(false)}
                 className="px-4 py-2 text-sm text-gray-400 hover:text-white"

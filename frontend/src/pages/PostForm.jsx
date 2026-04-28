@@ -9,7 +9,8 @@ const MAX_IMAGE = 5 * MB;
 const MAX_VIDEO = 30 * MB;
 const MAX_DOC = 10 * MB;
 const MAX_FILES = 6;
-const ACCEPT = "image/*,video/*,.pdf,.doc,.docx,.txt,.rtf,.md,.csv,.ppt,.pptx,.odt,.odp";
+const ACCEPT =
+  "image/*,video/*,.pdf,.doc,.docx,.txt,.rtf,.md,.csv,.ppt,.pptx,.odt,.odp";
 
 const PostForm = () => {
   const navigate = useNavigate();
@@ -63,7 +64,8 @@ const PostForm = () => {
     }
 
     if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
-    if (rejected.length) alert("Some files were skipped:\n" + rejected.join("\n"));
+    if (rejected.length)
+      alert("Some files were skipped:\n" + rejected.join("\n"));
   };
 
   const removeFile = (index) => {
@@ -82,7 +84,10 @@ const PostForm = () => {
     e.target.value = "";
   };
 
-  const isVideo = (file) => file.type.startsWith("video/");
+  const isVideo = (file) => {
+    if (!file || !file.type) return false;
+    return file.type.startsWith("video/");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -132,8 +137,18 @@ const PostForm = () => {
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-4"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+            />
           </svg>
           Back
         </button>
@@ -282,7 +297,8 @@ const PostForm = () => {
             {/* Bottom bar: attach + post */}
             <div className="pt-3 border-t border-white/5 space-y-2">
               <p className="text-[10px] text-gray-600">
-                Images up to 5MB &middot; Videos up to 30MB &middot; Docs up to 10MB &middot; Max {MAX_FILES} files
+                Images up to 5MB &middot; Videos up to 30MB &middot; Docs up to
+                10MB &middot; Max {MAX_FILES} files
               </p>
               <div className="flex items-center justify-between">
                 {/* Attach button */}

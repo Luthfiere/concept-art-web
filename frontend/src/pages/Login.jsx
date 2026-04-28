@@ -1,17 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser } from "../features/auth/authService";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useRef } from "react";
 import noise from "../assets/images/noise.png";
 import Captcha from "../components/Captcha";
 
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const captchaRef = useRef(null);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }, []);
 
   const [captchaToken, setCaptchaToken] = useState(null);
   const [error, setError] = useState("");
@@ -25,6 +32,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("SUBMIT TRIGGERED");
+
     setError("");
 
     if (!captchaToken) {
@@ -33,16 +42,35 @@ const Login = () => {
     }
 
     try {
-      const response = await loginUser({ ...form, captcha_token: captchaToken });
+      console.log("Sending request...");
+      const response = await loginUser({
+        ...form,
+        captcha_token: captchaToken,
+      });
+      console.log("Response:", response);
+
+      if (!response?.token) {
+        throw new Error("Invalid token");
+      }
 
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
 
-      console.log("user: ", JSON.stringify(response.user));
-
       navigate(searchParams.get("redirect") || "/");
     } catch (err) {
-      setError(err.response?.data?.message || "Login gagal");
+      setError(err.response?.data?.message || err.message || "Login gagal");
+
+      setForm((prev) => ({
+        ...prev,
+        password: "",
+      }));
+
+      setCaptchaToken(null);
+
+      // 🔥 reset captcha UI
+      if (captchaRef.current) {
+        captchaRef.current.reset();
+      }
     }
   };
 
@@ -111,7 +139,7 @@ const Login = () => {
           </div>
 
           <div className="mb-4 flex justify-center">
-            <Captcha onChange={setCaptchaToken} />
+            <Captcha ref={captchaRef} onChange={setCaptchaToken} />
           </div>
 
           <button
