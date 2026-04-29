@@ -19,11 +19,13 @@ import conversation from './routes/conversations.js';
 import messages from './routes/messages.js';
 import jobPostings from './routes/job-postings.js';
 import jobApplications from './routes/job-applications.js';
-import jobReports from './routes/job-reports.js';
 import subscriptions from './routes/subscriptions.js';
 import devlog from './routes/devlog.js';
 import devlogMedia from './routes/devlog-media.js';
 import forum from './routes/forum.js';
+import contentReports from './routes/content-reports.js';
+import moderation from './routes/moderation.js';
+import moderationActions from './routes/moderation-actions.js';
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -93,10 +95,12 @@ app.use("/api/conversations", conversation);
 app.use("/api/messages", messages);
 app.use("/api/job-postings", jobPostings);
 app.use("/api/job-applications", jobApplications);
-app.use("/api/job-reports", jobReports);
 app.use("/api/subscriptions", subscriptions);
 app.use("/api/devlog", devlog);
 app.use("/api/devlog-media", devlogMedia);
 app.use("/api/forum", forum);
+app.use("/api/reports", contentReports);
+app.use("/api/moderation", moderation);
+app.use("/api/moderation-actions", moderationActions);
 
 export default app;

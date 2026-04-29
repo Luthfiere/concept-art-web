@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api, { isTokenExpired } from "../../services/api";
 import { parseTags } from "../../utils/sanitize";
 import Navbar from "../layout/Navbar";
+import ReportModal, { FlagIcon } from "../moderation/ReportModal";
 
 const API_BASE = "http://localhost:5000/api";
 const BASE_URL = "http://localhost:5000";
@@ -20,6 +21,7 @@ export default function DevlogDetail() {
   const [totalcomments, setTotalComments] = useState([]);
   const [likeLoading, setLikeLoading] = useState(false);
   const [lightbox, setLightbox] = useState(null); // { url, index }
+  const [reportOpen, setReportOpen] = useState(false);
   const isLoggedIn = !isTokenExpired();
   const storedUser = localStorage.getItem("user");
   const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
@@ -267,6 +269,17 @@ export default function DevlogDetail() {
               <span>{liked ? "❤️" : "🤍"}</span>
               <span>{likes}</span>
             </button>
+
+            {/* REPORT button */}
+            {isLoggedIn && devlog.user_id !== currentUserId && (
+              <button
+                onClick={() => setReportOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
+              >
+                <FlagIcon className="w-3.5 h-3.5" />
+                Report
+              </button>
+            )}
           </div>
 
           {/* CONTENT */}
@@ -520,6 +533,14 @@ export default function DevlogDetail() {
       >
         ↑
       </button>
+
+      {reportOpen && (
+        <ReportModal
+          entityType="devlog"
+          entityId={Number(id)}
+          onClose={() => setReportOpen(false)}
+        />
+      )}
     </div>
   );
 }

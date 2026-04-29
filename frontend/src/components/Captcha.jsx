@@ -1,7 +1,17 @@
 import ReCAPTCHA from "react-google-recaptcha";
+import { forwardRef, useRef, useImperativeHandle } from "react";
 
-const Captcha = ({ onChange }) => {
+const Captcha = forwardRef(({ onChange }, ref) => {
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  const recaptchaRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
+    },
+  }));
 
   if (!siteKey) {
     return (
@@ -11,7 +21,14 @@ const Captcha = ({ onChange }) => {
     );
   }
 
-  return <ReCAPTCHA sitekey={siteKey} onChange={onChange} theme="dark" />;
-};
+  return (
+    <ReCAPTCHA
+      ref={recaptchaRef}
+      sitekey={siteKey}
+      onChange={onChange}
+      theme="dark"
+    />
+  );
+});
 
 export default Captcha;
