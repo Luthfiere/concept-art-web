@@ -31,12 +31,14 @@ const Navbar = () => {
     ? `${BASE_URL}/${user.profile_image}`
     : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.username}`;
 
-  const navLinks = [
+  const allNavLinks = [
     { name: "Art / Ideation Gallery", path: "/" },
     { name: "Job Hiring", path: "/Job" },
     { name: "Job Posting", path: "/JobPost" },
     { name: "Developer Logs", path: "/DevLogs" },
+    { name: "Moderation", path: "/moderation", role: "moderator" },
   ];
+  const navLinks = allNavLinks.filter((l) => !l.role || user?.role === l.role);
 
   return (
     <div

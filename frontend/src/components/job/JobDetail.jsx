@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
-import { sanitizeText } from "../../utils/sanitize";
+import ReportModal, { FlagIcon } from "../moderation/ReportModal";
 
 const BASE_URL = "http://localhost:5000";
 
@@ -13,17 +13,6 @@ const getAvatar = (user) => {
   }
   return `https://api.dicebear.com/7.x/initials/svg?seed=${user?.username || "user"}`;
 };
-
-const WARN_THRESHOLD = 15;
-
-const REPORT_REASONS = [
-  { value: "off_scope", label: "Off-topic (not game development)" },
-  { value: "spam", label: "Spam" },
-  { value: "scam", label: "Scam or misleading" },
-  { value: "duplicate", label: "Duplicate posting" },
-  { value: "inappropriate", label: "Inappropriate content" },
-  { value: "other", label: "Other" },
-];
 
 const formatSalary = (job) => {
   const { salary_min, salary_max, salary_currency } = job;
@@ -58,22 +47,12 @@ const JobDetail = ({ job }) => {
   const [file, setFile] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [reportOpen, setReportOpen] = useState(false);
-  const [reportReason, setReportReason] = useState("off_scope");
-  const [reportNote, setReportNote] = useState("");
-  const [reportSubmitting, setReportSubmitting] = useState(false);
-  const [reportCount, setReportCount] = useState(job?.report_count ?? 0);
 
   const storedUser = localStorage.getItem("user");
   const currentUser = storedUser ? JSON.parse(storedUser) : null;
   const isLoggedIn = !!localStorage.getItem("token");
   const isOwnPosting = currentUser && job && currentUser.id === job.user_id;
-
-  useEffect(() => {
-    setReportCount(job?.report_count ?? 0);
-    setReportOpen(false);
-  }, [job?.id, job?.report_count]);
 
   if (!job) {
     return (
@@ -108,26 +87,6 @@ const JobDetail = ({ job }) => {
     }
 
     setFile(selectedFile);
-  };
-
-  const submitReport = async () => {
-    try {
-      setReportSubmitting(true);
-      const res = await api.post("/job-reports", {
-        job_id: job.id,
-        reason: reportReason,
-        note: sanitizeText(reportNote) || null,
-      });
-      const nextCount = res.data?.data?.job?.report_count;
-      if (typeof nextCount === "number") setReportCount(nextCount);
-      setReportOpen(false);
-      setReportNote("");
-      alert("Report submitted. Thanks for flagging this posting.");
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to submit report");
-    } finally {
-      setReportSubmitting(false);
-    }
   };
 
   const applyJob = async () => {
@@ -172,61 +131,11 @@ const JobDetail = ({ job }) => {
   return (
     <div className="col-span-12 lg:col-span-7">
       {reportOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-          onClick={() => !reportSubmitting && setReportOpen(false)}
-        >
-          <div
-            className="w-full max-w-md bg-[#111427] border border-white/10 rounded-2xl p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold text-white mb-1">Report this posting</h3>
-            <p className="text-xs text-gray-400 mb-4">
-              Moderators review reported posts. False reports may result in account action.
-            </p>
-
-            <label className="block text-xs font-medium text-gray-400 mb-1.5">Reason</label>
-            <select
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition mb-4"
-            >
-              {REPORT_REASONS.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
-
-            <label className="block text-xs font-medium text-gray-400 mb-1.5">Note (optional)</label>
-            <textarea
-              value={reportNote}
-              onChange={(e) => setReportNote(e.target.value)}
-              rows={3}
-              placeholder="Add context for the moderator&hellip;"
-              className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition resize-none"
-            />
-
-            <div className="flex justify-end gap-2 mt-5">
-              <button
-                type="button"
-                disabled={reportSubmitting}
-                onClick={() => setReportOpen(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={reportSubmitting}
-                onClick={submitReport}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-400 text-white transition disabled:opacity-50"
-              >
-                {reportSubmitting ? "Submitting\u2026" : "Submit report"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ReportModal
+          entityType="job"
+          entityId={job.id}
+          onClose={() => setReportOpen(false)}
+        />
       )}
 
       <div
@@ -251,22 +160,15 @@ const JobDetail = ({ job }) => {
                 <button
                   type="button"
                   onClick={() => setReportOpen(true)}
-                  className="rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white px-2.5 py-0.5 text-[11px] transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
                   title="Report this posting"
                 >
+                  <FlagIcon className="w-3.5 h-3.5" />
                   Report
                 </button>
               )}
             </div>
           </div>
-
-          {reportCount >= WARN_THRESHOLD && (
-            <div className="mt-3 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-              <p className="text-sm text-amber-300">
-                &#9888; This posting has been reported by multiple users. Review carefully before applying.
-              </p>
-            </div>
-          )}
 
           {metaItems.length > 0 && (
             <p className="text-sm text-gray-300">{metaItems.join(" \u2022 ")}</p>

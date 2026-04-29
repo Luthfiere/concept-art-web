@@ -16,6 +16,7 @@ import DevlogDetail from "../components/DevLogs/DevLogDetail";
 import Subscription from "../pages/Subscription";
 import SubscriptionCallback from "../pages/SubscriptionCallback";
 import SettingsPage from "../pages/SettingsPage";
+import Moderation from "../pages/Moderation";
 
 const AppRoutes = () => {
   return (
@@ -92,6 +93,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/moderation"
+        element={
+          <ProtectedRoute requiredRole="moderator">
+            <Moderation />
           </ProtectedRoute>
         }
       />

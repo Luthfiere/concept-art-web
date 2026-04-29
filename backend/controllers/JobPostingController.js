@@ -1,6 +1,5 @@
 import JobPosting from '../model/JobPostingModel.js';
 import Subscription from '../model/SubscriptionModel.js';
-import { THRESHOLDS } from '../services/reportThresholdService.js';
 
 const ACTIVE_POST_CAP = { pro: 3, corporate: 15 };
 const MIN_TITLE_LENGTH = 8;
@@ -180,14 +179,9 @@ class JobPostingController {
       const hasNonStatusEdit = touchedFields.some((k) => EDITABLE_FIELDS.includes(k));
 
       if (existing.status === 'Active' && hasNonStatusEdit) {
-        if ((existing.report_count ?? 0) < THRESHOLDS.WARN) {
-          return res.status(400).json({
-            message: 'Active postings cannot be edited. Close the post and repost to make changes.',
-          });
-        }
-        fields.status = 'Draft';
-        fields.report_count = 0;
-        fields.warned_at = null;
+        return res.status(400).json({
+          message: 'Active postings cannot be edited. Close the post and repost to make changes.',
+        });
       }
 
       const updated = await JobPosting.update(id, fields);

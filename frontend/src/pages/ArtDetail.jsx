@@ -4,6 +4,7 @@ import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
 import { useChat } from "../context/ChatContext";
 import { parseTags } from "../utils/sanitize";
+import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
 
 const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
   <svg
@@ -65,6 +66,7 @@ const ArtDetail = () => {
   const [newComment, setNewComment] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const isLoggedIn = !isTokenExpired();
   const storedUser = localStorage.getItem("user");
@@ -351,6 +353,19 @@ const ArtDetail = () => {
               </div>
             )}
 
+            {/* Report button */}
+            {isLoggedIn && art.user_id !== currentUserId && (
+              <div className="mb-4">
+                <button
+                  onClick={() => setReportOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
+                >
+                  <FlagIcon className="w-3.5 h-3.5" />
+                  Report
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center gap-4 text-xs text-gray-500 mb-5">
               <span className="flex items-center gap-1">
                 <HeartIcon className="w-3.5 h-3.5" />
@@ -432,6 +447,14 @@ const ArtDetail = () => {
           </div>
         </div>
       </div>
+
+      {reportOpen && (
+        <ReportModal
+          entityType="art"
+          entityId={id}
+          onClose={() => setReportOpen(false)}
+        />
+      )}
     </div>
   );
 };
