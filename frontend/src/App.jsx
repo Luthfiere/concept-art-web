@@ -2,6 +2,7 @@ import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { ChatProvider } from "./context/ChatContext";
 import ChatWidget from "./components/chat/ChatWidget";
+import React from "react"
 
 function App() {
   return (
