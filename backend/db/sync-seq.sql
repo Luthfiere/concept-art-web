@@ -22,8 +22,8 @@ SELECT setval('core_dev_log_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_dev_
 
 SELECT setval('core_dev_log_media_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_dev_log_media));
 
-SELECT setval('core_community_page_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_community_page));
-
 SELECT setval('core_subscriptions_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_subscriptions));
 
-SELECT setval('core_job_reports_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_job_reports));
+SELECT setval('core_content_reports_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_content_reports));
+
+SELECT setval('core_moderation_actions_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_moderation_actions));

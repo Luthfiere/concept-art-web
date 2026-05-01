@@ -2,9 +2,75 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
+import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
+
+const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill={filled ? "currentColor" : "none"}
+    stroke={filled ? "none" : "currentColor"}
+    strokeWidth={filled ? 0 : 1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
+    />
+  </svg>
+);
+
+const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+    />
+  </svg>
+);
+
+const DocumentIcon = ({ className = "w-5 h-5" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+    />
+  </svg>
+);
+
+const ArrowLeftIcon = () => (
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+    />
+  </svg>
+);
 
 const PostDetail = () => {
-  const { id } = useParams();
+  const { id: rawId } = useParams();
+  const id = Number(rawId);
   const navigate = useNavigate();
 
   const [post, setPost] = useState(null);
@@ -14,6 +80,7 @@ const PostDetail = () => {
   const [newComment, setNewComment] = useState("");
   const [likeLoading, setLikeLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const isLoggedIn = !isTokenExpired();
   const storedUser = localStorage.getItem("user");
@@ -71,7 +138,9 @@ const PostDetail = () => {
           try {
             const statusRes = await api.get(`/likes/art/${id}/status`);
             setLiked(!!statusRes.data.liked);
-          } catch {}
+          } catch {
+            setLiked(false);
+          }
         }
       } catch (err) {
         console.error("Fetch detail error:", err);
@@ -156,24 +225,37 @@ const PostDetail = () => {
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+      <div className="max-w-6xl mx-auto px-4 pt-6">
+        {/* Back button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
+        >
+          <ArrowLeftIcon />
+          Back
+        </button>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 pb-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
         {/* LEFT - MAIN POST */}
         <div className="flex-1 min-w-0">
           <div className="bg-[#111427] rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4">
-            {/* VOTE COLUMN */}
+            {/* LIKE COLUMN */}
             <div className="flex flex-col items-center text-gray-400 shrink-0">
               <button
                 onClick={handleLike}
-                className={`text-lg ${liked ? "text-yellow-500" : ""}`}
+                disabled={likeLoading}
+                className={`p-1.5 rounded-md transition-colors duration-200 ${
+                  liked
+                    ? "text-yellow-500"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                aria-label={liked ? "Unlike" : "Like"}
               >
-                ▲
+                <HeartIcon className="w-5 h-5" filled={liked} />
               </button>
 
-              <span className="text-sm font-semibold">{likes}</span>
-
-              <button onClick={handleLike} className="text-lg rotate-180">
-                ▲
-              </button>
+              <span className="text-sm font-semibold mt-1">{likes}</span>
             </div>
 
             {/* CONTENT */}
@@ -193,7 +275,7 @@ const PostDetail = () => {
                       const src = mediaSrc(file);
                       const fileName = file.split("/").pop();
 
-                      // 🎥 VIDEO
+                      // VIDEO
                       if (isVideo(file)) {
                         return (
                           <video
@@ -205,7 +287,7 @@ const PostDetail = () => {
                         );
                       }
 
-                      // 🖼️ IMAGE
+                      // IMAGE
                       if (isImage(file)) {
                         return (
                           <img
@@ -216,15 +298,15 @@ const PostDetail = () => {
                         );
                       }
 
-                      // 📄 DOCUMENT
+                      // DOCUMENT
                       if (isDocument(file)) {
                         return (
                           <div
                             key={i}
                             className="bg-[#1a1d2e] p-4 rounded-lg flex items-center justify-between"
                           >
-                            <div className="flex items-center gap-2 text-sm text-gray-300">
-                              <span>📄</span>
+                            <div className="flex items-center gap-2 text-sm text-gray-300 min-w-0">
+                              <DocumentIcon className="w-4 h-4 shrink-0 text-yellow-500" />
                               <span className="truncate max-w-[200px]">
                                 {fileName}
                               </span>
@@ -274,8 +356,20 @@ const PostDetail = () => {
               </p>
 
               {/* Actions */}
-              <div className="flex gap-4 text-sm text-gray-400 border-t border-gray-800 pt-3">
-                <span>💬 {comments.length} Comments</span>
+              <div className="flex gap-4 text-sm text-gray-400 border-t border-gray-800 pt-3 items-center">
+                <span className="flex items-center gap-1.5">
+                  <ChatBubbleIcon className="w-4 h-4" />
+                  {comments.length} Comments
+                </span>
+                {isLoggedIn && post.user_id !== Number(currentUserId) && (
+                  <button
+                    onClick={() => setReportOpen(true)}
+                    className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
+                  >
+                    <FlagIcon className="w-3.5 h-3.5" />
+                    Report
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -341,13 +435,25 @@ const PostDetail = () => {
 
           <div className="bg-[#111427] rounded-xl p-4">
             <p className="font-semibold mb-2">Post Info</p>
-            <p className="text-sm text-gray-400">👍 {likes} likes</p>
-            <p className="text-sm text-gray-400">
-              💬 {comments.length} comments
+            <p className="text-sm text-gray-400 flex items-center gap-1.5">
+              <HeartIcon className="w-3.5 h-3.5" />
+              {likes} likes
+            </p>
+            <p className="text-sm text-gray-400 flex items-center gap-1.5 mt-1">
+              <ChatBubbleIcon className="w-3.5 h-3.5" />
+              {comments.length} comments
             </p>
           </div>
         </div>
       </div>
+
+      {reportOpen && (
+        <ReportModal
+          entityType="art"
+          entityId={id}
+          onClose={() => setReportOpen(false)}
+        />
+      )}
     </div>
   );
 };

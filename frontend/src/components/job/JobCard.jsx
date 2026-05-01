@@ -47,14 +47,6 @@ const JobCard = ({ job, setSelectedJob, selectedJob, index = 0 }) => {
         >
           {job.title}
         </h3>
-        {(job.report_count ?? 0) >= 15 && (
-          <span
-            title="This posting has been reported by multiple users"
-            className="shrink-0 text-[10px] leading-none text-amber-400"
-          >
-            &#9888;
-          </span>
-        )}
       </div>
 
       {job.job_location && (
