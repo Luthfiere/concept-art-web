@@ -91,24 +91,22 @@ export default function Devlogs() {
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
 
-    let total = mediaFiles.length + files.length;
+    let remaining = MAX_FILES - mediaFiles.length;
 
-    if (total > MAX_FILES) {
+    if (remaining <= 0) {
       alert(`Maksimal hanya ${MAX_FILES} file`);
       return;
     }
 
     const validFiles = [];
     const previews = [];
-    let hasError = false;
 
-    files.forEach((file) => {
+    files.slice(0, remaining).forEach((file) => {
       const isVideo = file.type.startsWith("video");
 
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
         alert(`Video "${file.name}" melebihi 20MB`);
-        hasError = true;
-        return;
+        return; // ❗ skip saja, jangan reset semua
       }
 
       validFiles.push(file);
@@ -117,12 +115,6 @@ export default function Devlogs() {
         type: file.type,
       });
     });
-
-    if (hasError) {
-      setMediaFiles([]);
-      setMediaPreview([]);
-      return;
-    }
 
     setMediaFiles((prev) => [...prev, ...validFiles]);
     setMediaPreview((prev) => [...prev, ...previews]);
@@ -135,7 +127,9 @@ export default function Devlogs() {
   const processFiles = (files) => {
     const incoming = Array.from(files);
 
-    if (mediaFiles.length + incoming.length > MAX_FILES) {
+    let remaining = MAX_FILES - mediaFiles.length;
+
+    if (remaining <= 0) {
       setError(`Maksimal hanya ${MAX_FILES} file`);
       return;
     }
@@ -144,15 +138,13 @@ export default function Devlogs() {
 
     const validFiles = [];
     const previews = [];
-    let hasError = false;
 
-    incoming.forEach((file) => {
+    incoming.slice(0, remaining).forEach((file) => {
       const isVideo = file.type.startsWith("video");
 
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
         setError(`Video "${file.name}" melebihi 20MB`);
-        hasError = true;
-        return;
+        return; // ❗ skip aja
       }
 
       validFiles.push(file);
@@ -161,12 +153,6 @@ export default function Devlogs() {
         type: file.type,
       });
     });
-
-    if (hasError) {
-      setMediaFiles([]);
-      setMediaPreview([]);
-      return;
-    }
 
     setMediaFiles((prev) => [...prev, ...validFiles]);
     setMediaPreview((prev) => [...prev, ...previews]);
@@ -720,8 +706,8 @@ export default function Devlogs() {
               </div>
 
               <p className="text-[10px] text-gray-500 mb-3">
-                Screenshots or short clips that illustrate the update (video up to 20 mb max 8 files)
-                (optional).
+                Screenshots or short clips that illustrate the update (video up
+                to 20 mb max 8 files) (optional).
               </p>
             </div>
 
