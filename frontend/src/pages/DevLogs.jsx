@@ -60,6 +60,8 @@ const BADGE_COLORS = {
   marketing: "bg-indigo-950/60 text-indigo-300",
 };
 
+const MAX_FILES = 8;
+
 export default function Devlogs() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaPreview, setMediaPreview] = useState([]);
@@ -87,13 +89,20 @@ export default function Devlogs() {
   const isLoggedIn = !!localStorage.getItem("token");
 
   const handleMediaChange = (e) => {
-    const files = e.target.files;
+    const files = Array.from(e.target.files);
+
+    let total = mediaFiles.length + files.length;
+
+    if (total > MAX_FILES) {
+      alert(`Maksimal hanya ${MAX_FILES} file`);
+      return;
+    }
 
     const validFiles = [];
     const previews = [];
     let hasError = false;
 
-    Array.from(files).forEach((file) => {
+    files.forEach((file) => {
       const isVideo = file.type.startsWith("video");
 
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
@@ -110,7 +119,6 @@ export default function Devlogs() {
     });
 
     if (hasError) {
-      // 🔥 reset semua media
       setMediaFiles([]);
       setMediaPreview([]);
       return;
@@ -125,13 +133,20 @@ export default function Devlogs() {
   }, [activeFilter]);
 
   const processFiles = (files) => {
+    const incoming = Array.from(files);
+
+    if (mediaFiles.length + incoming.length > MAX_FILES) {
+      setError(`Maksimal hanya ${MAX_FILES} file`);
+      return;
+    }
+
     setError("");
 
     const validFiles = [];
     const previews = [];
     let hasError = false;
 
-    Array.from(files).forEach((file) => {
+    incoming.forEach((file) => {
       const isVideo = file.type.startsWith("video");
 
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
@@ -148,7 +163,6 @@ export default function Devlogs() {
     });
 
     if (hasError) {
-      // 🔥 reset semua media
       setMediaFiles([]);
       setMediaPreview([]);
       return;
@@ -706,7 +720,7 @@ export default function Devlogs() {
               </div>
 
               <p className="text-[10px] text-gray-500 mb-3">
-                Screenshots or short clips that illustrate the update
+                Screenshots or short clips that illustrate the update (video up to 20 mb max 8 files)
                 (optional).
               </p>
             </div>
