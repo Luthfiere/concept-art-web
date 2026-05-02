@@ -60,6 +60,8 @@ const BADGE_COLORS = {
   marketing: "bg-indigo-950/60 text-indigo-300",
 };
 
+const MAX_FILES = 8;
+
 export default function Devlogs() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaPreview, setMediaPreview] = useState([]);
@@ -87,19 +89,24 @@ export default function Devlogs() {
   const isLoggedIn = !!localStorage.getItem("token");
 
   const handleMediaChange = (e) => {
-    const files = e.target.files;
+    const files = Array.from(e.target.files);
+
+    let remaining = MAX_FILES - mediaFiles.length;
+
+    if (remaining <= 0) {
+      alert(`Maksimal hanya ${MAX_FILES} file`);
+      return;
+    }
 
     const validFiles = [];
     const previews = [];
-    let hasError = false;
 
-    Array.from(files).forEach((file) => {
+    files.slice(0, remaining).forEach((file) => {
       const isVideo = file.type.startsWith("video");
 
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
         alert(`Video "${file.name}" melebihi 20MB`);
-        hasError = true;
-        return;
+        return; // ❗ skip saja, jangan reset semua
       }
 
       validFiles.push(file);
@@ -108,13 +115,6 @@ export default function Devlogs() {
         type: file.type,
       });
     });
-
-    if (hasError) {
-      // 🔥 reset semua media
-      setMediaFiles([]);
-      setMediaPreview([]);
-      return;
-    }
 
     setMediaFiles((prev) => [...prev, ...validFiles]);
     setMediaPreview((prev) => [...prev, ...previews]);
@@ -125,19 +125,26 @@ export default function Devlogs() {
   }, [activeFilter]);
 
   const processFiles = (files) => {
+    const incoming = Array.from(files);
+
+    let remaining = MAX_FILES - mediaFiles.length;
+
+    if (remaining <= 0) {
+      setError(`Maksimal hanya ${MAX_FILES} file`);
+      return;
+    }
+
     setError("");
 
     const validFiles = [];
     const previews = [];
-    let hasError = false;
 
-    Array.from(files).forEach((file) => {
+    incoming.slice(0, remaining).forEach((file) => {
       const isVideo = file.type.startsWith("video");
 
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
         setError(`Video "${file.name}" melebihi 20MB`);
-        hasError = true;
-        return;
+        return; // ❗ skip aja
       }
 
       validFiles.push(file);
@@ -146,13 +153,6 @@ export default function Devlogs() {
         type: file.type,
       });
     });
-
-    if (hasError) {
-      // 🔥 reset semua media
-      setMediaFiles([]);
-      setMediaPreview([]);
-      return;
-    }
 
     setMediaFiles((prev) => [...prev, ...validFiles]);
     setMediaPreview((prev) => [...prev, ...previews]);
@@ -706,8 +706,8 @@ export default function Devlogs() {
               </div>
 
               <p className="text-[10px] text-gray-500 mb-3">
-                Screenshots or short clips that illustrate the update
-                (optional).
+                Screenshots or short clips that illustrate the update (video up
+                to 20 mb max 8 files) (optional).
               </p>
             </div>
 

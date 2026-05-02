@@ -18,8 +18,9 @@ export function clearAuthAndRedirect() {
   window.location.href = "/login";
 }
 
+// Use relative URL - works with any domain (localhost, ngrok, custom domain)
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "/api",  // Changed from "http://localhost:5000/api"
 });
 
 // Auto attach token

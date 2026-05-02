@@ -134,15 +134,7 @@ const Moderation = () => {
                   key={`${row.entity_type}-${row.entity_id}`}
                   className="bg-[#111427] border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row gap-4"
                 >
-                  <div className="w-full sm:w-32 h-28 sm:h-20 shrink-0 rounded-md bg-black/40 overflow-hidden flex items-center justify-center">
-                    {thumb ? (
-                      <img src={thumb} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-[10px] uppercase tracking-wider text-gray-500">
-                        {ENTITY_LABEL[row.entity_type] || row.entity_type}
-                      </span>
-                    )}
-                  </div>
+                 
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -176,8 +168,6 @@ const Moderation = () => {
                   <div className="flex sm:flex-col gap-2 shrink-0">
                     <a
                       href={viewPath}
-                      target="_blank"
-                      rel="noreferrer"
                       className="px-3 py-1.5 rounded-md text-xs font-medium bg-white/5 border border-white/10 text-gray-200 hover:bg-white/10 text-center"
                     >
                       View
