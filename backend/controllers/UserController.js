@@ -7,7 +7,10 @@ const publicUser = (u) => ({
   username: u.username,
   role: u.role,
   profile_image: u.profile_image,
+  collaboration_status: u.collaboration_status,
 });
+
+const VALID_COLLABORATION_STATUSES = ['open', 'closed'];
 
 class UserController {
 
@@ -24,12 +27,32 @@ class UserController {
     }
   }
 
+  static async getProfile(req, res) {
+    try {
+      const { id } = req.params;
+      const user = await User.getProfile(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      return res.status(200).json({ user });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  }
+
   static async update(req, res) {
     try {
       const { user_id } = req.user;
-      const { username, email, current_password, new_password } = req.body;
+      const { username, email, current_password, new_password, collaboration_status } = req.body;
 
       const fields = {};
+
+      if (collaboration_status !== undefined) {
+        if (!VALID_COLLABORATION_STATUSES.includes(collaboration_status)) {
+          return res.status(400).json({ message: "collaboration_status must be 'open' or 'closed'" });
+        }
+        fields.collaboration_status = collaboration_status;
+      }
 
       if (username && username.trim()) {
         const existing = await User.getByUsername(username);

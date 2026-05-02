@@ -8,6 +8,7 @@ import multerErrorHandler from '../middlewares/multerErrorHandler.js';
 
 router.get('/', DevLogController.getAll);
 router.get('/category/:category', DevLogController.getByCategory);
+router.get('/user/:user_id/public', DevLogController.getByUserPublic);
 router.get('/user/:user_id', authToken, DevLogController.getByUser);
 router.get('/:id', DevLogController.getById);
 

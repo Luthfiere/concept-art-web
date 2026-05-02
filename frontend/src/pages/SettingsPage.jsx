@@ -65,6 +65,12 @@ const StarIcon = () => (
   </svg>
 );
 
+const ChatBubbleIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
 // ─── Reusable Sub-components ──────────────────────────────────────────────────
 
 const SectionCard = ({ icon, title, accent = false, children }) => (
@@ -131,6 +137,8 @@ export default function SettingsPage() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [collabSaving, setCollabSaving] = useState(false);
+  const [collabError, setCollabError] = useState(null);
 
   const getDefaultAvatar = () => {
     const seed = user?.username || user?.email || "guest";
@@ -233,6 +241,40 @@ export default function SettingsPage() {
       alert(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleCollaboration = async () => {
+    if (collabSaving || !user) return;
+    const previous = user.collaboration_status || "open";
+    const next = previous === "open" ? "closed" : "open";
+
+    setCollabSaving(true);
+    setCollabError(null);
+    setUser((prev) => (prev ? { ...prev, collaboration_status: next } : prev));
+
+    try {
+      const res = await fetch(`${API_BASE}/users`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ collaboration_status: next }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update");
+
+      const updated = data.user || { ...user, collaboration_status: next };
+      setUser(updated);
+      localStorage.setItem("user", JSON.stringify(updated));
+    } catch (err) {
+      setUser((prev) =>
+        prev ? { ...prev, collaboration_status: previous } : prev,
+      );
+      setCollabError(err.message || "Could not save preference");
+    } finally {
+      setCollabSaving(false);
     }
   };
 
@@ -464,6 +506,73 @@ export default function SettingsPage() {
               )}
             </div>
           </form>
+        </SectionCard>
+
+        {/* ── Messaging ── */}
+        <SectionCard icon={<ChatBubbleIcon />} title="Messaging">
+          {(() => {
+            const status = user?.collaboration_status || "open";
+            const isOpen = status === "open";
+            return (
+              <div>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white mb-1">
+                      Open for collaboration
+                    </p>
+                    <p className="text-xs text-neutral-500 leading-relaxed">
+                      When closed, new users won&apos;t be able to start a
+                      conversation with you. Existing conversations are not
+                      affected.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleToggleCollaboration}
+                    disabled={collabSaving || !user}
+                    aria-pressed={isOpen}
+                    aria-label={
+                      isOpen
+                        ? "Currently open. Click to close DMs."
+                        : "Currently closed. Click to open DMs."
+                    }
+                    className={`relative shrink-0 inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                      isOpen ? "bg-yellow-400" : "bg-white/15"
+                    } ${collabSaving || !user ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                        isOpen ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3 mt-4">
+                  <span
+                    className={`text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded-md border ${
+                      isOpen
+                        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300/80"
+                        : "border-red-400/30 bg-red-400/10 text-red-300/80"
+                    }`}
+                  >
+                    {isOpen ? "Open to collab" : "DMs closed"}
+                  </span>
+                  {collabSaving && (
+                    <span className="text-[11px] text-neutral-500">
+                      Saving…
+                    </span>
+                  )}
+                  {collabError && (
+                    <span className="text-[11px] text-red-300/80">
+                      {collabError}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </SectionCard>
       </div>
     </div>

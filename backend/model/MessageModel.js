@@ -80,7 +80,7 @@ class Message {
       SELECT COUNT(*) as count
       FROM core_messages m
       JOIN core_conversations c ON c.id = m.conversation_id
-      WHERE (c.sender_id = $1 OR c.receiver_id = $1)
+      WHERE (c.user_a_id = $1 OR c.user_b_id = $1)
       AND m.sender_id != $1
       AND m.is_read = FALSE
     `, [user_id]);

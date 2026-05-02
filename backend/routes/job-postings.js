@@ -8,6 +8,7 @@ import { requireActiveSubscription } from '../middlewares/subscriptionMiddleware
 
 // Public reads — anyone can browse job postings without logging in
 router.get('/', JobPostingController.getAll);
+router.get('/user/:user_id/public', JobPostingController.getByUserPublic);
 router.get('/user/:user_id', JobPostingController.getByUser);
 router.get('/status/:status', JobPostingController.getByStatus);
 router.get('/:id', JobPostingController.getById);

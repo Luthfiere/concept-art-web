@@ -40,12 +40,11 @@ api.interceptors.response.use(
     const status = err.response?.status;
     const url = err.config?.url;
 
-    // 🚨 skip redirect kalau lagi login/register
-    if (
-      (status === 401 || status === 403) &&
-      !url.includes("/login") &&
-      !url.includes("/register")
-    ) {
+    // 🚨 skip redirect kalau lagi login/register, atau 403 dari endpoint
+    const isAuthSkip = url.includes("/login") || url.includes("/register");
+    const isForbiddenByRule = status === 403 && url.includes("/conversations");
+
+    if ((status === 401 || status === 403) && !isAuthSkip && !isForbiddenByRule) {
       clearAuthAndRedirect();
     }
 

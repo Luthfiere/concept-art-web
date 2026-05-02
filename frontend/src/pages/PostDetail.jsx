@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
 import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
@@ -265,7 +265,17 @@ const PostDetail = () => {
 
               {/* Author */}
               <p className="text-xs text-gray-400">
-                Posted by {post.username || "Posters"}
+                Posted by{" "}
+                {post.user_id ? (
+                  <Link
+                    to={`/profile/${post.user_id}`}
+                    className="font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
+                  >
+                    {post.username || "Posters"}
+                  </Link>
+                ) : (
+                  post.username || "Posters"
+                )}
               </p>
               {/* Image / Video */}
               <div className="bg-black rounded-lg overflow-hidden">
@@ -399,15 +409,34 @@ const PostDetail = () => {
             <div className="space-y-4">
               {comments.map((c) => (
                 <div key={c.id} className="flex gap-3">
-                  <img
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
-                    className="w-9 h-9 rounded-full shrink-0"
-                    alt=""
-                  />
+                  {c.user_id ? (
+                    <Link to={`/profile/${c.user_id}`} className="shrink-0">
+                      <img
+                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
+                        className="w-9 h-9 rounded-full hover:ring-2 hover:ring-yellow-400/50 transition"
+                        alt=""
+                      />
+                    </Link>
+                  ) : (
+                    <img
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
+                      className="w-9 h-9 rounded-full shrink-0"
+                      alt=""
+                    />
+                  )}
                   <div>
-                    <p className="text-sm font-medium text-yellow-500">
-                      {c.username}
-                    </p>
+                    {c.user_id ? (
+                      <Link
+                        to={`/profile/${c.user_id}`}
+                        className="text-sm font-medium text-yellow-500 hover:text-yellow-300 hover:underline"
+                      >
+                        {c.username}
+                      </Link>
+                    ) : (
+                      <p className="text-sm font-medium text-yellow-500">
+                        {c.username}
+                      </p>
+                    )}
                     <p className="text-sm text-gray-300 mt-0.5">{c.comment}</p>
                   </div>
                 </div>
@@ -421,16 +450,22 @@ const PostDetail = () => {
           <div className="bg-[#111427] rounded-xl p-4">
             <p className="font-semibold mb-2">About Artist</p>
 
-            <div className="flex items-center gap-3 mb-4">
+            <Link
+              to={post.user_id ? `/profile/${post.user_id}` : "#"}
+              className="flex items-center gap-3 mb-4 group"
+            >
               <img
                 src={`https://api.dicebear.com/7.x/initials/svg?seed=${post.username || "user"}`}
-                className="w-12 h-12 rounded-full"
+                className="w-12 h-12 rounded-full transition group-hover:ring-2 group-hover:ring-yellow-400/50"
                 alt=""
               />
               <div>
-                <p className="font-semibold">{post.username || "User"}</p>
+                <p className="font-semibold group-hover:text-yellow-300 transition-colors">
+                  {post.username || "User"}
+                </p>
+                <p className="text-[11px] text-gray-500">View profile</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           <div className="bg-[#111427] rounded-xl p-4">

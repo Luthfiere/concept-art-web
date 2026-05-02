@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import api, { isTokenExpired } from "../../services/api";
 import { parseTags } from "../../utils/sanitize";
 import Navbar from "../layout/Navbar";
@@ -226,15 +226,22 @@ export default function DevlogDetail() {
 
           {/* META ROW */}
           <div className="flex items-center gap-3 py-4 mb-6 border-y border-white/10">
-            <img
-              src={getAvatar(devlog)}
-              alt="avatar"
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-white/10"
-            />
-            <div>
-              <p className="text-sm font-semibold text-gray-100 leading-tight">{devlog.username}</p>
-              <p className="text-xs text-gray-500">{formatDate(devlog.created_at)}</p>
-            </div>
+            <Link
+              to={devlog.user_id ? `/profile/${devlog.user_id}` : "#"}
+              className="flex items-center gap-3 group"
+            >
+              <img
+                src={getAvatar(devlog)}
+                alt="avatar"
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-yellow-400/50 transition"
+              />
+              <div>
+                <p className="text-sm font-semibold text-gray-100 leading-tight group-hover:text-yellow-300 transition-colors">
+                  {devlog.username}
+                </p>
+                <p className="text-xs text-gray-500">{formatDate(devlog.created_at)}</p>
+              </div>
+            </Link>
 
             {/* spacer */}
             <div className="flex-1" />
@@ -380,13 +387,32 @@ export default function DevlogDetail() {
             <div className="space-y-5">
               {comments.map((c) => (
                 <div key={c.id} className="flex gap-3">
-                  <img
-                    src={getAvatar(c)}
-                    alt="avatar"
-                    className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-0.5"
-                  />
+                  {c.user_id ? (
+                    <Link to={`/profile/${c.user_id}`} className="shrink-0 mt-0.5">
+                      <img
+                        src={getAvatar(c)}
+                        alt="avatar"
+                        className="w-9 h-9 rounded-full object-cover hover:ring-2 hover:ring-yellow-400/50 transition"
+                      />
+                    </Link>
+                  ) : (
+                    <img
+                      src={getAvatar(c)}
+                      alt="avatar"
+                      className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-0.5"
+                    />
+                  )}
                   <div className="flex-1 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3">
-                    <p className="text-sm font-medium text-gray-200 mb-0.5">{c.username}</p>
+                    {c.user_id ? (
+                      <Link
+                        to={`/profile/${c.user_id}`}
+                        className="text-sm font-medium text-gray-200 mb-0.5 hover:text-yellow-300 hover:underline"
+                      >
+                        {c.username}
+                      </Link>
+                    ) : (
+                      <p className="text-sm font-medium text-gray-200 mb-0.5">{c.username}</p>
+                    )}
                     <p className="text-sm text-gray-400 leading-relaxed">{c.comment}</p>
                   </div>
                 </div>
@@ -438,17 +464,22 @@ export default function DevlogDetail() {
           {/* AUTHOR */}
           <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5">
             <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">Author</p>
-            <div className="flex items-center gap-3">
+            <Link
+              to={devlog.user_id ? `/profile/${devlog.user_id}` : "#"}
+              className="flex items-center gap-3 group"
+            >
               <img
                 src={getAvatar(devlog)}
                 alt="avatar"
-                className="w-11 h-11 rounded-full object-cover ring-2 ring-white/10"
+                className="w-11 h-11 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-yellow-400/50 transition"
               />
               <div>
-                <p className="text-sm font-medium text-white">{devlog.username}</p>
-                <p className="text-xs text-gray-500">indie developer</p>
+                <p className="text-sm font-medium text-white group-hover:text-yellow-300 transition-colors">
+                  {devlog.username}
+                </p>
+                <p className="text-xs text-gray-500">View profile</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* SHARE */}

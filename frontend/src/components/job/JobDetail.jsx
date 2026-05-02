@@ -183,21 +183,24 @@ const JobDetail = ({ job }) => {
           )}
 
           {/* Poster */}
-          <div className="flex items-center gap-3 mt-4 py-3 border-y border-white/10">
+          <Link
+            to={job.user_id ? `/profile/${job.user_id}` : "#"}
+            className="flex items-center gap-3 mt-4 py-3 border-y border-white/10 group"
+          >
             <img
               src={getAvatar(job)}
               alt={`${job.username || "poster"} avatar`}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-white/10"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-yellow-400/50 transition"
             />
             <div>
               <p className="text-[11px] uppercase tracking-wider text-gray-500">
                 Posted by
               </p>
-              <p className="text-sm font-semibold text-gray-100 leading-tight">
+              <p className="text-sm font-semibold text-gray-100 leading-tight group-hover:text-yellow-300 transition-colors">
                 {job.username || "Unknown"}
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* Status banners */}
           {isExpired && (

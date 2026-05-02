@@ -55,22 +55,23 @@ export const ChatProvider = ({ children }) => {
     fetchUnreadCount();
   }, [fetchUnreadCount]);
 
-  const openChatWithArt = useCallback(async (artId, receiverId) => {
+  const openChatWithUser = useCallback(async (receiverId) => {
     if (isTokenExpired()) return;
     try {
       const res = await api.post("/conversations", {
-        art_id: artId,
         receiver_id: receiverId,
       });
       const conversation = res.data.conversation;
       setActiveConversation(conversation);
       setIsOpen(true);
+      return { ok: true, conversation };
     } catch (err) {
-      console.error("Failed to open chat:", err);
+      const status = err.response?.status;
+      const message = err.response?.data?.message || "Failed to open chat";
+      console.error("Failed to open chat:", message);
+      return { ok: false, status, message };
     }
   }, []);
-
-  
 
   return (
     <ChatContext.Provider
@@ -82,7 +83,7 @@ export const ChatProvider = ({ children }) => {
         toggleChat,
         openConversation,
         backToList,
-        openChatWithArt,
+        openChatWithUser,
         fetchUnreadCount,
       }}
     >

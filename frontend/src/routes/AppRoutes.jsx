@@ -17,6 +17,7 @@ import Subscription from "../pages/Subscription";
 import SubscriptionCallback from "../pages/SubscriptionCallback";
 import SettingsPage from "../pages/SettingsPage";
 import Moderation from "../pages/Moderation";
+import UserProfile from "../pages/UserProfile";
 
 const AppRoutes = () => {
   return (
@@ -29,6 +30,7 @@ const AppRoutes = () => {
       <Route path="/post/:id" element={<PostDetail />} />
       <Route path="/job/:id" element={<JobApplicantsPage />} />
       <Route path="/devlog/:id" element={<DevlogDetail />} />
+      <Route path="/profile/:id" element={<UserProfile />} />
 
       <Route path="/Job" element={<JobPage />} />
 
