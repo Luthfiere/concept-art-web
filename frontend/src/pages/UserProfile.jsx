@@ -28,6 +28,22 @@ const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
+const ArrowLeftIcon = () => (
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+    />
+  </svg>
+);
+
 const UserProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -233,6 +249,14 @@ const UserProfile = () => {
       <Navbar />
 
       <div className="relative z-10 w-full px-4 sm:px-6 md:px-8 pt-6 sm:pt-10 pb-16 sm:pb-20">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
+        >
+          <ArrowLeftIcon />
+          Back
+        </button>
+
         {/* PROFILE HEADER */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-12">
           <img
