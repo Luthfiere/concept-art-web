@@ -9,55 +9,37 @@ const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
 
 const CATEGORIES = [
   "all",
-  "major_update",
-  "minor_update",
-  "patch_notes",
+  "update",
   "announcement",
-  "feature",
-  "bugfix",
   "milestone",
   "devlog",
   "postmortem",
   "game_design",
   "tech_discussion",
-  "tutorial",
-  "culture",
-  "marketing",
+  "tutorial"
 ];
 
 const CATEGORY_LABELS = {
   all: "All",
-  major_update: "Major update",
-  minor_update: "Minor update",
-  patch_notes: "Patch notes",
+  update: "Update",
   announcement: "Announcement",
-  feature: "Feature",
-  bugfix: "Bugfix",
   milestone: "Milestone",
   devlog: "Devlog",
   postmortem: "Postmortem",
   game_design: "Game design",
   tech_discussion: "Tech discussion",
-  tutorial: "Tutorial",
-  culture: "Culture",
-  marketing: "Marketing",
+  tutorial: "Tutorial"
 };
 
 const BADGE_COLORS = {
-  patch_notes: "bg-emerald-950/60 text-emerald-300",
   milestone: "bg-blue-950/60 text-blue-300",
   tech_discussion: "bg-violet-950/60 text-violet-300",
   game_design: "bg-pink-950/60 text-pink-300",
   devlog: "bg-white/5 text-gray-400",
   postmortem: "bg-orange-950/60 text-orange-300",
   announcement: "bg-yellow-950/60 text-yellow-300",
-  feature: "bg-teal-950/60 text-teal-300",
-  bugfix: "bg-red-950/60 text-red-300",
-  major_update: "bg-amber-950/60 text-amber-300",
-  minor_update: "bg-amber-950/40 text-amber-400",
+  update: "bg-amber-950/40 text-amber-400",
   tutorial: "bg-cyan-950/60 text-cyan-300",
-  culture: "bg-rose-950/60 text-rose-300",
-  marketing: "bg-indigo-950/60 text-indigo-300",
 };
 
 const MAX_FILES = 8;
