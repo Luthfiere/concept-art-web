@@ -261,22 +261,29 @@ const PostDetail = () => {
             {/* CONTENT */}
             <div className="flex-1 min-w-0 space-y-4">
               {/* Title */}
-              <h1 className="text-lg sm:text-xl font-bold break-words">{post.title}</h1>
+              <h1 className="text-lg sm:text-xl font-bold break-words">
+                {post.title}
+              </h1>
 
               {/* Author */}
-              <p className="text-xs text-gray-400">
-                Posted by{" "}
-                {post.user_id ? (
-                  <Link
-                    to={`/profile/${post.user_id}`}
-                    className="font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
-                  >
-                    {post.username || "Posters"}
-                  </Link>
-                ) : (
-                  post.username || "Posters"
-                )}
-              </p>
+              <Link
+                to={post.user_id ? `/profile/${post.user_id}` : "#"}
+                className="flex items-center gap-3 group"
+              >
+                <img
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${post.username || "user"}`}
+                  className="w-10 h-10 rounded-full transition group-hover:ring-2 group-hover:ring-yellow-400/50"
+                  alt=""
+                />
+                <div>
+                  <p className="text-sm font-semibold text-white group-hover:text-yellow-300 transition-colors">
+                    {post.username || "User"}
+                  </p>
+                  <p className="text-[11px] text-gray-500">
+                    Posted · view profile
+                  </p>
+                </div>
+              </Link>
               {/* Image / Video */}
               <div className="bg-black rounded-lg overflow-hidden">
                 {post.images?.length > 0 && (
