@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
-import { useChat } from "../context/ChatContext";
 import { parseTags } from "../utils/sanitize";
 import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
 
@@ -58,7 +57,6 @@ const ArtDetail = () => {
   const { id: rawId } = useParams();
   const id = Number(rawId);
   const navigate = useNavigate();
-  const { openChatWithUser } = useChat();
   const [art, setArt] = useState(null);
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -342,19 +340,6 @@ const ArtDetail = () => {
                 {liked ? "Liked" : "Like"}
               </button>
             </div>
-
-            {/* Message Artist button */}
-            {isLoggedIn && art.user_id !== currentUserId && (
-              <div className="flex items-center gap-3 mb-4">
-                <button
-                  onClick={() => openChatWithUser(art.user_id)}
-                  className="flex-1 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                >
-                  <ChatBubbleIcon className="w-4 h-4" />
-                  Message Artist
-                </button>
-              </div>
-            )}
 
             {/* Report button */}
             {isLoggedIn && art.user_id !== currentUserId && (
