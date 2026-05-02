@@ -58,26 +58,24 @@ app.get("/metrics", async (req, res) => {
 
 
 const allowedOrigins = [
-  /\.localhost$/,                 
-  /^http:\/\/localhost(:\d+)?$/   
+  // Localhost patterns
+  /^http:\/\/localhost(:\d+)?$/,      // http://localhost, http://localhost:5173, http://localhost:5000
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,   // http://127.0.0.1, http://127.0.0.1:5173
+  
+  // Nginx (port 80)
+  'http://localhost',
+  'http://127.0.0.1',
+  
+  // ngrok tunnels
+  /^https:\/\/.*\.ngrok-free\.app$/,
+  
+  // If you access via network IP
+  /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/,
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      const isAllowed = allowedOrigins.some((rule) =>
-        rule instanceof RegExp ? rule.test(origin) : rule === origin
-      );
-
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        console.log("CORS blocked:", origin);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true,
     credentials: true,
     exposedHeaders: ["Content-Disposition"], 
   })
