@@ -58,6 +58,21 @@ class DevLogController {
     }
   }
 
+  static async getByUserPublic(req, res) {
+    try {
+      const { user_id } = req.params;
+      const logs = await DevLog.getByUserPublic(user_id);
+
+      return res.status(200).json({
+        message: 'List of published dev logs by user',
+        total: logs.length,
+        data: logs
+      });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  }
+
   static async getByCategory(req, res) {
     try {
       const { category } = req.params;

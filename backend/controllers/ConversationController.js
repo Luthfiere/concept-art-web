@@ -1,5 +1,5 @@
 import Conversation from '../model/ConversationModel.js';
-import ConceptArt from '../model/ConceptArtModel.js';
+import User from '../model/UserModel.js';
 
 class ConversationController {
 
@@ -8,9 +8,9 @@ class ConversationController {
     const { limit = 20, offset = 0 } = req.query;
 
     try {
-      const conversations = await Conversation.getAll(user_id, { 
-        limit: parseInt(limit), 
-        offset: parseInt(offset) 
+      const conversations = await Conversation.getAll(user_id, {
+        limit: parseInt(limit),
+        offset: parseInt(offset)
       });
 
       res.status(200).json({
@@ -44,43 +44,45 @@ class ConversationController {
   }
 
   static async create(req, res) {
-    const { art_id, receiver_id } = req.body;
-    const { user_id } = req.user;
+    const { receiver_id } = req.body;
+    const { user_id, role } = req.user;
+    const receiverId = parseInt(receiver_id);
 
-    if (!art_id || !receiver_id) {
-      return res.status(400).json({ message: 'art_id and receiver_id are required' });
+    if (!receiverId) {
+      return res.status(400).json({ message: 'receiver_id is required' });
     }
 
-    if (user_id === receiver_id) {
+    if (user_id === receiverId) {
       return res.status(400).json({ message: 'Cannot create conversation with yourself' });
     }
 
     try {
-      // Check if art exists
-      const art = await ConceptArt.getById(art_id);
-      if (!art) {
-        return res.status(404).json({ message: 'Concept art not found' });
-      }
+      const [user_a_id, user_b_id] = user_id < receiverId
+        ? [user_id, receiverId]
+        : [receiverId, user_id];
 
-      // Check if conversation already exists
-      const existing = await Conversation.getByArtAndUsers({
-        art_id,
-        sender_id: user_id,
-        receiver_id
-      });
-
+      const existing = await Conversation.getByUsers(user_a_id, user_b_id);
       if (existing) {
+        const full = await Conversation.getById(existing.id, user_id);
         return res.status(200).json({
           message: 'Conversation already exists',
-          conversation: existing
+          conversation: full
         });
       }
 
-      const newConversation = await Conversation.create({
-        art_id,
-        sender_id: user_id,
-        receiver_id
-      });
+      // Gate new conversation creation on receiver's collaboration_status.
+      // Moderators bypass so support stays reachable.
+      if (role !== 'moderator') {
+        const receiver = await User.getProfile(receiverId);
+        if (!receiver) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+        if (receiver.collaboration_status === 'closed') {
+          return res.status(403).json({ message: 'This user is not accepting new messages' });
+        }
+      }
+
+      const newConversation = await Conversation.create({ user_a_id, user_b_id });
 
       res.status(201).json({
         message: 'Conversation created successfully',

@@ -31,10 +31,19 @@ class User {
 
   static async getByUsername(username) {
     const result = await db.query(`
-      SELECT * 
-      FROM master_users 
+      SELECT *
+      FROM master_users
       WHERE username = $1
     `, [username]);
+    return result.rows[0];
+  }
+
+  static async getProfile(id) {
+    const result = await db.query(`
+      SELECT id, username, role, profile_image, collaboration_status
+      FROM master_users
+      WHERE id = $1
+    `, [id]);
     return result.rows[0];
   }
 

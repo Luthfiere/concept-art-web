@@ -17,4 +17,6 @@ router.patch(
 router.get("/", authToken, UserController.getById);
 router.put("/", authToken, UserController.update);
 
+router.get("/:id", UserController.getProfile);
+
 export default router;

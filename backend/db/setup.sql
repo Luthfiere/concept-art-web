@@ -29,9 +29,11 @@ DROP TYPE IF EXISTS entity_type CASCADE;
 DROP TYPE IF EXISTS subscription_plan CASCADE;
 DROP TYPE IF EXISTS payment_status CASCADE;
 DROP TYPE IF EXISTS report_reason CASCADE;
+DROP TYPE IF EXISTS collaboration_status_type CASCADE;
 
 
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate', 'moderator');
+CREATE TYPE collaboration_status_type AS ENUM ('open', 'closed');
 CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
 CREATE TYPE art_category AS ENUM('art', 'post', 'community'); -- for art & post without art
 CREATE TYPE work_option_type AS ENUM ('On-site', 'Hybrid', 'Remote');
@@ -55,7 +57,8 @@ CREATE TABLE master_users (
   username VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   role tier_type DEFAULT 'member',
-  profile_image VARCHAR(255)
+  profile_image VARCHAR(255),
+  collaboration_status collaboration_status_type DEFAULT 'open'
 );
 
 -- 2. Create Concept Art table
@@ -98,15 +101,15 @@ CREATE TABLE core_comments (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create Conversations table (DM threads)
+-- Create Conversations table (DM threads). One row per user pair
 CREATE TABLE core_conversations (
   id SERIAL PRIMARY KEY,
-  art_id INTEGER NOT NULL REFERENCES core_concept_art(id) ON DELETE CASCADE,
-  sender_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-  receiver_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+  user_a_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+  user_b_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE (art_id, sender_id, receiver_id)
+  CHECK (user_a_id < user_b_id),
+  UNIQUE (user_a_id, user_b_id)
 );
 
 -- Create Messages table

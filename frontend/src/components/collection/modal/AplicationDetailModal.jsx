@@ -24,7 +24,7 @@ const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
 const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
   if (!app) return null;
 
-  const { openChatWithArt } = useChat();
+  const { openChatWithUser } = useChat();
   const isLoggedIn = !isTokenExpired();
   const [job, setJob] = useState(null);
   const token = localStorage.getItem("token");
@@ -69,7 +69,7 @@ const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
           ["pending", "shortlist", "hired"].includes(app.status) && (
             <button
               onClick={() => {
-                openChatWithArt(job.id, job.user_id);
+                openChatWithUser(job.user_id);
                 onClose();
               }}
               className="w-full py-2 bg-white/10 rounded-lg flex items-center justify-center gap-2"

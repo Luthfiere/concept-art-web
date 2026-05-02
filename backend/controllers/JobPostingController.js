@@ -66,6 +66,21 @@ class JobPostingController {
     }
   }
 
+  static async getByUserPublic(req, res) {
+    try {
+      const { user_id } = req.params;
+      const jobs = await JobPosting.getByUserPublic(user_id);
+
+      return res.status(200).json({
+        message: 'List of active job postings by user',
+        total: jobs.length,
+        data: jobs
+      });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  }
+
   static async getByStatus(req, res) {
     try {
       const { status } = req.params;

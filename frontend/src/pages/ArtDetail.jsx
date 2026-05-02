@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired } from "../services/api";
-import { useChat } from "../context/ChatContext";
 import { parseTags } from "../utils/sanitize";
 import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
 
@@ -58,7 +57,6 @@ const ArtDetail = () => {
   const { id: rawId } = useParams();
   const id = Number(rawId);
   const navigate = useNavigate();
-  const { openChatWithArt } = useChat();
   const [art, setArt] = useState(null);
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -293,19 +291,22 @@ const ArtDetail = () => {
             </button>
 
             {/* Artist row */}
-            <div className="flex items-center gap-3 mb-5">
+            <Link
+              to={art.user_id ? `/profile/${art.user_id}` : "#"}
+              className="flex items-center gap-3 mb-5 group"
+            >
               <img
                 src={`https://api.dicebear.com/7.x/initials/svg?seed=${art.username || "artist"}`}
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full transition group-hover:ring-2 group-hover:ring-yellow-400/50"
                 alt=""
               />
               <div>
-                <p className="font-semibold text-sm text-white">
+                <p className="font-semibold text-sm text-white group-hover:text-yellow-300 transition-colors">
                   {art.username || "Artist"}
                 </p>
-                <p className="text-[11px] text-gray-500">Creator</p>
+                <p className="text-[11px] text-gray-500">Creator · view profile</p>
               </div>
-            </div>
+            </Link>
 
             {/* Title + Tag */}
             <div className="mb-4">
@@ -339,19 +340,6 @@ const ArtDetail = () => {
                 {liked ? "Liked" : "Like"}
               </button>
             </div>
-
-            {/* Message Artist button */}
-            {isLoggedIn && art.user_id !== currentUserId && (
-              <div className="flex items-center gap-3 mb-4">
-                <button
-                  onClick={() => openChatWithArt(art.id, art.user_id)}
-                  className="flex-1 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                >
-                  <ChatBubbleIcon className="w-4 h-4" />
-                  Message Artist
-                </button>
-              </div>
-            )}
 
             {/* Report button */}
             {isLoggedIn && art.user_id !== currentUserId && (
