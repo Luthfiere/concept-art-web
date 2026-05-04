@@ -42,7 +42,7 @@ CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked', 'A
 CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'USD');
 CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'hired');
 CREATE TYPE dev_log_status AS ENUM ('Draft', 'Published', 'Archived');
-CREATE TYPE dev_log_category AS ENUM ('major_update', 'minor_update', 'patch_notes', 'announcement', 'feature', 'bugfix', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion', 'tutorial', 'culture', 'marketing');
+CREATE TYPE dev_log_category AS ENUM ('update', 'announcement', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion', 'tutorial');
 CREATE TYPE entity_type AS ENUM ('art', 'devlog', 'forum', 'job');
 CREATE TYPE subscription_plan AS ENUM ('pro_monthly', 'corporate_monthly', 'pro_per_post', 'corporate_per_post');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'expired');

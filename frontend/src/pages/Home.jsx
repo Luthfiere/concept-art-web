@@ -8,6 +8,7 @@ import IdeationCard from "../components/home/IdeationCard";
 import FloatingCreateButton from "../components/home/FloatingCreateButton";
 import PostFormModal from "../components/home/PostFormModal";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 import { parseTags } from "../utils/sanitize";
 
 const isVideo = (path) =>
@@ -20,6 +21,7 @@ const Home = () => {
   const [sort, setSort] = useState("Most Liked");
   const [selectedArtCategory, setSelectedArtCategory] = useState("All");
   const [searchArt, setSearchArt] = useState("");
+  const navigate = useNavigate();
 
   // Posts section — shared between ideation & community
   const [postsMode, setPostsMode] = useState("ideation");
@@ -33,6 +35,14 @@ const Home = () => {
   const [fetchKey, setFetchKey] = useState(0);
 
   const handleCreatePost = (type) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must login first!");
+      navigate("/login");
+      return;
+    }
+
     setPostFormType(type);
     setPostFormOpen(true);
   };
@@ -124,7 +134,6 @@ const Home = () => {
   const visiblePosts = showAllPosts
     ? filteredPosts
     : filteredPosts.slice(0, POSTS_PREVIEW_COUNT);
-
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
