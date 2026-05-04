@@ -56,6 +56,26 @@ class ModerationController {
       return res.status(500).json({ message: err.message });
     }
   }
+
+  static async delete(req, res) {
+    try {
+      const { entity_type, entity_id } = req.params;
+
+      if (!SUPPORTED_ENTITIES.includes(entity_type)) {
+        return res.status(400).json({ message: 'Unsupported entity_type' });
+      }
+
+      const id = Number(entity_id);
+      await ContentReport.deleteByEntity(entity_type, id);
+
+      return res.status(200).json({
+        message: 'Reports dismissed',
+        data: { entity_type, entity_id: id },
+      });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  }
 }
 
 export default ModerationController;

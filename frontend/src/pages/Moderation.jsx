@@ -81,6 +81,22 @@ const Moderation = () => {
     fetchQueue();
   };
 
+  const handleDismiss = async (row) => {
+    if (
+      !window.confirm(
+        "Dismiss all reports for this item? This won't notify the author or remove the content."
+      )
+    ) {
+      return;
+    }
+    try {
+      await api.delete(`/moderation/${row.entity_type}/${row.entity_id}/reports`);
+      fetchQueue();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to dismiss reports");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0d1f] text-white">
       <Navbar />
@@ -172,6 +188,12 @@ const Moderation = () => {
                     >
                       View
                     </a>
+                    <button
+                      onClick={() => handleDismiss(row)}
+                      className="px-3 py-1.5 rounded-md text-xs font-semibold bg-white/5 border border-emerald-400/30 text-emerald-300/90 hover:bg-emerald-400/10"
+                    >
+                      Dismiss
+                    </button>
                     <button
                       onClick={() =>
                         setTarget({
