@@ -15,6 +15,20 @@ services:
       DATABASE_NAME: conceptart
       DATABASE_PORT: 5432
 
+  seeder:
+    build: ./backend
+    command: node db/seeds/run-seed.js
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: b1i2m3o4
+      DATABASE_NAME: conceptart
+      DATABASE_PORT: 5432
+    restart: "no"
+
   frontend:
     build: ./frontend
     ports:
