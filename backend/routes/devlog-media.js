@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
-import DevLogMediaController from '../controllers/DevlogMediaController.js';
+import DevLogMediaController from '../controllers/DevLogMediaController.js';
 import authToken from '../middlewares/authMiddleware.js';
 import uploadDevLogMedia from '../middlewares/multerDevlogMedia.js';
 import multerErrorHandler from '../middlewares/multerErrorHandler.js';
