@@ -4,7 +4,7 @@ import Login from "../pages/Login";
 import ArtDetail from "../pages/ArtDetail";
 import Register from "../pages/Register";
 import ProtectedRoute from "./ProtectedRoutes";
-import JobPage from "../pages/Jobpage";
+import JobPage from "../pages/JobPage";
 import PostJobPage from "../pages/PostJobPage";
 import PostArt from "../pages/PostArt";
 import PostForm from "../pages/PostForm";

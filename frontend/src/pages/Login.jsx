@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { loginUser } from "../features/auth/authService";
+import { loginUser } from "../features/Auth/authService";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useRef } from "react";
 import noise from "../assets/images/noise.png";

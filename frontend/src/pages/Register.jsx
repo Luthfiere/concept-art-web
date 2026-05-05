@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { registerUser } from "../features/auth/authService";
+import { registerUser } from "../features/Auth/authService";
 import noise from "../assets/images/noise.png";
 import Captcha from "../components/Captcha";
 

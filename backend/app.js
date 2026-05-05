@@ -1,31 +1,31 @@
-import express from 'express';
-import cors from 'cors';
-import client from 'prom-client';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import express from "express";
+import cors from "cors";
+import client from "prom-client";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-import auths from './routes/auths.js';
-import users from './routes/users.js';
-import conceptArts from './routes/concept-arts.js';
-import artMedia from './routes/art-media.js';
-import likes from './routes/likes.js';
-import comments from './routes/comments.js';
-import conversation from './routes/conversations.js';
-import messages from './routes/messages.js';
-import jobPostings from './routes/job-postings.js';
-import jobApplications from './routes/job-applications.js';
-import subscriptions from './routes/subscriptions.js';
-import devlog from './routes/devlog.js';
-import devlogMedia from './routes/devlog-media.js';
-import forum from './routes/forum.js';
-import contentReports from './routes/content-reports.js';
-import moderation from './routes/moderation.js';
-import moderationActions from './routes/moderation-actions.js';
+import auths from "./routes/auths.js";
+import users from "./routes/users.js";
+import conceptArts from "./routes/concept-arts.js";
+import artMedia from "./routes/art-media.js";
+import likes from "./routes/likes.js";
+import comments from "./routes/comments.js";
+import conversation from "./routes/conversations.js";
+import messages from "./routes/messages.js";
+import jobPostings from "./routes/job-postings.js";
+import jobApplications from "./routes/job-applications.js";
+import subscriptions from "./routes/subscriptions.js";
+import devlog from "./routes/devlog.js";
+import devlogMedia from "./routes/devlog-media.js";
+import forum from "./routes/forum.js";
+import contentReports from "./routes/content-reports.js";
+import moderation from "./routes/moderation.js";
+import moderationActions from "./routes/moderation-actions.js";
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -34,6 +34,11 @@ const httpRequestCounter = new client.Counter({
   name: "http_requests_total",
   help: "Total number of HTTP requests",
   labelNames: ["method", "route", "status"],
+});
+
+app.use((req, res, next) => {
+  console.log("MASUK:", req.method, req.url);
+  next();
 });
 
 app.use((req, res, next) => {
@@ -56,19 +61,18 @@ app.get("/metrics", async (req, res) => {
   }
 });
 
-
 const allowedOrigins = [
   // Localhost patterns
-  /^http:\/\/localhost(:\d+)?$/,      // http://localhost, http://localhost:5173, http://localhost:5000
-  /^http:\/\/127\.0\.0\.1(:\d+)?$/,   // http://127.0.0.1, http://127.0.0.1:5173
-  
+  /^http:\/\/localhost(:\d+)?$/, // http://localhost, http://localhost:5173, http://localhost:5000
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/, // http://127.0.0.1, http://127.0.0.1:5173
+
   // Nginx (port 80)
-  'http://localhost',
-  'http://127.0.0.1',
-  
+  "http://localhost",
+  "http://127.0.0.1",
+
   // ngrok tunnels
   /^https:\/\/.*\.ngrok-free\.app$/,
-  
+
   // If you access via network IP
   /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/,
 ];
@@ -77,13 +81,13 @@ app.use(
   cors({
     origin: true,
     credentials: true,
-    exposedHeaders: ["Content-Disposition"], 
-  })
+    exposedHeaders: ["Content-Disposition"],
+  }),
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 app.use("/api", auths);
 app.use("/api/users", users);

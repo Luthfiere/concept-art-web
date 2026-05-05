@@ -3,6 +3,8 @@
 
 /backend/.env.dev
 /frontend/.env.dev
+/backend/.env
+/frontend/.env
 /.claude
 
 /docs
