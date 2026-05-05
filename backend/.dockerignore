@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.*
+*.md
+assets/concept-art
+assets/concept-posts
+assets/dev-logs
+assets/resumes
