@@ -15,7 +15,7 @@ import ApplicationDetailModal from "../components/collection/modal/AplicationDet
 import EditArtModal from "../components/collection/modal/EditArtModal";
 import EditJobModal from "../components/collection/modal/EditJobModal";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "/api";
 
 const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
   <svg

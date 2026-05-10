@@ -9,8 +9,8 @@ import CommunityCollectionCard from "../components/collection/CommunityCollectio
 import JobCollectionCard from "../components/collection/JobCollectionCard";
 import DevlogCollectionCard from "../components/collection/DevlogCollectionCard";
 
-const API_BASE = "http://localhost:5000/api";
-const ASSET_BASE = "http://localhost:5000";
+const API_BASE = "/api";
+const ASSET_BASE = "";
 
 const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
   <svg

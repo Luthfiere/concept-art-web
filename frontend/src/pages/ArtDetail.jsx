@@ -170,7 +170,7 @@ const ArtDetail = () => {
   };
 
   const mediaSrc = (path) =>
-    path.startsWith("http") ? path : `http://localhost:5000/${path}`;
+    path.startsWith("http") ? path : `/${path}`;
 
   const isVideo = (path) =>
     /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);

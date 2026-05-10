@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { sanitizeFields, isValidEmail } from "../utils/sanitize";
 
-const API_BASE = "http://localhost:5000/api";
-const BASE_URL = "http://localhost:5000";
+const API_BASE = "/api";
+const BASE_URL = "";
 
 // ─── Icon Components ──────────────────────────────────────────────────────────
 

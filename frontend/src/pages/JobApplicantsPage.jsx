@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "/api";
 
 const STATUS_CONFIG = {
   pending: {
@@ -374,7 +374,7 @@ const JobApplicantsPage = () => {
                     )}
                     {app.cv && (
                       <a
-                        href={`http://localhost:5000/${app.cv}`}
+                        href={`/${app.cv}`}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-2 text-xs text-yellow-400 hover:text-yellow-300 border border-yellow-400/20 hover:border-yellow-400/40 rounded-lg px-3 py-2 transition-all duration-150"

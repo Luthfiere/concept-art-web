@@ -23,8 +23,9 @@ export default {
       port: 5173
     },
     proxy: {
-      // Optional: Proxy API requests in development
-      '/api': 'http://localhost:5000/'
+      // Proxy API and asset requests to backend in development
+      '/api': 'http://localhost:5000/',
+      '/assets': 'http://localhost:5000/'
     }
   }
 }

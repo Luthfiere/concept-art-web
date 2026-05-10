@@ -8,7 +8,7 @@ const isVideo = (path) =>
 const mediaSrc = (media) =>
   media.startsWith("http")
     ? media
-    : `http://localhost:5000/${media.replace(/\\/g, "/")}`;
+    : `/${media.replace(/\\/g, "/")}`;
 
 const HeartIcon = () => (
   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">

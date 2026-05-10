@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { parseTags } from "../../utils/sanitize";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "";
 
 const DevlogCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
   const cover = useMemo(() => {

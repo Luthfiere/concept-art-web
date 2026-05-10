@@ -5,8 +5,8 @@ import { parseTags } from "../../utils/sanitize";
 import Navbar from "../layout/Navbar";
 import ReportModal, { FlagIcon } from "../moderation/ReportModal";
 
-const API_BASE = "http://localhost:5000/api";
-const BASE_URL = "http://localhost:5000";
+const API_BASE = "/api";
+const BASE_URL = "";
 
 export default function DevlogDetail() {
   const { id } = useParams();

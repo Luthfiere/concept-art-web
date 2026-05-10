@@ -3,7 +3,7 @@ import { useChat } from "../../../context/ChatContext";
 import { isTokenExpired } from "../../../services/api";
 import { STATUS_CONFIG } from "../constants";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "/api";
 
 const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
   <svg

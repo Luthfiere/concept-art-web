@@ -3,7 +3,7 @@ import Navbar from "../components/layout/Navbar";
 import api from "../services/api";
 import DeleteWithReasonModal from "../components/moderation/DeleteWithReasonModal";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "";
 
 const ENTITY_LABEL = {
   art: "Art / Ideation",

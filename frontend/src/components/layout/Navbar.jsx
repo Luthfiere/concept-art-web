@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Logo from "../../assets/images/Logo-White.png";
 import { useChat } from "../../context/ChatContext";
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "";
 
 const Navbar = () => {
   const storedUser = localStorage.getItem("user");

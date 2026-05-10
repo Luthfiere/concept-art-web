@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../../services/api";
 import ReportModal, { FlagIcon } from "../moderation/ReportModal";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "";
 
 const getAvatar = (user) => {
   if (user?.profile_image) {
