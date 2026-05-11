@@ -16,12 +16,15 @@ const isVideo = (path) =>
 
 const POSTS_PREVIEW_COUNT = 6;
 
+const ARTS_PREVIEW_COUNT = 12;
+
 const Home = () => {
   const [artworks, setArtworks] = useState([]);
   const [sort, setSort] = useState("Most Liked");
   const [selectedArtCategory, setSelectedArtCategory] = useState("All");
   const [searchArt, setSearchArt] = useState("");
   const navigate = useNavigate();
+  const [showAllArts, setShowAllArts] = useState(false);
 
   // Posts section — shared between ideation & community
   const [postsMode, setPostsMode] = useState("ideation");
@@ -135,6 +138,10 @@ const Home = () => {
     ? filteredPosts
     : filteredPosts.slice(0, POSTS_PREVIEW_COUNT);
 
+  const visibleArtworks = showAllArts
+    ? filteredArtworks
+    : filteredArtworks.slice(0, ARTS_PREVIEW_COUNT);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
@@ -156,10 +163,23 @@ const Home = () => {
 
         <div className="px-1.5 pb-12">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1.5">
-            {filteredArtworks.map((art, i) => (
+            {visibleArtworks.map((art, i) => (
               <ArtCard key={art.id} art={art} index={i} />
             ))}
           </div>
+
+          {filteredArtworks.length > ARTS_PREVIEW_COUNT && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => setShowAllArts(!showAllArts)}
+                className="px-6 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300 hover:bg-white/10 hover:border-white/15 transition-all duration-200"
+              >
+                {showAllArts
+                  ? "Show Less"
+                  : `See All (${filteredArtworks.length})`}
+              </button>
+            </div>
+          )}
 
           {filteredArtworks.length === 0 && (
             <p className="text-gray-500 text-center mt-16 text-sm">
@@ -168,7 +188,7 @@ const Home = () => {
           )}
         </div>
       </section>
-
+      
       {/* ──── DIVIDER ──── */}
       <div className="px-4 sm:px-6">
         <div className="border-t border-white/5" />
