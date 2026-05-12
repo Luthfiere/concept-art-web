@@ -34,11 +34,15 @@ const Navbar = () => {
   const allNavLinks = [
     { name: "Art / Ideation Gallery", path: "/" },
     { name: "Job Hiring", path: "/Job" },
-    { name: "Job Posting", path: "/JobPost" },
+    { name: "Job Posting", path: "/JobPost", hideForRoles: ["moderator"] },
     { name: "Developer Logs", path: "/DevLogs" },
     { name: "Moderation", path: "/moderation", role: "moderator" },
   ];
-  const navLinks = allNavLinks.filter((l) => !l.role || user?.role === l.role);
+  const navLinks = allNavLinks.filter((l) => {
+    if (l.role && user?.role !== l.role) return false;
+    if (l.hideForRoles?.includes(user?.role)) return false;
+    return true;
+  });
 
   return (
     <div
