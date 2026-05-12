@@ -116,7 +116,8 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
             className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
           />
           <p className="text-[10px] text-gray-500 mt-1">
-            The kind of game you're making — shown on your devlog so readers know the context.
+            The kind of game you're making — shown on your devlog so readers
+            know the context.
           </p>
         </div>
 
@@ -133,7 +134,8 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
             className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-indigo-400"
           />
           <p className="text-[10px] text-gray-500 mt-1">
-            Specific features, systems, or topics covered. Separate multiple tags with commas.
+            Specific features, systems, or topics covered. Separate multiple
+            tags with commas.
           </p>
         </div>
 
@@ -264,24 +266,18 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
                     className="relative group rounded-lg overflow-hidden border border-white/10"
                   >
                     {isVideo ? (
-                      <video
-                        src={m.url}
-                        className="w-full h-28 object-cover"
-                      />
+                      <video src={m.url} className="w-full h-28 object-cover" />
                     ) : (
-                      <img
-                        src={m.url}
-                        className="w-full h-28 object-cover"
-                      />
+                      <img src={m.url} className="w-full h-28 object-cover" />
                     )}
 
                     <button
                       onClick={() => {
                         setMediaFiles((prev) =>
-                          prev.filter((_, idx) => idx !== i)
+                          prev.filter((_, idx) => idx !== i),
                         );
                         setMediaPreview((prev) =>
-                          prev.filter((_, idx) => idx !== i)
+                          prev.filter((_, idx) => idx !== i),
                         );
                       }}
                       className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded opacity-0 group-hover:opacity-100"
@@ -308,7 +304,15 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
           </button>
 
           <button
-            onClick={() => onSubmit({ mediaFiles })}
+            onClick={() => {
+              const confirmed = window.confirm(
+                "Are you sure you want to save these changes?",
+              );
+
+              if (confirmed) {
+                onSubmit({ mediaFiles });
+              }
+            }}
             className="bg-indigo-400 hover:bg-indigo-300 text-black px-4 py-2 rounded-lg text-sm font-semibold"
           >
             Save

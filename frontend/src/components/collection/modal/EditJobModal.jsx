@@ -100,19 +100,6 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
           <option value="USD">USD</option>
         </select>
 
-        <select
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-          className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
-        >
-          <option value="">Status</option>
-          <option value="Draft">Draft</option>
-          <option value="Active">Active</option>
-          <option value="Expired">Expired</option>
-          <option value="Blocked">Blocked</option>
-        </select>
-
         <input
           type="date"
           name="expired_at"
@@ -128,8 +115,16 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
             Cancel
           </button>
           <button
-            onClick={onSubmit}
-            className="flex-1 bg-emerald-400 text-black p-2"
+            onClick={() => {
+              const confirmed = window.confirm(
+                "Are you sure you want to save these changes?",
+              );
+
+              if (confirmed) {
+                onSubmit();
+              }
+            }}
+            className="flex-1 bg-amber-400 text-black p-2"
           >
             Save
           </button>
@@ -139,4 +134,4 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
   );
 };
 
-export default EditJobModal
+export default EditJobModal;

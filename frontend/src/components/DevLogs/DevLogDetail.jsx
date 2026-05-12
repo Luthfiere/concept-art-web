@@ -39,7 +39,9 @@ export default function DevlogDetail() {
     fetchDevlog();
     fetchDevLogDetails();
     const handleScroll = () => setScrolled(window.scrollY > 60);
-    const handleKeyDown = (e) => { if (e.key === "Escape") setLightbox(null); };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("keydown", handleKeyDown);
     return () => {
@@ -120,7 +122,9 @@ export default function DevlogDetail() {
     setLikeLoading(true);
     try {
       if (liked) {
-        await api.delete(`/likes`, { data: { entity_type: "devlog", entity_id: id } });
+        await api.delete(`/likes`, {
+          data: { entity_type: "devlog", entity_id: id },
+        });
         setLikes((prev) => prev - 1);
         setLiked(false);
       } else {
@@ -138,7 +142,9 @@ export default function DevlogDetail() {
   const handleComment = async () => {
     if (!newComment.trim()) return;
     try {
-      const res = await api.post(`/comments/devlog/${id}`, { comment: newComment });
+      const res = await api.post(`/comments/devlog/${id}`, {
+        comment: newComment,
+      });
       setComments((prev) => [res.data.data, ...prev]);
       setNewComment("");
     } catch (err) {
@@ -164,7 +170,9 @@ export default function DevlogDetail() {
     return (
       <div className="min-h-screen bg-[#050816] flex flex-col items-center justify-center gap-4">
         <div className="w-10 h-10 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
-        <p className="text-[#888] text-sm tracking-widest uppercase">Loading devlog</p>
+        <p className="text-[#888] text-sm tracking-widest uppercase">
+          Loading devlog
+        </p>
       </div>
     );
   }
@@ -208,8 +216,7 @@ export default function DevlogDetail() {
       </div>
 
       {/* MAIN LAYOUT */}
-      <div className="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-[1fr_260px] gap-12">
-
+      <div className="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-[minmax(0,1fr)_260px] gap-12">
         {/* ARTICLE */}
         <article>
           {/* Show category + title only if NO cover image */}
@@ -239,7 +246,9 @@ export default function DevlogDetail() {
                 <p className="text-sm font-semibold text-gray-100 leading-tight group-hover:text-yellow-300 transition-colors">
                   {devlog.username}
                 </p>
-                <p className="text-xs text-gray-500">{formatDate(devlog.created_at)}</p>
+                <p className="text-xs text-gray-500">
+                  {formatDate(devlog.created_at)}
+                </p>
               </div>
             </Link>
 
@@ -297,22 +306,28 @@ export default function DevlogDetail() {
           {/* MEDIA GRID */}
           {media.length > 0 && (
             <div className="mb-12">
-              <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">Media</p>
+              <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">
+                Media
+              </p>
               <div
                 className={`grid gap-3 ${
                   media.length === 1
                     ? "grid-cols-1"
                     : media.length === 2
-                    ? "grid-cols-2"
-                    : "grid-cols-2 md:grid-cols-3"
+                      ? "grid-cols-2"
+                      : "grid-cols-2 md:grid-cols-3"
                 }`}
               >
                 {media.map((m, idx) => {
                   const file = m.file_path || m.media;
                   if (!file) return null;
-                  const url = file.startsWith("http") ? file : `${BASE_URL}/${file}`;
+                  const url = file.startsWith("http")
+                    ? file
+                    : `${BASE_URL}/${file}`;
                   const isVideo = /\.(mp4|webm|ogg)$/i.test(file);
-                  const imgIndex = imageMedia.findIndex((im) => (im.file_path || im.media) === file);
+                  const imgIndex = imageMedia.findIndex(
+                    (im) => (im.file_path || im.media) === file,
+                  );
 
                   return isVideo ? (
                     <video
@@ -386,9 +401,12 @@ export default function DevlogDetail() {
             {/* COMMENT LIST */}
             <div className="space-y-5">
               {comments.map((c) => (
-                <div key={c.id} className="flex gap-3">
+                <div key={c.id} className="flex gap-3 min-w-0">
                   {c.user_id ? (
-                    <Link to={`/profile/${c.user_id}`} className="shrink-0 mt-0.5">
+                    <Link
+                      to={`/profile/${c.user_id}`}
+                      className="shrink-0 mt-0.5"
+                    >
                       <img
                         src={getAvatar(c)}
                         alt="avatar"
@@ -402,18 +420,24 @@ export default function DevlogDetail() {
                       className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-0.5"
                     />
                   )}
-                  <div className="flex-1 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3">
+
+                  <div className="min-w-0 flex-1 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3 overflow-hidden">
                     {c.user_id ? (
                       <Link
                         to={`/profile/${c.user_id}`}
-                        className="text-sm font-medium text-gray-200 mb-0.5 hover:text-yellow-300 hover:underline"
+                        className="block text-sm font-medium text-gray-200 mb-1 hover:text-yellow-300 hover:underline break-words"
                       >
                         {c.username}
                       </Link>
                     ) : (
-                      <p className="text-sm font-medium text-gray-200 mb-0.5">{c.username}</p>
+                      <p className="text-sm font-medium text-gray-200 mb-1 break-words">
+                        {c.username}
+                      </p>
                     )}
-                    <p className="text-sm text-gray-400 leading-relaxed">{c.comment}</p>
+
+                    <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                      {c.comment}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -423,11 +447,14 @@ export default function DevlogDetail() {
 
         {/* SIDEBAR */}
         <aside className="space-y-4 self-start sticky top-6">
-
           {/* ABOUT */}
           <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5">
-            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">About</p>
-            <p className="text-sm text-gray-200 font-medium mb-4 leading-snug">{devlog.title}</p>
+            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">
+              About
+            </p>
+            <p className="text-sm text-gray-200 font-medium mb-4 leading-snug">
+              {devlog.title}
+            </p>
             <div className="space-y-2.5 text-sm divide-y divide-white/5">
               <div className="flex justify-between pt-0">
                 <span className="text-gray-500">Genre</span>
@@ -439,23 +466,35 @@ export default function DevlogDetail() {
               </div>
               <div className="flex justify-between pt-2.5">
                 <span className="text-gray-500">Published</span>
-                <span className="text-gray-300 text-right text-xs">{formatDate(devlog.created_at)}</span>
+                <span className="text-gray-300 text-right text-xs">
+                  {formatDate(devlog.created_at)}
+                </span>
               </div>
             </div>
           </div>
 
           {/* STATS */}
           <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5">
-            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">Stats</p>
+            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">
+              Stats
+            </p>
             <div className="grid grid-cols-3 gap-2">
               {[
                 { label: "Views", value: (devlog.views || 0).toLocaleString() },
                 { label: "Likes", value: (likes || 0).toLocaleString() },
-                { label: "Comments", value: (totalcomments || 0).toLocaleString() },
+                {
+                  label: "Comments",
+                  value: (totalcomments || 0).toLocaleString(),
+                },
               ].map((s) => (
-                <div key={s.label} className="bg-white/5 rounded-lg px-3 py-3 text-center">
+                <div
+                  key={s.label}
+                  className="bg-white/5 rounded-lg px-3 py-3 text-center"
+                >
                   <p className="text-lg font-semibold text-white">{s.value}</p>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">{s.label}</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">
+                    {s.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -463,7 +502,9 @@ export default function DevlogDetail() {
 
           {/* AUTHOR */}
           <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5">
-            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">Author</p>
+            <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-4">
+              Author
+            </p>
             <Link
               to={devlog.user_id ? `/profile/${devlog.user_id}` : "#"}
               className="flex items-center gap-3 group"
@@ -513,7 +554,10 @@ export default function DevlogDetail() {
           {imageMedia.length > 1 && (
             <button
               className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition"
-              onClick={(e) => { e.stopPropagation(); lightboxNav(-1); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                lightboxNav(-1);
+              }}
             >
               ‹
             </button>
@@ -531,7 +575,10 @@ export default function DevlogDetail() {
           {imageMedia.length > 1 && (
             <button
               className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition"
-              onClick={(e) => { e.stopPropagation(); lightboxNav(1); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                lightboxNav(1);
+              }}
             >
               ›
             </button>
@@ -559,7 +606,9 @@ export default function DevlogDetail() {
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={`fixed bottom-6 right-6 w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center shadow-lg transition-all duration-300 ${
-          scrolled ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+          scrolled
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
         }`}
       >
         ↑
