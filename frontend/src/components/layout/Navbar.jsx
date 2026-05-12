@@ -34,11 +34,15 @@ const Navbar = () => {
   const allNavLinks = [
     { name: "Art / Ideation Gallery", path: "/" },
     { name: "Job Hiring", path: "/Job" },
-    { name: "Job Posting", path: "/JobPost" },
+    { name: "Job Posting", path: "/JobPost", hideForRoles: ["moderator"] },
     { name: "Developer Logs", path: "/DevLogs" },
     { name: "Moderation", path: "/moderation", role: "moderator" },
   ];
-  const navLinks = allNavLinks.filter((l) => !l.role || user?.role === l.role);
+  const navLinks = allNavLinks.filter((l) => {
+    if (l.role && user?.role !== l.role) return false;
+    if (l.hideForRoles?.includes(user?.role)) return false;
+    return true;
+  });
 
   return (
     <div
@@ -116,6 +120,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
       {user ? (
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Create (+) icon with dropdown */}
+          {user?.role !== "moderator" && (
           <div className="relative">
             <button
               onClick={() => setCreateOpen(!createOpen)}
@@ -160,6 +165,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
               </>
             )}
           </div>
+          )}
 
           {/* Chat icon */}
           <button

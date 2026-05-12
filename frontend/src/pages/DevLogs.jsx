@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { sanitizeText, sanitizeFields } from "../utils/sanitize";
+import { isModerator } from "../services/api";
 
 const API_BASE = "/api";
 const BASE_URL = "";
@@ -329,21 +330,21 @@ export default function Devlogs() {
             </p>
           </div>
 
-          {isLoggedIn ? (
+          {isLoggedIn && !isModerator() ? (
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-black text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
             >
               <span className="text-base">+</span> New Devlog
             </button>
-          ) : (
+          ) : !isLoggedIn ? (
             <Link
               to="/login?redirect=/DevLogs"
               className="flex items-center gap-2 bg-yellow-400/80 hover:bg-yellow-300 text-black text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
             >
               Sign in to post
             </Link>
-          )}
+          ) : null}
         </div>
 
         {/* Filter */}

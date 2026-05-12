@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { isModerator } from "../../services/api";
 
 const ImageIcon = () => (
   <svg
@@ -50,6 +51,8 @@ const ChatIcon = () => (
 );
 
 const FloatingCreateButton = ({ onCreatePost }) => {
+  if (isModerator()) return null;
+
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const fabRef = useRef();

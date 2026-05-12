@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import api, { isTokenExpired } from "../services/api";
+import api, { isTokenExpired, isModerator } from "../services/api";
 import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
 
 const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
@@ -85,6 +85,7 @@ const PostDetail = () => {
   const isLoggedIn = !isTokenExpired();
   const storedUser = localStorage.getItem("user");
   const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
+  const moderator = isModerator();
 
   const isImage = (path) => /\.(jpg|jpeg|png|gif|webp)$/i.test(path);
 
@@ -240,6 +241,7 @@ const PostDetail = () => {
         <div className="flex-1 min-w-0">
           <div className="bg-[#111427] rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4">
             {/* LIKE COLUMN */}
+            {!moderator && (
             <div className="flex flex-col items-center text-gray-400 shrink-0">
               <button
                 onClick={handleLike}
@@ -256,6 +258,7 @@ const PostDetail = () => {
 
               <span className="text-sm font-semibold mt-1">{likes}</span>
             </div>
+            )}
 
             {/* CONTENT */}
             <div className="flex-1 min-w-0 space-y-4">
@@ -377,7 +380,7 @@ const PostDetail = () => {
                   <ChatBubbleIcon className="w-4 h-4" />
                   {comments.length} Comments
                 </span>
-                {isLoggedIn && post.user_id !== Number(currentUserId) && (
+                {isLoggedIn && !moderator && post.user_id !== Number(currentUserId) && (
                   <button
                     onClick={() => setReportOpen(true)}
                     className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
@@ -395,6 +398,7 @@ const PostDetail = () => {
             <h3 className="font-semibold mb-4">Comments ({comments.length})</h3>
 
             {/* Input */}
+            {!moderator && (
             <div className="flex gap-2 mb-4 min-w-0">
               <input
                 value={newComment}
@@ -410,6 +414,7 @@ const PostDetail = () => {
                 Post
               </button>
             </div>
+            )}
 
             {/* Comment list */}
             <div className="space-y-4">

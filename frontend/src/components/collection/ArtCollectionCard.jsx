@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { TYPE_CONFIG } from "./constants";
 import CardActions from "./CardActions";
 
@@ -47,23 +46,17 @@ const renderMedia = (item) => {
 };
 
 const ArtCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.art;
 
   return (
     <div
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`
+      className="
         group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer
-        bg-[#0a0d1a] border transition-all duration-300
-        ${
-          isHovered
-            ? `${cfg.border} -translate-y-1 scale-[1.01] shadow-2xl`
-            : "border-white/[0.06] shadow-lg"
-        }
-      `}
+        bg-[#0a0d1a] border border-white/[0.06] shadow-lg
+        transition-all duration-300
+        hover:-translate-y-1 hover:scale-[1.01] hover:shadow-2xl hover:border-white/20
+      "
     >
       {/* MEDIA */}
       <div className="absolute inset-0 overflow-hidden">
@@ -71,13 +64,7 @@ const ArtCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
       </div>
 
       {/* GRADIENT OVERLAY */}
-      <div
-        className={`
-          pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent
-          transition-opacity duration-300
-          ${isHovered ? "opacity-100" : "opacity-50"}
-        `}
-      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
       {/* TYPE BADGE */}
       <div
@@ -93,13 +80,8 @@ const ArtCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
         </span>
       </div>
 
-      {/* HOVER CONTENT */}
-      <div
-        className={`
-          absolute bottom-0 left-0 right-0 p-3 transition-all duration-300
-          ${isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}
-        `}
-      >
+      {/* BOTTOM STRIP — title + actions, always visible */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
         {item.title && (
           <p className="text-xs font-semibold text-white leading-snug line-clamp-2 mb-2">
             {item.title}

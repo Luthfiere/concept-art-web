@@ -12,6 +12,19 @@ export function isTokenExpired() {
   }
 }
 
+export function getCurrentUser() {
+  try {
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function isModerator() {
+  return getCurrentUser()?.role === "moderator";
+}
+
 export function clearAuthAndRedirect() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
