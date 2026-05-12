@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../../services/api";
+import api, { isModerator } from "../../services/api";
 import ReportModal, { FlagIcon } from "../moderation/ReportModal";
 
 const BASE_URL = "";
@@ -53,6 +53,7 @@ const JobDetail = ({ job }) => {
   const currentUser = storedUser ? JSON.parse(storedUser) : null;
   const isLoggedIn = !!localStorage.getItem("token");
   const isOwnPosting = currentUser && job && currentUser.id === job.user_id;
+  const moderator = isModerator();
 
   if (!job) {
     return (
@@ -156,7 +157,7 @@ const JobDetail = ({ job }) => {
                   {job.status}
                 </span>
               )}
-              {isLoggedIn && !isOwnPosting && (
+              {isLoggedIn && !isOwnPosting && !moderator && (
                 <button
                   type="button"
                   onClick={() => setReportOpen(true)}
@@ -265,6 +266,12 @@ const JobDetail = ({ job }) => {
               >
                 Sign in to apply
               </Link>
+            </div>
+          ) : moderator ? (
+            <div className="px-4 py-6 rounded-xl border border-white/10 bg-white/[0.02] text-center">
+              <p className="text-sm text-gray-400">
+                Moderator accounts cannot apply to job postings.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">

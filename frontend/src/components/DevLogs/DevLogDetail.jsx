@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import api, { isTokenExpired } from "../../services/api";
+import api, { isTokenExpired, isModerator } from "../../services/api";
 import { parseTags } from "../../utils/sanitize";
 import Navbar from "../layout/Navbar";
 import ReportModal, { FlagIcon } from "../moderation/ReportModal";
@@ -25,6 +25,7 @@ export default function DevlogDetail() {
   const isLoggedIn = !isTokenExpired();
   const storedUser = localStorage.getItem("user");
   const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
+  const moderator = isModerator();
 
   const getAvatar = (user) => {
     if (user?.profile_image) {
@@ -264,6 +265,7 @@ export default function DevlogDetail() {
             </div>
 
             {/* LIKE BUTTON inline */}
+            {!moderator && (
             <button
               onClick={handleLike}
               disabled={likeLoading}
@@ -276,9 +278,10 @@ export default function DevlogDetail() {
               <span>{liked ? "❤️" : "🤍"}</span>
               <span>{likes}</span>
             </button>
+            )}
 
             {/* REPORT button */}
-            {isLoggedIn && devlog.user_id !== currentUserId && (
+            {isLoggedIn && !moderator && devlog.user_id !== currentUserId && (
               <button
                 onClick={() => setReportOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
@@ -355,7 +358,7 @@ export default function DevlogDetail() {
             </div>
 
             {/* INPUT */}
-            {isLoggedIn && (
+            {isLoggedIn && !moderator && (
               <div className="mb-8 flex gap-3">
                 <img
                   src={getAvatar(JSON.parse(storedUser || "{}"))}

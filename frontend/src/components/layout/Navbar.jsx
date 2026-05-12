@@ -120,6 +120,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
       {user ? (
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Create (+) icon with dropdown */}
+          {user?.role !== "moderator" && (
           <div className="relative">
             <button
               onClick={() => setCreateOpen(!createOpen)}
@@ -164,6 +165,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
               </>
             )}
           </div>
+          )}
 
           {/* Chat icon */}
           <button

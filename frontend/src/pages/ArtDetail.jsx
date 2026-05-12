@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import api, { isTokenExpired } from "../services/api";
+import api, { isTokenExpired, isModerator } from "../services/api";
 import { parseTags } from "../utils/sanitize";
 import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
 
@@ -69,6 +69,7 @@ const ArtDetail = () => {
   const isLoggedIn = !isTokenExpired();
   const storedUser = localStorage.getItem("user");
   const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
+  const moderator = isModerator();
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -360,6 +361,7 @@ const ArtDetail = () => {
             </div>
 
             {/* Like button + Stats */}
+            {!moderator && (
             <div className="flex items-center gap-3 mb-4">
               <button
                 onClick={handleLike}
@@ -374,9 +376,10 @@ const ArtDetail = () => {
                 {liked ? "Liked" : "Like"}
               </button>
             </div>
+            )}
 
             {/* Report button */}
-            {isLoggedIn && art.user_id !== currentUserId && (
+            {isLoggedIn && !moderator && art.user_id !== currentUserId && (
               <div className="mb-4">
                 <button
                   onClick={() => setReportOpen(true)}
@@ -418,6 +421,7 @@ const ArtDetail = () => {
               </h3>
 
               {/* Comment input */}
+              {!moderator && (
               <div className="flex gap-2 mb-4 min-w-0">
                 <input
                   value={newComment}
@@ -436,6 +440,7 @@ const ArtDetail = () => {
                   Post
                 </button>
               </div>
+              )}
 
               {/* Comments list */}
               <div className="space-y-0.5">
