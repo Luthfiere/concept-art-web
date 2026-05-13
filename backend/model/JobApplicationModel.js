@@ -12,10 +12,11 @@ class JobApplication {
 
   static async getByJobId(job_id) {
     const result = await db.query(`
-      SELECT *
-      FROM core_job_applications
-      WHERE job_id = $1
-      ORDER BY applied_at DESC
+      SELECT a.*, u.username, u.profile_image, u.email
+      FROM core_job_applications a
+      LEFT JOIN master_users u ON a.applicant_id = u.id
+      WHERE a.job_id = $1
+      ORDER BY a.applied_at DESC
     `, [job_id]);
     return result.rows;
   }

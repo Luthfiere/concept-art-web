@@ -106,11 +106,9 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
           onChange={handleChange}
           className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
         >
-          <option value="">Status</option>
           <option value="Draft">Draft</option>
           <option value="Active">Active</option>
-          <option value="Expired">Expired</option>
-          <option value="Blocked">Blocked</option>
+          <option value="Blocked">Closed</option>
         </select>
 
         <input

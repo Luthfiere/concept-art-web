@@ -33,6 +33,8 @@ const JobApplicantsPage = () => {
   const { id: jobId } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const storedUser = localStorage.getItem("user");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
 
   const [job, setJob] = useState(null);
   const [applicants, setApplicants] = useState([]);
@@ -60,7 +62,14 @@ const JobApplicantsPage = () => {
         const jobData = await jobRes.json();
         const appData = await appRes.json();
 
-        setJob(jobData.data || jobData);
+        const jobObj = jobData.data || jobData;
+
+        if (jobObj && currentUser && jobObj.user_id !== currentUser.id) {
+          navigate("/Job");
+          return;
+        }
+
+        setJob(jobObj);
         setApplicants(appData.data || []);
       } catch (err) {
         console.error(err);
@@ -198,7 +207,7 @@ const JobApplicantsPage = () => {
           <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
             <div className="flex-1 min-w-0">
               <p className="text-xs text-white/40 uppercase tracking-wider font-medium mb-1">
-                Application Status
+                Job posting status
               </p>
               <p className={`text-sm font-semibold ${
                 job.status === "Active"
@@ -215,7 +224,7 @@ const JobApplicantsPage = () => {
               </p>
             </div>
 
-            {job.status !== "Expired" ? (
+            {job.status === "Active" || job.status === "Blocked" ? (
               <button
                 onClick={toggleJobStatus}
                 disabled={togglingStatus}
@@ -233,7 +242,7 @@ const JobApplicantsPage = () => {
               </button>
             ) : (
               <span className="px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
-                Cannot reopen
+                {job.status === "Expired" ? "Cannot reopen" : "Not available"}
               </span>
             )}
           </div>
@@ -319,18 +328,29 @@ const JobApplicantsPage = () => {
               >
                 {/* CARD HEADER */}
                 <div className="flex items-center flex-wrap gap-3 sm:gap-4 p-4 sm:p-5">
-                  {/* Avatar initials */}
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-yellow-400/20 to-yellow-400/5 border border-yellow-400/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-yellow-300 text-sm font-bold">
-                      {String(app.applicant_id).slice(-2).toUpperCase()}
-                    </span>
+                  {/* Avatar */}
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 overflow-hidden ring-1 ring-white/10">
+                    <img
+                      src={
+                        app.profile_image
+                          ? `/${app.profile_image}`
+                          : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(app.username || `user${app.applicant_id}`)}`
+                      }
+                      alt={app.username || `user${app.applicant_id}`}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-semibold text-sm">
-                      Applicant #{app.applicant_id}
+                    <p className="text-white font-semibold text-sm truncate">
+                      {app.username || `Applicant #${app.applicant_id}`}
                     </p>
+                    {app.email && (
+                      <p className="text-white/40 text-[11px] truncate">
+                        {app.email}
+                      </p>
+                    )}
                     <p className="text-white/30 text-xs mt-0.5">
                       {new Date(app.applied_at).toLocaleDateString("id-ID", {
                         day: "numeric",
@@ -391,13 +411,15 @@ const JobApplicantsPage = () => {
                     <>
                       <button
                         onClick={() => updateStatus(app.id, "shortlisted")}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-blue-400/10 text-blue-300 border border-blue-400/20 hover:bg-blue-400/20 hover:border-blue-400/40 transition-all duration-150"
+                        disabled={updatingId === app.id}
+                        className="px-4 py-2 text-xs font-medium rounded-lg bg-blue-400/10 text-blue-300 border border-blue-400/20 hover:bg-blue-400/20 hover:border-blue-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Shortlist
                       </button>
                       <button
                         onClick={() => updateStatus(app.id, "rejected")}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150"
+                        disabled={updatingId === app.id}
+                        className="px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Reject
                       </button>
@@ -408,13 +430,15 @@ const JobApplicantsPage = () => {
                     <>
                       <button
                         onClick={() => updateStatus(app.id, "hired")}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-green-400/10 text-green-300 border border-green-400/20 hover:bg-green-400/20 hover:border-green-400/40 transition-all duration-150"
+                        disabled={updatingId === app.id}
+                        className="px-4 py-2 text-xs font-medium rounded-lg bg-green-400/10 text-green-300 border border-green-400/20 hover:bg-green-400/20 hover:border-green-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         ✓ Hire
                       </button>
                       <button
                         onClick={() => updateStatus(app.id, "rejected")}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150"
+                        disabled={updatingId === app.id}
+                        className="px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Reject
                       </button>

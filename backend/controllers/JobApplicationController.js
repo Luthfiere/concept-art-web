@@ -6,6 +6,16 @@ class JobApplicationController {
   static async getByJobId(req, res) {
     try {
       const { job_id } = req.params;
+      const { user_id } = req.user;
+
+      const job = await JobPosting.getById(job_id);
+      if (!job) {
+        return res.status(404).json({ message: 'Job posting not found' });
+      }
+      if (job.user_id !== user_id) {
+        return res.status(403).json({ message: 'Not authorized to view applicants for this job' });
+      }
+
       const applications = await JobApplication.getByJobId(job_id);
 
       return res.status(200).json({

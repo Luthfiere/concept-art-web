@@ -43,6 +43,14 @@ const STATUS_STYLES = {
   "Auto-Closed": "bg-red-500/10 border-red-500/30 text-red-300",
 };
 
+const STATUS_LABELS = {
+  Active: "Active",
+  Draft: "Draft",
+  Expired: "Expired",
+  Blocked: "Closed",
+  "Auto-Closed": "Auto-Closed",
+};
+
 const JobDetail = ({ job }) => {
   const [file, setFile] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
@@ -154,7 +162,7 @@ const JobDetail = ({ job }) => {
                 <span
                   className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${statusCls}`}
                 >
-                  {job.status}
+                  {STATUS_LABELS[job.status] || job.status}
                 </span>
               )}
               {isLoggedIn && !isOwnPosting && !moderator && (

@@ -51,11 +51,7 @@ class Subscription {
       UPDATE core_subscriptions
       SET status = 'paid',
           active_from = NOW(),
-          active_until = CASE
-            WHEN plan IN ('pro_monthly', 'corporate_monthly')
-              THEN NOW() + ($1 || ' days')::interval
-            ELSE active_until
-          END,
+          active_until = NOW() + ($1 || ' days')::interval,
           updated_at = NOW()
       WHERE id = $2
       RETURNING *
@@ -63,6 +59,37 @@ class Subscription {
       [String(durationDays), id]
     );
     return result.rows[0];
+  }
+
+  static async expireById(id) {
+    const result = await db.query(
+      `
+      UPDATE core_subscriptions
+      SET status = 'expired',
+          posts_remaining = 0,
+          updated_at = NOW()
+      WHERE id = $1 AND status = 'paid'
+      RETURNING *
+    `,
+      [id]
+    );
+    return result.rows[0];
+  }
+
+  static async getHistoryForUser(user_id) {
+    const result = await db.query(
+      `
+      SELECT id, plan, status, amount, currency,
+             active_from, active_until, posts_remaining,
+             created_at, updated_at
+      FROM core_subscriptions
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+      LIMIT 50
+    `,
+      [user_id]
+    );
+    return result.rows;
   }
 
   static async decrementPostsRemaining(id) {

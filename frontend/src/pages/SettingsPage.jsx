@@ -2,9 +2,32 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { sanitizeFields, isValidEmail } from "../utils/sanitize";
+import { refreshToken } from "../services/api";
 
 const API_BASE = "/api";
 const BASE_URL = "";
+
+const PLAN_LABELS = {
+  pro_monthly: "Pro · Monthly",
+  corporate_monthly: "Corporate · Monthly",
+  pro_per_post: "Pro · Per-post",
+  corporate_per_post: "Corporate · Per-post",
+};
+
+const formatDateTime = (iso) =>
+  iso
+    ? new Date(iso).toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : null;
+
+const daysRemaining = (iso) => {
+  if (!iso) return null;
+  const diff = new Date(iso).getTime() - Date.now();
+  if (diff <= 0) return 0;
+  return Math.ceil(diff / 86_400_000);
+};
 
 // ─── Icon Components ──────────────────────────────────────────────────────────
 
@@ -68,6 +91,15 @@ const StarIcon = () => (
 const ChatBubbleIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const CalendarIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
   </svg>
 );
 
@@ -139,6 +171,9 @@ export default function SettingsPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [collabSaving, setCollabSaving] = useState(false);
   const [collabError, setCollabError] = useState(null);
+  const [subscription, setSubscription] = useState(null);
+  const [subError, setSubError] = useState(null);
+  const [cancelingSub, setCancelingSub] = useState(false);
 
   const getDefaultAvatar = () => {
     const seed = user?.username || user?.email || "guest";
@@ -162,9 +197,47 @@ export default function SettingsPage() {
     }
   };
 
+  const fetchSubscription = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/subscriptions/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      setSubscription(json.data || null);
+    } catch (err) {
+      console.error(err);
+      setSubscription(null);
+    }
+  };
+
   useEffect(() => {
     fetchUser();
+    fetchSubscription();
   }, []);
+
+  const handleCancelSubscription = async () => {
+    if (!subscription?.is_active || cancelingSub) return;
+    if (!window.confirm("Cancel subscription? You'll lose pro privileges immediately."))
+      return;
+
+    setCancelingSub(true);
+    setSubError(null);
+    try {
+      const res = await fetch(`${API_BASE}/subscriptions/cancel`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Failed to cancel");
+
+      await refreshToken();
+      await Promise.all([fetchUser(), fetchSubscription()]);
+    } catch (err) {
+      setSubError(err.message || "Failed to cancel");
+    } finally {
+      setCancelingSub(false);
+    }
+  };
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -506,6 +579,126 @@ export default function SettingsPage() {
               )}
             </div>
           </form>
+        </SectionCard>
+
+        {/* ── Subscription ── */}
+        <SectionCard icon={<CalendarIcon />} title="Subscription">
+          {(() => {
+            if (subscription === null) {
+              return (
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm text-neutral-400">
+                    No active subscription.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/subscription")}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
+                  >
+                    <StarIcon />
+                    Upgrade
+                  </button>
+                </div>
+              );
+            }
+
+            const planLabel = PLAN_LABELS[subscription.plan] || subscription.plan;
+            const isPerPost =
+              subscription.plan === "pro_per_post" ||
+              subscription.plan === "corporate_per_post";
+
+            if (!subscription.is_active) {
+              return (
+                <div>
+                  <div className="flex flex-col gap-1 mb-3">
+                    <span className="text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
+                      Last plan
+                    </span>
+                    <span className="text-sm text-white">{planLabel}</span>
+                    {subscription.active_until && (
+                      <span className="text-xs text-neutral-500">
+                        Ended {formatDateTime(subscription.active_until)}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/subscription")}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
+                  >
+                    <StarIcon />
+                    Upgrade again
+                  </button>
+                </div>
+              );
+            }
+
+            const remaining = daysRemaining(subscription.active_until);
+
+            return (
+              <div>
+                {/* Plan row */}
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span className="text-sm text-white font-medium truncate">
+                      {planLabel}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded-md border border-emerald-400/30 bg-emerald-400/10 text-emerald-300/80">
+                      Active
+                    </span>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
+                      {isPerPost ? "Credits expire" : "Expires"}
+                    </span>
+                    <span className="text-sm text-white">
+                      {formatDateTime(subscription.active_until) || "—"}
+                    </span>
+                    {remaining !== null && (
+                      <span className="text-xs text-neutral-500">
+                        {remaining > 0
+                          ? `${remaining} day${remaining === 1 ? "" : "s"} remaining`
+                          : "Expires today"}
+                      </span>
+                    )}
+                  </div>
+
+                  {isPerPost && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
+                        Posts remaining
+                      </span>
+                      <span className="text-sm text-white">
+                        {subscription.posts_remaining ?? 0}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={handleCancelSubscription}
+                    disabled={cancelingSub}
+                    className="px-4 py-2 rounded-lg border border-red-400/40 bg-red-500/10 text-red-300 text-sm font-semibold hover:bg-red-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {cancelingSub ? "Canceling…" : "Cancel subscription"}
+                  </button>
+                  {subError && (
+                    <span className="text-[11px] text-red-300/80">
+                      {subError}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </SectionCard>
 
         {/* ── Messaging ── */}

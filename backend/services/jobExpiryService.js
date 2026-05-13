@@ -1,6 +1,8 @@
 import db from '../db/connection.js';
 import logger from '../utils/logger.js';
 import Subscription from '../model/SubscriptionModel.js';
+import User from '../model/UserModel.js';
+import JobPosting from '../model/JobPostingModel.js';
 
 const INTERVAL_MS = 60 * 60 * 1000; // check every 1 hour
 
@@ -29,43 +31,12 @@ async function expireLapsedSubscriptions() {
     if (expired.length === 0) return;
 
     const lapsedUserIds = [...new Set(expired.map((r) => r.user_id))];
-
-    const downgradeResult = await db.query(
-      `
-      UPDATE master_users
-      SET role = 'member'
-      WHERE id = ANY($1::int[])
-        AND role IN ('pro', 'corporate')
-        AND NOT EXISTS (
-          SELECT 1 FROM core_subscriptions
-          WHERE user_id = master_users.id
-            AND status = 'paid'
-            AND (
-              (active_until IS NOT NULL AND active_until > NOW())
-              OR (posts_remaining IS NOT NULL AND posts_remaining > 0)
-            )
-        )
-      RETURNING id
-    `,
-      [lapsedUserIds]
-    );
-
-    const downgradedIds = downgradeResult.rows.map((r) => r.id);
+    const downgradedIds = await User.demoteIfNoActiveSub(lapsedUserIds);
 
     if (downgradedIds.length > 0) {
-      const postResult = await db.query(
-        `
-        UPDATE core_job_posting
-        SET status = 'Expired', updated_at = NOW()
-        WHERE user_id = ANY($1::int[])
-          AND status = 'Active'
-        RETURNING id
-      `,
-        [downgradedIds]
-      );
-
+      const expiredPostIds = await JobPosting.expireActiveByUsers(downgradedIds);
       logger.info(
-        `Subscription lapse: expired ${expired.length} subscription(s), downgraded users [${downgradedIds.join(', ')}], expired ${postResult.rowCount} Active posting(s)`
+        `Subscription lapse: expired ${expired.length} subscription(s), downgraded users [${downgradedIds.join(', ')}], expired ${expiredPostIds.length} Active posting(s)`
       );
     } else {
       logger.info(`Subscription lapse: expired ${expired.length} subscription(s), no downgrades needed`);

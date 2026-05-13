@@ -93,6 +93,18 @@ class JobPosting {
     return result.rows[0];
   }
 
+  static async expireActiveByUsers(userIds) {
+    if (!userIds || userIds.length === 0) return [];
+    const result = await db.query(`
+      UPDATE core_job_posting
+      SET status = 'Expired', updated_at = NOW()
+      WHERE user_id = ANY($1::int[])
+        AND status = 'Active'
+      RETURNING id
+    `, [userIds]);
+    return result.rows.map((r) => r.id);
+  }
+
   static async countActiveByUser(user_id) {
     const result = await db.query(`
       SELECT COUNT(*)::int AS count

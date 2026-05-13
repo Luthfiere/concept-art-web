@@ -11,15 +11,20 @@ const JobPage = () => {
   const [search, setSearch] = useState("");
   const [workOption, setWorkOption] = useState("All");
   const [workType, setWorkType] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchJobs = async () => {
+      setLoading(true);
+      setError("");
       try {
-        const res = await api.get("/job-postings");
-        const allJobs = res.data.data || [];
-        setJobs(allJobs.filter((j) => j.status === "Active"));
+        const res = await api.get("/job-postings/status/Active");
+        setJobs(res.data.data || []);
       } catch (err) {
-        console.log(err.response?.data || err.message);
+        setError(err.response?.data?.message || "Failed to load jobs");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -41,8 +46,13 @@ const JobPage = () => {
     });
   }, [jobs, search, workOption, workType]);
 
-  const selectedJob =
-    filteredJobs.find((j) => j.id === selectedId) ?? filteredJobs[0] ?? null;
+  const selectedJob = useMemo(() => {
+    if (selectedId) {
+      const found = filteredJobs.find((j) => j.id === selectedId);
+      if (found) return found;
+    }
+    return filteredJobs[0] ?? null;
+  }, [filteredJobs, selectedId]);
 
   const setSelectedJob = (job) => setSelectedId(job?.id ?? null);
 
@@ -69,14 +79,31 @@ const JobPage = () => {
           filteredCount={filteredJobs.length}
         />
 
-        <div className="grid grid-cols-12 gap-4 mt-4">
-          <JobList
-            jobs={filteredJobs}
-            setSelectedJob={setSelectedJob}
-            selectedJob={selectedJob}
-          />
-          <JobDetail job={selectedJob} />
-        </div>
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-8 h-8 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin" />
+              <p className="text-white/30 text-xs tracking-widest uppercase">
+                Loading jobs
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-12 gap-4 mt-4">
+            <JobList
+              jobs={filteredJobs}
+              setSelectedJob={setSelectedJob}
+              selectedJob={selectedJob}
+            />
+            <JobDetail job={selectedJob} />
+          </div>
+        )}
       </div>
     </div>
   );

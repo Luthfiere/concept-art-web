@@ -82,6 +82,41 @@ class AuthController {
   }
 
 
+  static async refresh(req, res) {
+    try {
+      const { user_id } = req.user;
+      const user = await User.getById(user_id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const payload = {
+        user_id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+      };
+
+      const token = jwt.sign(payload, CONFIG.JWT_SECRET, { expiresIn: '3h' });
+
+      return res.status(200).json({
+        message: 'Token refreshed',
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          profile_image: user.profile_image,
+        },
+      });
+    } catch (err) {
+      logger.error(`Token refresh failed: ${err.message}`);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+
   static async register(req, res) {
     try {
       const { email, username, password } = req.body;

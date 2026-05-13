@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import api from "../services/api";
+import api, { refreshToken } from "../services/api";
 
 const PLAN_DISPLAY = {
   pro_monthly: {
@@ -85,10 +85,27 @@ const Subscription = () => {
     setSubmitting(true);
     try {
       await api.post("/subscriptions/checkout", { plan: selectedPlan.plan });
+      await refreshToken();
       navigate("/subscription/callback");
     } catch (err) {
-      setError(err.response?.data?.message || "Upgrade failed");
+      if (err.response?.status === 409) {
+        setError(err.response.data?.message || "You already have this plan active");
+      } else {
+        setError(err.response?.data?.message || "Upgrade failed");
+      }
       setSubmitting(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!window.confirm("Cancel subscription? You'll lose pro privileges immediately.")) return;
+    try {
+      await api.post("/subscriptions/cancel");
+      await refreshToken();
+      const meRes = await api.get("/subscriptions/");
+      setCurrentSub(meRes.data.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Cancel failed");
     }
   };
 
@@ -148,8 +165,8 @@ const Subscription = () => {
         </div>
 
         {currentSub?.is_active && (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 mb-6">
-            <p className="text-sm text-emerald-300">
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 mb-6 flex items-start justify-between gap-3 flex-wrap">
+            <p className="text-sm text-emerald-300 flex-1 min-w-0">
               You already have an active{" "}
               <span className="font-semibold">{currentSub.plan}</span>{" "}
               subscription.
@@ -161,6 +178,12 @@ const Subscription = () => {
                 </>
               )}
             </p>
+            <button
+              onClick={handleCancel}
+              className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border border-red-400/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition"
+            >
+              Cancel subscription
+            </button>
           </div>
         )}
 

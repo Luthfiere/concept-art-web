@@ -66,6 +66,27 @@ class User {
     return result.rows[0];
   }
 
+  static async demoteIfNoActiveSub(userIds) {
+    if (!userIds || userIds.length === 0) return [];
+    const result = await db.query(`
+      UPDATE master_users
+      SET role = 'member'
+      WHERE id = ANY($1::int[])
+        AND role IN ('pro', 'corporate')
+        AND NOT EXISTS (
+          SELECT 1 FROM core_subscriptions
+          WHERE user_id = master_users.id
+            AND status = 'paid'
+            AND (
+              (active_until IS NOT NULL AND active_until > NOW())
+              OR (posts_remaining IS NOT NULL AND posts_remaining > 0)
+            )
+        )
+      RETURNING id
+    `, [userIds]);
+    return result.rows.map((r) => r.id);
+  }
+
   static async update(id, fields) {
     const keys = Object.keys(fields);
     const values = Object.values(fields);

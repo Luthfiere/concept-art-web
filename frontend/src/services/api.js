@@ -25,6 +25,19 @@ export function isModerator() {
   return getCurrentUser()?.role === "moderator";
 }
 
+export async function refreshToken() {
+  try {
+    const res = await api.post("/refresh");
+    if (res.data?.token) {
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+    }
+    return res.data;
+  } catch {
+    return null;
+  }
+}
+
 export function clearAuthAndRedirect() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
