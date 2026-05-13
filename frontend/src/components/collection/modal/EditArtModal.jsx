@@ -33,18 +33,6 @@ const EditArtModal = ({ form, setForm, onClose, onSubmit }) => {
           className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
         />
 
-        <select
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-          className="w-full mb-3 p-2 bg-[#0a0d1a] pointer-events-auto"
-        >
-          <option value="">Status</option>
-          <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Closed">Closed</option>
-        </select>
-
         <input
           name="tag"
           value={form.tag}
@@ -69,8 +57,17 @@ const EditArtModal = ({ form, setForm, onClose, onSubmit }) => {
           <button onClick={onClose} className="flex-1 bg-white/10 p-2">
             Cancel
           </button>
+
           <button
-            onClick={onSubmit}
+            onClick={() => {
+              const confirmed = window.confirm(
+                "Are you sure you want to save these changes?",
+              );
+
+              if (confirmed) {
+                onSubmit();
+              }
+            }}
             className="flex-1 bg-amber-400 text-black p-2"
           >
             Save
@@ -81,4 +78,4 @@ const EditArtModal = ({ form, setForm, onClose, onSubmit }) => {
   );
 };
 
-export default EditArtModal
+export default EditArtModal;

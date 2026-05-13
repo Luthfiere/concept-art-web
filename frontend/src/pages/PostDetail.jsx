@@ -205,8 +205,7 @@ const PostDetail = () => {
     }
   };
 
-  const mediaSrc = (path) =>
-    path.startsWith("http") ? path : `/${path}`;
+  const mediaSrc = (path) => (path.startsWith("http") ? path : `/${path}`);
 
   const isVideo = (path) =>
     /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
@@ -436,7 +435,7 @@ const PostDetail = () => {
                       alt=""
                     />
                   )}
-                  <div>
+                  <div className="min-w-0 flex-1">
                     {c.user_id ? (
                       <Link
                         to={`/profile/${c.user_id}`}
@@ -449,7 +448,10 @@ const PostDetail = () => {
                         {c.username}
                       </p>
                     )}
-                    <p className="text-sm text-gray-300 mt-0.5">{c.comment}</p>
+
+                    <p className="text-sm text-gray-300 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                      {c.comment}
+                    </p>
                   </div>
                 </div>
               ))}

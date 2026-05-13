@@ -188,7 +188,7 @@ const Home = () => {
           )}
         </div>
       </section>
-      
+
       {/* ──── DIVIDER ──── */}
       <div className="px-4 sm:px-6">
         <div className="border-t border-white/5" />
