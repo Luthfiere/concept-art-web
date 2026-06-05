@@ -19,7 +19,8 @@ const formatSalary = (job) => {
   if (!salary_min && !salary_max) return null;
   const fmt = (n) => Number(n).toLocaleString("en-US");
   const cur = salary_currency || "IDR";
-  if (salary_min && salary_max) return `${cur} ${fmt(salary_min)}\u2013${fmt(salary_max)}`;
+  if (salary_min && salary_max)
+    return `${cur} ${fmt(salary_min)}\u2013${fmt(salary_max)}`;
   if (salary_min) return `${cur} ${fmt(salary_min)}+`;
   return `Up to ${cur} ${fmt(salary_max)}`;
 };
@@ -67,9 +68,7 @@ const JobDetail = ({ job }) => {
     return (
       <div className="col-span-12 lg:col-span-7">
         <div className="bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl min-h-[200px] lg:h-[calc(100vh-240px)] flex flex-col items-center justify-center text-center px-6 py-8 animate-fade-in">
-          <p className="text-sm text-gray-500">
-            Select a job to view details.
-          </p>
+          <p className="text-sm text-gray-500">Select a job to view details.</p>
         </div>
       </div>
     );
@@ -99,13 +98,24 @@ const JobDetail = ({ job }) => {
   };
 
   const applyJob = async () => {
+    const errors = [];
+
+    if (!coverLetter.trim()) {
+      errors.push("Cover Letter");
+    }
+
     if (!file) {
-      alert("Please upload your CV first!");
+      errors.push("CV / Resume");
+    }
+
+    if (errors.length > 0) {
+      alert(`Please complete: ${errors.join(", ")}`);
       return;
     }
 
     try {
       setLoading(true);
+
       const formData = new FormData();
       formData.append("cv", file);
       formData.append("cover_letter", coverLetter);
@@ -180,7 +190,9 @@ const JobDetail = ({ job }) => {
           </div>
 
           {metaItems.length > 0 && (
-            <p className="text-sm text-gray-300">{metaItems.join(" \u2022 ")}</p>
+            <p className="text-sm text-gray-300">
+              {metaItems.join(" \u2022 ")}
+            </p>
           )}
 
           {(posted || expires) && (
@@ -214,12 +226,17 @@ const JobDetail = ({ job }) => {
           {/* Status banners */}
           {isExpired && (
             <div className="mt-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <p className="text-sm text-red-300">This job posting has expired and is no longer accepting applications.</p>
+              <p className="text-sm text-red-300">
+                This job posting has expired and is no longer accepting
+                applications.
+              </p>
             </div>
           )}
           {isBlocked && (
             <div className="mt-4 px-4 py-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-              <p className="text-sm text-yellow-300">This job is no longer accepting applications.</p>
+              <p className="text-sm text-yellow-300">
+                This job is no longer accepting applications.
+              </p>
             </div>
           )}
 
@@ -245,14 +262,18 @@ const JobDetail = ({ job }) => {
           </h3>
 
           {!isActive ? (
-            <div className={`px-4 py-6 rounded-xl border text-center ${
-              isExpired
-                ? "bg-red-500/5 border-red-500/20"
-                : "bg-yellow-500/5 border-yellow-500/20"
-            }`}>
-              <p className={`text-sm font-medium ${
-                isExpired ? "text-red-300" : "text-yellow-300"
-              }`}>
+            <div
+              className={`px-4 py-6 rounded-xl border text-center ${
+                isExpired
+                  ? "bg-red-500/5 border-red-500/20"
+                  : "bg-yellow-500/5 border-yellow-500/20"
+              }`}
+            >
+              <p
+                className={`text-sm font-medium ${
+                  isExpired ? "text-red-300" : "text-yellow-300"
+                }`}
+              >
                 {isExpired
                   ? "This job posting has expired"
                   : isBlocked
@@ -285,13 +306,14 @@ const JobDetail = ({ job }) => {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                  Cover letter
+                  Cover letter <span className="text-red-400">*</span>
                 </label>
                 <textarea
                   placeholder="Introduce yourself, highlight relevant experience\u2026"
                   value={coverLetter}
                   onChange={(e) => setCoverLetter(e.target.value)}
                   rows={5}
+                  required
                   className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition resize-none"
                 />
               </div>

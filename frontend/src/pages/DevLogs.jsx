@@ -17,7 +17,7 @@ const CATEGORIES = [
   "postmortem",
   "game_design",
   "tech_discussion",
-  "tutorial"
+  "tutorial",
 ];
 
 const CATEGORY_LABELS = {
@@ -29,7 +29,7 @@ const CATEGORY_LABELS = {
   postmortem: "Postmortem",
   game_design: "Game design",
   tech_discussion: "Tech discussion",
-  tutorial: "Tutorial"
+  tutorial: "Tutorial",
 };
 
 const BADGE_COLORS = {
@@ -222,6 +222,19 @@ export default function Devlogs() {
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
+
+    const missingFields = [];
+
+    if (!form.title.trim()) missingFields.push("Devlog Title");
+    if (!form.content.trim()) missingFields.push("Description");
+
+    if (missingFields.length > 0) {
+      alert(
+        `Please fill the following fields:\n\n• ${missingFields.join("\n• ")}`,
+      );
+      return;
+    }
+
     setSubmitting(true);
 
     try {

@@ -4,24 +4,74 @@ import { sanitizeFields } from "../../utils/sanitize";
 
 const WORK_OPTION = ["On-site", "Hybrid", "Remote"];
 const WORK_TYPE = ["Full-time", "Part-time", "Contract", "Casual"];
-const CURRENCIES = ["AUD", "HKD", "IDR", "MYR", "NZD", "PHP", "SGD", "THB", "USD"];
+const CURRENCIES = [
+  "AUD",
+  "HKD",
+  "IDR",
+  "MYR",
+  "NZD",
+  "PHP",
+  "SGD",
+  "THB",
+  "USD",
+];
 
 // Canonical game-dev roles — suggestions only (not enforced)
 const GAME_DEV_TITLES = [
-  "Concept Artist", "Senior Concept Artist", "Character Artist", "Environment Artist",
-  "Prop Artist", "Texture Artist", "Lighting Artist", "VFX Artist", "Technical Artist",
-  "Rigging Artist", "UI Artist", "2D Artist", "3D Modeler", "3D Character Artist",
+  "Concept Artist",
+  "Senior Concept Artist",
+  "Character Artist",
+  "Environment Artist",
+  "Prop Artist",
+  "Texture Artist",
+  "Lighting Artist",
+  "VFX Artist",
+  "Technical Artist",
+  "Rigging Artist",
+  "UI Artist",
+  "2D Artist",
+  "3D Modeler",
+  "3D Character Artist",
   "3D Environment Artist",
-  "Character Animator", "Creature Animator", "Cinematic Animator", "Technical Animator",
-  "Gameplay Programmer", "Engine Programmer", "Graphics Programmer", "Network Programmer",
-  "Tools Programmer", "AI Programmer", "UI Programmer", "Build / DevOps Engineer",
-  "Unity Developer", "Unreal Developer", "Godot Developer", "C++ Engine Programmer",
-  "Game Designer", "Level Designer", "Systems Designer", "Combat Designer",
-  "Narrative Designer", "UX Designer", "Economy Designer",
-  "Sound Designer", "Composer", "Audio Programmer", "Voice Director",
-  "Producer", "Associate Producer", "Project Manager", "Scrum Master",
-  "QA Tester", "QA Lead", "Test Engineer", "Automation Engineer",
-  "Game Writer", "Localization Specialist", "Community Manager", "LiveOps Manager",
+  "Character Animator",
+  "Creature Animator",
+  "Cinematic Animator",
+  "Technical Animator",
+  "Gameplay Programmer",
+  "Engine Programmer",
+  "Graphics Programmer",
+  "Network Programmer",
+  "Tools Programmer",
+  "AI Programmer",
+  "UI Programmer",
+  "Build / DevOps Engineer",
+  "Unity Developer",
+  "Unreal Developer",
+  "Godot Developer",
+  "C++ Engine Programmer",
+  "Game Designer",
+  "Level Designer",
+  "Systems Designer",
+  "Combat Designer",
+  "Narrative Designer",
+  "UX Designer",
+  "Economy Designer",
+  "Sound Designer",
+  "Composer",
+  "Audio Programmer",
+  "Voice Director",
+  "Producer",
+  "Associate Producer",
+  "Project Manager",
+  "Scrum Master",
+  "QA Tester",
+  "QA Lead",
+  "Test Engineer",
+  "Automation Engineer",
+  "Game Writer",
+  "Localization Specialist",
+  "Community Manager",
+  "LiveOps Manager",
 ];
 
 const EMPTY_FORM = {
@@ -41,6 +91,15 @@ const PostJobForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [banner, setBanner] = useState(null);
 
+  const showBanner = (data) => {
+    setBanner(data);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   const tomorrowISO = (() => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -53,12 +112,29 @@ const PostJobForm = () => {
   };
 
   const submit = async (status) => {
+    const missingFields = [];
+
+    if (!form.title.trim()) missingFields.push("Job Title");
+    if (!form.description.trim()) missingFields.push("Description");
+    if (!form.job_location.trim()) missingFields.push("Location");
+    if (!form.salary_min) missingFields.push("Minimum Salary");
+    if (!form.salary_max) missingFields.push("Maximum Salary");
+    if (!form.expired_at) missingFields.push("Expiration Date");
+
+    if (missingFields.length > 0) {
+      showBanner({
+        type: "error",
+        fields: missingFields,
+      });
+      return;
+    }
+
     if (
       form.salary_min &&
       form.salary_max &&
       Number(form.salary_min) > Number(form.salary_max)
     ) {
-      setBanner({
+      showBanner({
         type: "error",
         message: "Minimum salary cannot exceed maximum salary.",
       });
@@ -66,7 +142,7 @@ const PostJobForm = () => {
     }
 
     if (form.expired_at && form.expired_at < tomorrowISO) {
-      setBanner({
+      showBanner({
         type: "error",
         message: "Expiration date must be in the future.",
       });
@@ -75,16 +151,27 @@ const PostJobForm = () => {
 
     setSubmitting(true);
     setBanner(null);
+
     try {
-      const clean = sanitizeFields(form, ["title", "description", "job_location"]);
-      await api.post("/job-postings", { ...clean, status });
-      setBanner({
+      const clean = sanitizeFields(form, [
+        "title",
+        "description",
+        "job_location",
+      ]);
+
+      await api.post("/job-postings", {
+        ...clean,
+        status,
+      });
+
+      showBanner({
         type: "success",
         message: status === "Draft" ? "Draft saved." : "Job published!",
       });
+
       setForm(EMPTY_FORM);
     } catch (err) {
-      setBanner({
+      showBanner({
         type: "error",
         message: err.response?.data?.message || "Failed to post job.",
       });
@@ -117,7 +204,21 @@ const PostJobForm = () => {
               : "bg-red-500/10 border-red-500/30 text-red-200"
           }`}
         >
-          {banner.message}
+          {banner.fields ? (
+            <>
+              <p className="font-medium mb-2">
+                Please fill the following fields:
+              </p>
+
+              <ul className="list-disc list-inside space-y-1">
+                {banner.fields.map((field) => (
+                  <li key={field}>{field}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            banner.message
+          )}
         </div>
       )}
 
@@ -135,7 +236,6 @@ const PostJobForm = () => {
             placeholder="e.g. Senior Concept Artist"
             list="game-dev-titles"
             className={inputCls}
-            required
           />
           <datalist id="game-dev-titles">
             {GAME_DEV_TITLES.map((t) => (
@@ -148,7 +248,9 @@ const PostJobForm = () => {
         </div>
 
         <div>
-          <label className={labelCls}>Description</label>
+          <label className={labelCls}>
+            Description <span className="text-red-400">*</span>{" "}
+          </label>
           <textarea
             name="description"
             value={form.description}
@@ -164,7 +266,9 @@ const PostJobForm = () => {
         <h3 className={sectionHeaderCls}>Location & work style</h3>
 
         <div>
-          <label className={labelCls}>Location</label>
+          <label className={labelCls}>
+            Location <span className="text-red-400">*</span>{" "}
+          </label>
           <input
             name="job_location"
             value={form.job_location}
@@ -214,7 +318,9 @@ const PostJobForm = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className={labelCls}>Min salary</label>
+            <label className={labelCls}>
+              Min salary <span className="text-red-400">*</span>{" "}
+            </label>
             <input
               type="number"
               name="salary_min"
@@ -227,7 +333,9 @@ const PostJobForm = () => {
           </div>
 
           <div>
-            <label className={labelCls}>Max salary</label>
+            <label className={labelCls}>
+              Max salary <span className="text-red-400">*</span>{" "}
+            </label>
             <input
               type="number"
               name="salary_max"
@@ -261,7 +369,9 @@ const PostJobForm = () => {
         <h3 className={sectionHeaderCls}>Publishing</h3>
 
         <div>
-          <label className={labelCls}>Expires on</label>
+          <label className={labelCls}>
+            Expires on <span className="text-red-400">*</span>{" "}
+          </label>
           <input
             type="date"
             name="expired_at"
@@ -272,7 +382,8 @@ const PostJobForm = () => {
             className={`${inputCls} [color-scheme:dark]`}
           />
           <p className="text-[11px] text-gray-500 mt-1.5">
-            Posting will automatically move to &quot;Expired&quot; after this date.
+            Posting will automatically move to &quot;Expired&quot; after this
+            date.
           </p>
         </div>
       </section>

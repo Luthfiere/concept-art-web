@@ -28,6 +28,8 @@ const PostJobPage = () => {
     <div className="w-full min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
       <Navbar />
 
+      
+
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-xl sm:text-3xl font-bold text-white">Post a Job</h1>

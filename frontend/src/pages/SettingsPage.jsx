@@ -89,13 +89,31 @@ const StarIcon = () => (
 );
 
 const ChatBubbleIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
   </svg>
 );
 
 const CalendarIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
     <line x1="16" y1="2" x2="16" y2="6" />
     <line x1="8" y1="2" x2="8" y2="6" />
@@ -174,6 +192,16 @@ export default function SettingsPage() {
   const [subscription, setSubscription] = useState(null);
   const [subError, setSubError] = useState(null);
   const [cancelingSub, setCancelingSub] = useState(false);
+  const [banner, setBanner] = useState(null);
+
+  const showBanner = (data) => {
+    setBanner(data);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   const getDefaultAvatar = () => {
     const seed = user?.username || user?.email || "guest";
@@ -217,7 +245,11 @@ export default function SettingsPage() {
 
   const handleCancelSubscription = async () => {
     if (!subscription?.is_active || cancelingSub) return;
-    if (!window.confirm("Cancel subscription? You'll lose pro privileges immediately."))
+    if (
+      !window.confirm(
+        "Cancel subscription? You'll lose pro privileges immediately.",
+      )
+    )
       return;
 
     setCancelingSub(true);
@@ -239,8 +271,13 @@ export default function SettingsPage() {
     }
   };
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+
+    if (banner) {
+      setBanner(null);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -306,12 +343,18 @@ export default function SettingsPage() {
       }));
 
       // 🔥 SUCCESS FEEDBACK
+      showBanner({
+        type: "success",
+        message: "Settings updated successfully.",
+      });
+
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
-
-      alert("success");
     } catch (err) {
-      alert(err.message);
+      showBanner({
+        type: "error",
+        message: err.message || "Failed to update settings.",
+      });
     } finally {
       setLoading(false);
     }
@@ -388,6 +431,17 @@ export default function SettingsPage() {
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
+        {banner && (
+          <div
+            className={`mb-4 rounded-lg px-4 py-3 text-sm border ${
+              banner.type === "success"
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-200"
+                : "bg-red-500/10 border-red-500/30 text-red-200"
+            }`}
+          >
+            {banner.message}
+          </div>
+        )}
         {/* ── Page Header ── */}
         <div className="flex items-center gap-3 mb-7">
           <div className="w-2 h-2 rounded-full bg-yellow-400" />
@@ -602,7 +656,8 @@ export default function SettingsPage() {
               );
             }
 
-            const planLabel = PLAN_LABELS[subscription.plan] || subscription.plan;
+            const planLabel =
+              PLAN_LABELS[subscription.plan] || subscription.plan;
             const isPerPost =
               subscription.plan === "pro_per_post" ||
               subscription.plan === "corporate_per_post";
