@@ -296,7 +296,24 @@ export default function SettingsPage() {
         payload.email = cleanForm.email;
       }
 
-      if (form.new_password) {
+      const hasCurrentPassword = !!form.current_password.trim();
+      const hasNewPassword = !!form.new_password.trim();
+      const hasConfirmPassword = !!form.confirm_password.trim();
+
+      // Jika salah satu field password diisi, semua wajib diisi
+      if (hasCurrentPassword || hasNewPassword || hasConfirmPassword) {
+        if (!hasCurrentPassword) {
+          throw new Error("Current password is required");
+        }
+
+        if (!hasNewPassword) {
+          throw new Error("New password is required");
+        }
+
+        if (!hasConfirmPassword) {
+          throw new Error("Confirm password is required");
+        }
+
         if (form.new_password !== form.confirm_password) {
           throw new Error("Password confirmation does not match");
         }
@@ -309,6 +326,15 @@ export default function SettingsPage() {
         payload.current_password = form.current_password;
       }
 
+      if (
+        cleanForm.username === user.username &&
+        cleanForm.email === user.email &&
+        !hasCurrentPassword &&
+        !hasNewPassword &&
+        !hasConfirmPassword
+      ) {
+        throw new Error("No changes to save");
+      }
       const res = await fetch(`${API_BASE}/users`, {
         method: "PUT",
         headers: {
