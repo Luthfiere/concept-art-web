@@ -1,14 +1,45 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
-const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
+const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
   const [preview, setPreview] = useState(form.cover_image || null);
   const [isDragging, setIsDragging] = useState(false);
 
+  const [existingMedia, setExistingMedia] = useState([]);
+  const [deletedMedia, setDeletedMedia] = useState([]);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaPreview, setMediaPreview] = useState([]);
   const [isDraggingMedia, setIsDraggingMedia] = useState(false);
 
   const fileInputRef = useRef();
+
+  useEffect(() => {
+    setExistingMedia(media);
+    setDeletedMedia([]);
+    setMediaFiles([]);
+    setMediaPreview([]);
+  }, [media]);
+
+  useEffect(() => {
+    if (form.cover_image && typeof form.cover_image === "string") {
+      setPreview(getMediaUrl(form.cover_image));
+    }
+  }, [form.cover_image]);
+
+  console.log("FORM", form);
+  console.log("COVER", form.cover_image);
+  const getMediaUrl = (path) => {
+    if (path?.startsWith("http://") || path?.startsWith("https://")) {
+      return path;
+    }
+
+    return `http://localhost:5000/${path}`;
+  };
+
+  const handleDeleteExisting = (id) => {
+    setDeletedMedia((prev) => [...prev, id]);
+
+    setExistingMedia((prev) => prev.filter((m) => m.id !== id));
+  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -163,56 +194,84 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
         <label className="text-xs font-medium text-gray-400 mb-1 block">
           Cover Image
         </label>
+
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer relative transition
-            ${
-              isDragging
-                ? "border-indigo-400 bg-indigo-400/10"
-                : "border-white/10 hover:border-indigo-400"
-            }`}
+          className={`relative w-full mb-1 border-2 border-dashed rounded-lg p-4 transition
+    ${
+      isDragging
+        ? "border-indigo-400 bg-indigo-400/10"
+        : "border-white/10 hover:border-indigo-400"
+    }`}
         >
-          <input
-            ref={fileInputRef}
-            type="file"
-            name="cover_image"
-            accept="image/*"
-            onClick={(e) => (e.target.value = null)}
-            onChange={handleChange}
-            className="absolute inset-0 opacity-0 cursor-pointer"
-          />
-
           {preview ? (
-            <div className="relative">
+            <div className="relative group">
               <img
                 src={preview}
-                alt="preview"
+                alt="Cover Preview"
                 className="w-full h-40 object-cover rounded-md"
               />
 
-              <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-xs text-white transition">
-                Change Image
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setPreview(null);
-                    setForm((prev) => ({ ...prev, cover_image: null }));
-                  }}
-                  className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded text-xs"
-                >
-                  Remove
-                </button>
+              {/* CLICK AREA */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="cover_image"
+                accept="image/*"
+                onClick={(e) => (e.target.value = null)}
+                onChange={handleChange}
+                className="absolute inset-0 opacity-0 cursor-pointer z-20"
+              />
+
+              {/* BADGE */}
+              <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 rounded text-xs text-white">
+                Change
+              </div>
+
+              {/* HOVER OVERLAY */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-md">
+                <span className="text-white text-sm font-medium">
+                  Click to change image
+                </span>
               </div>
             </div>
           ) : (
-            <div className="text-gray-500 text-sm">
-              <p>Drag & drop cover image</p>
-              <p className="text-xs text-gray-600">or click to upload</p>
-            </div>
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="cover_image"
+                accept="image/*"
+                onClick={(e) => (e.target.value = null)}
+                onChange={handleChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+
+              <div className="h-40 flex flex-col items-center justify-center text-center">
+                <svg
+                  className="w-8 h-8 mb-2 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                  />
+                </svg>
+
+                <p className="text-sm text-gray-400">Drag & drop cover image</p>
+
+                <p className="text-xs text-gray-600">or click to upload</p>
+              </div>
+            </>
           )}
         </div>
+
         <p className="text-[10px] text-gray-500 mb-3">
           Appears at the top of your devlog and in feed previews.
         </p>
@@ -221,6 +280,7 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
         <label className="text-xs font-medium text-gray-400 mb-1 block">
           Additional Media
         </label>
+
         <div
           onDrop={(e) => {
             e.preventDefault();
@@ -232,12 +292,16 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
             setIsDraggingMedia(true);
           }}
           onDragLeave={() => setIsDraggingMedia(false)}
-          className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center transition
-            ${
-              isDraggingMedia
-                ? "border-indigo-400 bg-indigo-400/10"
-                : "border-white/10 hover:border-indigo-400"
-            }`}
+          className={`
+    relative overflow-hidden
+    border-2 border-dashed rounded-xl
+    transition-all duration-200
+    ${
+      isDraggingMedia
+        ? "border-indigo-400 bg-indigo-400/10"
+        : "border-white/10 hover:border-indigo-400/50"
+    }
+  `}
         >
           <input
             type="file"
@@ -248,50 +312,164 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
             id="mediaUploadEdit"
           />
 
-          <label htmlFor="mediaUploadEdit" className="cursor-pointer">
-            <p className="text-sm text-gray-400">
+          {/* Upload Area */}
+          <label
+            htmlFor="mediaUploadEdit"
+            className="
+      flex flex-col items-center justify-center
+      py-8 px-4
+      cursor-pointer
+    "
+          >
+            <svg
+              className="w-8 h-8 mb-2 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+              />
+            </svg>
+
+            <p className="text-sm text-gray-300">
               Drag & drop media or click to upload
+            </p>
+
+            <p className="text-xs text-gray-500 mt-1">
+              Images & videos • Multiple files supported
             </p>
           </label>
 
-          {/* PREVIEW */}
-          {mediaPreview.length > 0 && (
-            <div className="grid grid-cols-3 gap-3 mt-3">
-              {mediaPreview.map((m, i) => {
-                const isVideo = m.type.startsWith("video");
+          {/* EXISTING MEDIA */}
+          {existingMedia.length > 0 && (
+            <div className="px-4 pb-4 border-t border-white/5">
+              <h3 className="text-xs font-medium text-gray-400 mt-4 mb-3">
+                Current Media ({existingMedia.length})
+              </h3>
 
-                return (
-                  <div
-                    key={i}
-                    className="relative group rounded-lg overflow-hidden border border-white/10"
-                  >
-                    {isVideo ? (
-                      <video src={m.url} className="w-full h-28 object-cover" />
-                    ) : (
-                      <img src={m.url} className="w-full h-28 object-cover" />
-                    )}
+              <div className="grid grid-cols-3 gap-3">
+                {existingMedia.map((m) => {
+                  const isVideo =
+                    m.media?.includes(".mp4") ||
+                    m.media?.includes(".webm") ||
+                    m.media?.includes(".mov");
 
-                    <button
-                      onClick={() => {
-                        setMediaFiles((prev) =>
-                          prev.filter((_, idx) => idx !== i),
-                        );
-                        setMediaPreview((prev) =>
-                          prev.filter((_, idx) => idx !== i),
-                        );
-                      }}
-                      className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded opacity-0 group-hover:opacity-100"
+                  return (
+                    <div
+                      key={m.id}
+                      className="
+                relative group
+                rounded-lg overflow-hidden
+                border border-white/10
+              "
                     >
-                      ✕
-                    </button>
-                  </div>
-                );
-              })}
+                      {isVideo ? (
+                        <video
+                          src={getMediaUrl(m.media)}
+                          className="w-full h-28 object-cover"
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={getMediaUrl(m.media)}
+                          alt=""
+                          className="w-full h-28 object-cover"
+                        />
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteExisting(m.id)}
+                        className="
+                  absolute top-2 right-2
+                  w-6 h-6
+                  rounded-full
+                  bg-black/70 hover:bg-red-500
+                  text-white text-xs
+                  opacity-0 group-hover:opacity-100
+                  transition
+                "
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* NEW MEDIA PREVIEW */}
+          {mediaPreview.length > 0 && (
+            <div className="px-4 pb-4 border-t border-white/5">
+              <h3 className="text-xs font-medium text-amber-400 mt-4 mb-3">
+                New Media ({mediaPreview.length})
+              </h3>
+
+              <div className="grid grid-cols-3 gap-3">
+                {mediaPreview.map((m, i) => {
+                  const isVideo = m.type.startsWith("video");
+
+                  return (
+                    <div
+                      key={i}
+                      className="
+                relative group
+                rounded-lg overflow-hidden
+                border border-amber-400/20
+              "
+                    >
+                      {isVideo ? (
+                        <video
+                          src={m.url}
+                          className="w-full h-28 object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={m.url}
+                          alt=""
+                          className="w-full h-28 object-cover"
+                        />
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMediaFiles((prev) =>
+                            prev.filter((_, idx) => idx !== i),
+                          );
+
+                          setMediaPreview((prev) =>
+                            prev.filter((_, idx) => idx !== i),
+                          );
+                        }}
+                        className="
+                  absolute top-2 right-2
+                  w-6 h-6
+                  rounded-full
+                  bg-black/70 hover:bg-red-500
+                  text-white text-xs
+                  opacity-0 group-hover:opacity-100
+                  transition
+                "
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
-        <p className="text-[10px] text-gray-500 mb-3">
-          Screenshots or short clips that illustrate the update (optional).
+
+        <p className="text-[10px] text-gray-500 mt-2 mb-3">
+          Screenshots, concept art, gameplay clips, or other media related to
+          this update.
         </p>
 
         {/* ACTION */}
@@ -310,7 +488,10 @@ const EditDevlogModal = ({ form, setForm, onClose, onSubmit }) => {
               );
 
               if (confirmed) {
-                onSubmit({ mediaFiles });
+                onSubmit({
+                  mediaFiles,
+                  deletedMedia,
+                });
               }
             }}
             className="bg-indigo-400 hover:bg-indigo-300 text-black px-4 py-2 rounded-lg text-sm font-semibold"

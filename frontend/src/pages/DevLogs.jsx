@@ -565,20 +565,21 @@ export default function Devlogs() {
                 </p>
               </div>
 
-              {/* Cover */}
-              <label className="text-xs font-medium text-gray-400 mb-1 block">
-                Cover Image
+              {/* COVER IMAGE */}
+              <label className="text-xs font-medium text-gray-400 mb-2 block">
+                Cover Image <span className="text-red-400">*</span>
               </label>
+
               <div
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition relative
-            ${
-              isDragging
-                ? "border-yellow-400 bg-yellow-400/10 scale-[1.02]"
-                : "border-white/10 hover:border-yellow-400"
-            }`}
+                className={`relative overflow-hidden border-2 border-dashed rounded-xl transition-all duration-200
+    ${
+      isDragging
+        ? "border-yellow-400 bg-yellow-400/10 scale-[1.01]"
+        : "border-white/10 hover:border-yellow-400/50 hover:bg-white/[0.02]"
+    }`}
               >
                 <input
                   ref={fileInputRef}
@@ -587,45 +588,79 @@ export default function Devlogs() {
                   accept="image/*"
                   onClick={(e) => (e.target.value = null)}
                   onChange={handleChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 />
 
                 {preview ? (
-                  <div className="relative">
+                  <div className="relative group">
                     <img
                       src={preview}
-                      alt="preview"
-                      className="w-full h-40 object-cover rounded-md"
+                      alt="Cover Preview"
+                      className="w-full h-52 object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-xs text-white transition">
+
+                    {/* Badge */}
+                    <div className="absolute top-3 right-3 bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs text-white">
                       Change Image
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPreview(null);
-                          setForm((prev) => ({ ...prev, cover_image: null }));
-                        }}
-                        className="absolute top-2 right-2 bg-black/60 text-xs px-2 py-1 rounded"
+                    </div>
+
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                      <svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        viewBox="0 0 24 24"
                       >
-                        Remove
-                      </button>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                        />
+                      </svg>
+
+                      <span className="text-white text-sm font-medium">
+                        Click or drop another image
+                      </span>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-gray-500 text-sm">
-                    <p className="mb-1">Drag & drop cover image here</p>
-                    <p className="text-xs text-gray-600">or click to upload</p>
+                  <div className="flex flex-col items-center justify-center py-12 px-4">
+                    <svg
+                      className="w-10 h-10 mb-3 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                      />
+                    </svg>
+
+                    <p className="text-sm text-gray-300">
+                      Drag & drop cover image here
+                    </p>
+
+                    <p className="text-xs text-gray-500 mt-1">
+                      PNG, JPG, WEBP • Recommended 16:9
+                    </p>
                   </div>
                 )}
               </div>
-              <p className="text-[10px] text-gray-500 mb-3">
+
+              <p className="text-[10px] text-gray-500 mt-2 mb-4">
                 Appears at the top of your devlog and in feed previews.
               </p>
 
               {/* MEDIA */}
-              <label className="text-xs font-medium text-gray-400 mb-1 block">
+              <label className="text-xs font-medium text-gray-400 mb-2 block">
                 Additional Media
               </label>
+
               <div
                 onDrop={(e) => {
                   e.preventDefault();
@@ -637,12 +672,12 @@ export default function Devlogs() {
                   setIsDraggingMedia(true);
                 }}
                 onDragLeave={() => setIsDraggingMedia(false)}
-                className={`w-full mb-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition
-            ${
-              isDraggingMedia
-                ? "border-yellow-400 bg-yellow-400/10"
-                : "border-white/10 hover:border-yellow-400"
-            }`}
+                className={`relative overflow-hidden border-2 border-dashed rounded-xl transition-all duration-200
+    ${
+      isDraggingMedia
+        ? "border-yellow-400 bg-yellow-400/10 scale-[1.01]"
+        : "border-white/10 hover:border-yellow-400/50 hover:bg-white/[0.02]"
+    }`}
               >
                 <input
                   type="file"
@@ -653,57 +688,100 @@ export default function Devlogs() {
                   id="mediaUpload"
                 />
 
-                <label htmlFor="mediaUpload" className="cursor-pointer">
-                  <p className="text-sm text-gray-400">
-                    Drag & drop media here or click to upload
+                <label
+                  htmlFor="mediaUpload"
+                  className="cursor-pointer flex flex-col items-center justify-center py-10 px-4"
+                >
+                  <svg
+                    className="w-10 h-10 mb-3 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                    />
+                  </svg>
+
+                  <p className="text-sm text-gray-300">
+                    Drag & drop media files here
+                  </p>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Images & Videos • Max 8 files
                   </p>
                 </label>
 
                 {mediaPreview.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3 mt-3 max-h-60 overflow-y-auto">
-                    {mediaPreview.map((m, i) => {
-                      const isVideo = m.type.startsWith("video");
+                  <>
+                    <div className="border-t border-white/10" />
 
-                      return (
-                        <div
-                          key={i}
-                          className="relative group rounded-lg overflow-hidden border border-white/10 bg-black"
-                        >
-                          {isVideo ? (
-                            <video
-                              src={m.url}
-                              className="w-full h-28 object-cover"
-                            />
-                          ) : (
-                            <img
-                              src={m.url}
-                              className="w-full h-28 object-cover"
-                            />
-                          )}
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-medium text-gray-300">
+                          Selected Media
+                        </h4>
 
-                          <button
-                            onClick={() => {
-                              setMediaFiles((prev) =>
-                                prev.filter((_, idx) => idx !== i),
-                              );
-                              setMediaPreview((prev) =>
-                                prev.filter((_, idx) => idx !== i),
-                              );
-                            }}
-                            className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        <span className="text-xs bg-white/10 px-2 py-1 rounded-full text-gray-400">
+                          {mediaPreview.length} file
+                          {mediaPreview.length > 1 ? "s" : ""}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto">
+                        {mediaPreview.map((m, i) => {
+                          const isVideo = m.type.startsWith("video");
+
+                          return (
+                            <div
+                              key={i}
+                              className="relative group rounded-lg overflow-hidden border border-white/10 bg-black"
+                            >
+                              {isVideo ? (
+                                <video
+                                  src={m.url}
+                                  className="w-full h-28 object-cover"
+                                />
+                              ) : (
+                                <img
+                                  src={m.url}
+                                  alt=""
+                                  className="w-full h-28 object-cover"
+                                />
+                              )}
+
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition" />
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMediaFiles((prev) =>
+                                    prev.filter((_, idx) => idx !== i),
+                                  );
+
+                                  setMediaPreview((prev) =>
+                                    prev.filter((_, idx) => idx !== i),
+                                  );
+                                }}
+                                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 transition"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
 
-              <p className="text-[10px] text-gray-500 mb-3">
-                Screenshots or short clips that illustrate the update (video up
-                to 20 mb max 8 files) (optional).
+              <p className="text-[10px] text-gray-500 mt-2 mb-4">
+                Screenshots or short clips that illustrate the update. Videos up
+                to 20MB • Maximum 8 files.
               </p>
             </div>
 

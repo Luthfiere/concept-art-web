@@ -43,6 +43,8 @@ const MyCollection = () => {
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
   const [postsMode, setPostsMode] = useState("post");
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [mediaPreview, setMediaPreview] = useState([]);
 
   const [user] = useState(() => JSON.parse(localStorage.getItem("user")));
   const token = localStorage.getItem("token");
@@ -66,6 +68,7 @@ const MyCollection = () => {
     genre: "",
     tag: "",
     status: "",
+    cover_image: "",
   });
 
   const [jobForm, setJobForm] = useState({
@@ -203,22 +206,51 @@ const MyCollection = () => {
     }
   };
 
-  const handleUpdateDevlog = async ({ mediaFiles }) => {
+  const handleUpdateDevlog = async ({
+    mediaFiles = [],
+    deletedMedia = [],
+    removeCover = false,
+  }) => {
     const formData = new FormData();
 
     Object.keys(devlogForm).forEach((key) => {
-      if (devlogForm[key]) formData.append(key, devlogForm[key]);
+      if (key !== "cover_image" && devlogForm[key]) {
+        formData.append(key, devlogForm[key]);
+      }
     });
 
-    // cover
+    for (const mediaId of deletedMedia) {
+      await fetch(`${API_BASE}/devlog-media/${mediaId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
+    if (removeCover) {
+      formData.append("remove_cover", "true");
+    }
+
+    if (name === "cover_image") {
+      const file = files[0];
+      if (!file) return;
+
+      setRemoveCover(false);
+
+      setForm((prev) => ({
+        ...prev,
+        cover_image: file,
+      }));
+
+      setPreview(URL.createObjectURL(file));
+
+      return;
+    }
+
     if (devlogForm.cover_image instanceof File) {
       formData.append("cover_image", devlogForm.cover_image);
     }
-
-    // media
-    mediaFiles.forEach((file) => {
-      formData.append("media", file);
-    });
 
     const res = await fetch(`${API_BASE}/devlog/${selectedItem.id}`, {
       method: "PUT",
@@ -230,13 +262,33 @@ const MyCollection = () => {
 
     const data = await res.json();
 
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+
+    if (mediaFiles.length > 0) {
+      const mediaForm = new FormData();
+
+      mediaFiles.forEach((file) => {
+        mediaForm.append("media", file);
+      });
+
+      await fetch(`${API_BASE}/devlog-media/log/${selectedItem.id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: mediaForm,
+      });
+    }
 
     setDevlog((prev) =>
       prev.map((d) => (d.id === selectedItem.id ? { ...d, ...data.data } : d)),
     );
 
     setIsEditOpen(false);
+
+    window.location.reload();
   };
 
   const handleEdit = (item) => {
@@ -275,6 +327,7 @@ const MyCollection = () => {
         genre: item.genre || "",
         tag: item.tag || "",
         status: item.status || "",
+        cover_image: item.cover_image || null,
       });
     }
 
@@ -294,7 +347,10 @@ const MyCollection = () => {
     }
   };
 
-  const handleUpdateConceptArt = async () => {
+  const handleUpdateConceptArt = async ({
+    mediaFiles = [],
+    deletedMedia = [],
+  }) => {
     const res = await fetch(`${API_BASE}/concept-arts/${selectedItem.id}`, {
       method: "PUT",
       headers: {
@@ -306,15 +362,56 @@ const MyCollection = () => {
 
     const data = await res.json();
 
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
 
-    alert("Update Success");
-    setIsEditOpen(false);
+    for (const mediaId of deletedMedia) {
+      await fetch(`${API_BASE}/art-media/${mediaId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
+    if (mediaFiles.length > 0) {
+      const mediaForm = new FormData();
+
+      mediaFiles.forEach((file) => {
+        mediaForm.append("media", file);
+      });
+
+      await fetch(`${API_BASE}/art-media/art/${selectedItem.id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: mediaForm,
+      });
+    }
 
     setArts((prev) =>
-      prev.map((a) => (a.id === selectedItem.id ? data.art : a)),
+      prev.map((a) => (a.id === selectedItem.id ? { ...a, ...data.art } : a)),
     );
+
+    setIsEditOpen(false);
+
+    window.location.reload();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020408] via-[#06091a] to-[#080c20]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-9 h-9 rounded-full border-2 border-white/5 border-t-amber-400/80 animate-spin" />
+          <p className="text-white/30 text-xs tracking-[0.15em] font-mono uppercase">
+            Loading Collection
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleUpdateJob = async () => {
     try {
@@ -359,19 +456,6 @@ const MyCollection = () => {
       alert(err.message);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020408] via-[#06091a] to-[#080c20]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-9 h-9 rounded-full border-2 border-white/5 border-t-amber-400/80 animate-spin" />
-          <p className="text-white/30 text-xs tracking-[0.15em] font-mono uppercase">
-            Loading Collection
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#020408] via-[#06091a] to-[#080c20] text-white">
@@ -591,6 +675,7 @@ const MyCollection = () => {
             <EditArtModal
               form={artForm}
               setForm={setArtForm}
+              media={selectedItem.media || []}
               onClose={() => setIsEditOpen(false)}
               onSubmit={handleUpdateConceptArt}
             />
@@ -609,6 +694,7 @@ const MyCollection = () => {
             <EditDevlogModal
               form={devlogForm}
               setForm={setDevlogForm}
+              media={selectedItem.media || []}
               onClose={() => setIsEditOpen(false)}
               onSubmit={handleUpdateDevlog}
             />
