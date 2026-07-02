@@ -9,7 +9,6 @@ class MessageController {
     const { limit = 50, offset = 0 } = req.query;
 
     try {
-      // Check if user is part of conversation
       const conversation = await Conversation.getById(conversation_id, user_id);
       if (!conversation) {
         return res.status(404).json({ message: 'Conversation not found' });

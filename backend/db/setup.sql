@@ -126,7 +126,7 @@ CREATE TABLE core_messages (
 CREATE TABLE core_job_posting (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-  title VARCHAR(255) NOT NULL, -- e.g. 'Senior Concept Artist'
+  title VARCHAR(255) NOT NULL, 
   description TEXT,
   job_location VARCHAR(255),
   work_option work_option_type,

@@ -116,7 +116,6 @@ class JobPostingController {
         return res.status(400).json({ message: 'Expiration date must be in the future' });
       }
 
-      // Only count active-post cap if publishing directly (Active) — Drafts don't count
       const intendedStatus = status || 'Draft';
       if (intendedStatus === 'Active') {
         const cap = ACTIVE_POST_CAP[role];
@@ -144,7 +143,6 @@ class JobPostingController {
         expired_at: parseDate(expired_at),
       });
 
-      // If the user's active subscription is a per-post plan, consume one credit now
       if (req._perPostSub) {
         await Subscription.decrementPostsRemaining(req._perPostSub.id);
       }

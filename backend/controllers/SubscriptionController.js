@@ -92,7 +92,6 @@ class SubscriptionController {
             data: { subscription_id: existing.id, active_until: existing.active_until },
           });
         }
-        // Different plan — auto-expire the old one so we never have two paid rows for one user
         await Subscription.expireById(existing.id);
       }
 

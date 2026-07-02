@@ -13,7 +13,6 @@ export async function requireActiveSubscription(req, res, next) {
       return res.status(402).json({ message: 'No active subscription — please renew' });
     }
 
-    // Flag per-post subscriptions so the controller can decrement after a successful insert
     if (sub.plan === 'pro_per_post' || sub.plan === 'corporate_per_post') {
       req._perPostSub = sub;
     }

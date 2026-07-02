@@ -58,5 +58,4 @@ export function startJobExpiryService() {
   setInterval(runHourlyTick, INTERVAL_MS);
 }
 
-// Named exports for testing / manual triggers
 export { expireJobs, expireLapsedSubscriptions };

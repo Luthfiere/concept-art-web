@@ -34,7 +34,6 @@ class ModerationController {
         return res.status(404).json({ message: 'Content not found' });
       }
 
-      // Snapshot title + author before delete cascades the row away
       await ModerationAction.create({
         moderator_id: user_id,
         target_user_id: entity.user_id,

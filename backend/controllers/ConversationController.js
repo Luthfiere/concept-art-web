@@ -70,8 +70,6 @@ class ConversationController {
         });
       }
 
-      // Gate new conversation creation on receiver's collaboration_status.
-      // Moderators bypass so support stays reachable.
       if (role !== 'moderator') {
         const receiver = await User.getProfile(receiverId);
         if (!receiver) {

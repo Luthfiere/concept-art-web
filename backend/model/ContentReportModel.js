@@ -20,8 +20,6 @@ class ContentReport {
     );
   }
 
-  // Returns one row per reported entity, with report count, distinct reasons, the
-  // entity's title + author. Joins LATERAL on the right entity table by type.
   static async getQueueGrouped() {
     const result = await db.query(`
       WITH reports AS (
