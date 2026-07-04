@@ -58,7 +58,7 @@ const ChatWidget = () => {
       {/* Floating chat button — hidden on mobile (navbar chat icon takes over) */}
       <button
         onClick={toggleChat}
-        className={`hidden sm:flex fixed bottom-8 left-8 z-50 w-14 h-14 rounded-full shadow-lg shadow-black/40 items-center justify-center transition-all duration-200 ${
+        className={`cursor-pointer hidden sm:flex fixed bottom-8 left-8 z-50 w-14 h-14 rounded-full shadow-lg shadow-black/40 items-center justify-center transition-all duration-200 ${
           isOpen
             ? "bg-gray-700 text-white hover:bg-gray-600"
             : "bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-110 hover:shadow-yellow-500/25"
@@ -82,7 +82,7 @@ const ChatWidget = () => {
             <h3 className="text-sm font-semibold text-white">Private Chats</h3>
             <button
               onClick={toggleChat}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-200"
+              className="cursor-pointer w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-200"
             >
               <CloseIcon />
             </button>

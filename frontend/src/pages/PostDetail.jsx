@@ -424,7 +424,7 @@ const PostDetail = () => {
                 />
                 <button
                   onClick={handleComment}
-                  className="cursor-pointer cursor-pointer shrink-0 bg-yellow-500 hover:bg-yellow-800 px-3 sm:px-4 rounded text-black text-sm"
+                  className="cursor-pointer shrink-0 bg-yellow-500 hover:bg-yellow-800 px-3 sm:px-4 rounded text-black text-sm"
                 >
                   Post
                 </button>

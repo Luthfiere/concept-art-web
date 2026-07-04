@@ -300,7 +300,7 @@ const EditArtModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
                     <button
                       type="button"
                       onClick={() => handleDeleteExisting(m.id)}
-                      className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded opacity-0 group-hover:opacity-100"
+                      className="cursor-pointer absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-[2px] rounded opacity-0 group-hover:opacity-100"
                     >
                       ✕
                     </button>
@@ -328,7 +328,7 @@ const EditArtModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
                       setMediaFiles((prev) => prev.filter((_, idx) => idx !== i));
                       setMediaPreview((prev) => prev.filter((_, idx) => idx !== i));
                     }}
-                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 hover:bg-red-500 text-white text-xs"
+                    className="cursor-pointer absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 hover:bg-red-500 text-white text-xs"
                   >
                     ✕
                   </button>

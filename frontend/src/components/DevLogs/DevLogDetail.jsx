@@ -561,7 +561,7 @@ export default function DevlogDetail() {
               navigator.clipboard.writeText(window.location.href);
               alert("Link copied!");
             }}
-            className="w-full cursor-pointer bg-yellow-400 text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-yellow-800 transition cursor-pointer"
+            className="w-full bg-yellow-400 text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-yellow-800 transition cursor-pointer"
           >
             Copy Link
           </button>

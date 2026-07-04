@@ -169,7 +169,7 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
         />
 
         <div className="flex gap-2">
-          <button onClick={onClose} className="cursor-pointer flex-1 bg-white/10 p-2 cursor-pointer">
+          <button onClick={onClose} className="flex-1 bg-white/10 p-2 cursor-pointer">
             Cancel
           </button>
           <button

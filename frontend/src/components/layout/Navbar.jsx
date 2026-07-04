@@ -5,8 +5,17 @@ import { useChat } from "../../context/ChatContext";
 const BASE_URL = "";
 
 const Navbar = () => {
+  // 1. Ambil data user dan role dari localStorage
   const storedUser = localStorage.getItem("user");
+  const storedRole = localStorage.getItem("role"); // Mengambil role spesifik jika disimpan terpisah
+
   const user = storedUser ? JSON.parse(storedUser) : null;
+
+  // Jika di dalam objek user belum ada role, kita tempelkan role dari localStorage
+  if (user && !user.role && storedRole) {
+    user.role = storedRole;
+  }
+
   const navigate = useNavigate();
   const { toggleChat, unreadCount } = useChat();
 
@@ -23,6 +32,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("role"); // Hapus role saat logout
     navigate("/");
     window.location.reload();
   };
@@ -38,6 +48,7 @@ const Navbar = () => {
     { name: "Developer Logs", path: "/DevLogs" },
     { name: "Moderation", path: "/moderation", role: "moderator" },
   ];
+
   const navLinks = allNavLinks.filter((l) => {
     if (l.role && user?.role !== l.role) return false;
     if (l.hideForRoles?.includes(user?.role)) return false;
@@ -121,50 +132,50 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Create (+) icon with dropdown */}
           {user?.role !== "moderator" && (
-          <div className="relative">
-            <button
-              onClick={() => setCreateOpen(!createOpen)}
-              className="cursor-pointer w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 text-gray-300 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              aria-label="Create new post"
-            >
-              <svg
-                className={`w-5 h-5 transition-transform duration-200 ${createOpen ? "rotate-45" : ""}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
+            <div className="relative">
+              <button
+                onClick={() => setCreateOpen(!createOpen)}
+                className="cursor-pointer w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 text-gray-300 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                aria-label="Create new post"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 4.5v15m7.5-7.5h-15"
-                />
-              </svg>
-            </button>
+                <svg
+                  className={`w-5 h-5 transition-transform duration-200 ${createOpen ? "rotate-45" : ""}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+              </button>
 
-            {createOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setCreateOpen(false)}
-                />
-                <div className="absolute right-0 mt-3 w-44 bg-[#111827] border border-white/10 rounded-xl shadow-xl backdrop-blur-lg z-50 overflow-hidden">
-                  {createActions.map((action) => (
-                    <button
-                      key={action.path}
-                      onClick={() => {
-                        setCreateOpen(false);
-                        navigate(action.path);
-                      }}
-                      className="cursor-pointer block w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition"
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+              {createOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setCreateOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-3 w-44 bg-[#111827] border border-white/10 rounded-xl shadow-xl backdrop-blur-lg z-50 overflow-hidden">
+                    {createActions.map((action) => (
+                      <button
+                        key={action.path}
+                        onClick={() => {
+                          setCreateOpen(false);
+                          navigate(action.path);
+                        }}
+                        className="cursor-pointer block w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition"
+                      >
+                        {action.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           )}
 
           {/* Chat icon */}
@@ -212,7 +223,13 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
               >
                 <div className="px-4 py-3 text-sm border-b border-white/10">
                   <p className="text-white font-medium">{user.username}</p>
-                  <p className="text-gray-400 truncate text-xs">{user.email}</p>
+                  {/* Tambahan visual opsional: Menampilkan info role di profile dropdown */}
+                  <p className="text-yellow-400 text-[10px] uppercase tracking-wider font-bold">
+                    {user.role}
+                  </p>
+                  <p className="text-gray-400 truncate text-xs mt-0.5">
+                    {user.email}
+                  </p>
                 </div>
 
                 <ul className="py-2 text-sm text-gray-300">

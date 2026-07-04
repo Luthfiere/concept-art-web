@@ -170,7 +170,7 @@ const ChatWindow = () => {
   return (
     <div className="flex-1 flex flex-col min-h-0">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5 shrink-0">
+      <div className="cursor-pointer flex items-center gap-3 px-4 py-3 border-b border-white/5 shrink-0">
         <button
           onClick={backToList}
           className="text-gray-400 hover:text-white transition-colors duration-150"
@@ -253,7 +253,7 @@ const ChatWindow = () => {
           <button
             onClick={handleSend}
             disabled={sending || !input.trim()}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
+            className={`cursor-pointer w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
               input.trim()
                 ? "bg-yellow-500 text-black hover:bg-yellow-400"
                 : "bg-white/5 text-gray-600 cursor-not-allowed"

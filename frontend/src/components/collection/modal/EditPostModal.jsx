@@ -176,6 +176,7 @@ const EditPostModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
               type="button"
               onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)}
               className="
+                          cursor-pointer
                           w-full h-[42px]
                           flex items-center justify-between
                           px-3

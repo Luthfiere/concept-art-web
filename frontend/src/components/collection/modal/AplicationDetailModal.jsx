@@ -72,7 +72,7 @@ const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
                 openChatWithUser(job.user_id);
                 onClose();
               }}
-              className="w-full py-2 bg-white/10 rounded-lg flex items-center justify-center gap-2"
+              className="cursor-pointer w-full py-2 bg-white/10 rounded-lg flex items-center justify-center gap-2"
             >
               <ChatBubbleIcon />
               Message
@@ -81,7 +81,7 @@ const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
 
         <button
           onClick={onClose}
-          className="w-full mt-4 bg-white/10 py-2 rounded-lg"
+          className="cursor-pointer w-full mt-4 bg-white/10 py-2 rounded-lg"
         >
           Close
         </button>

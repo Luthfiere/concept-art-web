@@ -62,7 +62,7 @@ const ConversationList = () => {
         <button
           key={conv.id}
           onClick={() => openConversation(conv)}
-          className="w-full flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors duration-150 text-left border-b border-white/5 last:border-b-0"
+          className="cursor-pointer w-full flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors duration-150 text-left border-b border-white/5 last:border-b-0"
         >
           {/* Avatar */}
           <img
