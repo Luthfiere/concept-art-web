@@ -320,7 +320,7 @@ const JobDetail = ({ job }) => {
 
               <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                  CV / Resume
+                  CV / Resume <span className="text-red-400">*</span>
                 </label>
                 <label className="flex items-center gap-3 bg-[#0f1323] border border-white/10 rounded-lg px-4 py-3 cursor-pointer hover:border-yellow-400/40 transition">
                   <span className="bg-white/5 border border-white/10 text-xs text-gray-200 px-3 py-1 rounded whitespace-nowrap">
