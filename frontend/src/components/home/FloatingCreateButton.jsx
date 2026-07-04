@@ -93,7 +93,7 @@ const FloatingCreateButton = ({ onCreatePost }) => {
       {/* Main FAB */}
       <button
         onClick={() => setOpen(!open)}
-        className={`w-14 h-14 rounded-full bg-yellow-500 text-black shadow-lg shadow-yellow-500/25 flex items-center justify-center hover:scale-110 hover:shadow-yellow-500/40 transition-all duration-200 ${open ? "rotate-45" : ""
+        className={`cursor-pointer w-14 h-14 rounded-full bg-yellow-500 text-black shadow-lg shadow-yellow-500/25 flex items-center justify-center hover:scale-110 hover:shadow-yellow-500/40 transition-all duration-200 ${open ? "rotate-45" : ""
           }`}
       >
         <svg
@@ -120,7 +120,7 @@ const FloatingCreateButton = ({ onCreatePost }) => {
               action.action();
               setOpen(false);
             }}
-            className="flex items-center gap-2 animate-fade-in-up"
+            className="cursor-pointer flex items-center gap-2 animate-fade-in-up"
             style={{ animationDelay: `${i * 50}ms` }}
           >
             <span className="bg-[#1a1d2e] border border-white/10 text-gray-300 text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">

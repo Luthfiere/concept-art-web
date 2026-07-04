@@ -13,6 +13,7 @@ import DevlogCollectionCard from "../components/collection/DevlogCollectionCard"
 import EditDevlogModal from "../components/collection/modal/EditDevlogModal";
 import ApplicationDetailModal from "../components/collection/modal/AplicationDetailModal";
 import EditArtModal from "../components/collection/modal/EditArtModal";
+import EditPostModal from "../components/collection/modal/EditPostModal";
 import EditJobModal from "../components/collection/modal/EditJobModal";
 
 const API_BASE = "/api";
@@ -161,9 +162,8 @@ const MyCollection = () => {
     };
 
     fetchData();
-  }, [user?.id, token]); // ✅ dependency aman
+  }, [user?.id, token]);
 
-  // Split arts by category
   const artOnly = arts.filter((a) => a.category === "art");
   const postOnly = arts.filter((a) => a.category === "post");
   const communityOnly = arts.filter((a) => a.category === "community");
@@ -424,7 +424,6 @@ const MyCollection = () => {
         }
       });
 
-      // 🔢 Convert salary
       if (payload.salary_min) payload.salary_min = Number(payload.salary_min);
       if (payload.salary_max) payload.salary_max = Number(payload.salary_max);
 
@@ -573,7 +572,7 @@ const MyCollection = () => {
             <div className="flex items-center bg-white/5 rounded-lg p-0.5">
               <button
                 onClick={() => setPostsMode("post")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
                   postsMode === "post"
                     ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25"
                     : "text-gray-400 hover:text-gray-200"
@@ -588,7 +587,7 @@ const MyCollection = () => {
               </button>
               <button
                 onClick={() => setPostsMode("community")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
                   postsMode === "community"
                     ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
                     : "text-gray-400 hover:text-gray-200"
@@ -671,8 +670,18 @@ const MyCollection = () => {
       </div>
       {isEditOpen && selectedItem && (
         <>
-          {["art", "post", "community"].includes(selectedItem.type) && (
+          {selectedItem.type === "art" && (
             <EditArtModal
+              form={artForm}
+              setForm={setArtForm}
+              media={selectedItem.media || []}
+              onClose={() => setIsEditOpen(false)}
+              onSubmit={handleUpdateConceptArt}
+            />
+          )}
+
+          {["post", "community"].includes(selectedItem.type) && (
+            <EditPostModal
               form={artForm}
               setForm={setArtForm}
               media={selectedItem.media || []}
@@ -700,13 +709,6 @@ const MyCollection = () => {
             />
           )}
         </>
-      )}
-      {isAppModalOpen && selectedApplication && (
-        <ApplicationDetailModal
-          app={selectedApplication}
-          onClose={() => setIsAppModalOpen(false)}
-          currentUserId={user?.id}
-        />
       )}
     </div>
   );

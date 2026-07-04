@@ -46,7 +46,7 @@ const SectionNav = ({ artCount, postsCount }) => {
           <button
             key={link.key}
             onClick={() => scrollTo(link.id)}
-            className={`relative px-3 py-2.5 sm:px-5 sm:py-3.5 text-sm font-medium transition-colors duration-200 ${
+            className={`cursor-pointer relative px-3 py-2.5 sm:px-5 sm:py-3.5 text-sm font-medium transition-colors duration-200 ${
               active === link.key
                 ? "text-yellow-500"
                 : "text-gray-400 hover:text-gray-200"

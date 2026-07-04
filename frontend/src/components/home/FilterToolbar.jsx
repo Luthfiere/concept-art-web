@@ -65,7 +65,7 @@ const FilterToolbar = ({
           <div className="relative shrink-0" ref={sortRef}>
             <button
               onClick={() => setOpenSort(!openSort)}
-              className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/[0.08] hover:border-white/15 transition-all duration-200"
+              className="cursor-pointer flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/[0.08] hover:border-white/15 transition-all duration-200"
             >
               {sort}
               <ChevronDown />
@@ -80,7 +80,7 @@ const FilterToolbar = ({
                       setSort(option);
                       setOpenSort(false);
                     }}
-                    className={`block w-full text-left px-4 py-2.5 text-sm transition-colors duration-150 ${
+                    className={`cursor-pointer block w-full text-left px-4 py-2.5 text-sm transition-colors duration-150 ${
                       sort === option
                         ? "bg-yellow-500/10 text-yellow-500"
                         : "text-gray-300 hover:bg-white/5"
@@ -124,7 +124,7 @@ const FilterToolbar = ({
           <button
             key={c}
             onClick={() => setSelectedCategory(c)}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+            className={`cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ${
               selectedCategory === c
                 ? "bg-yellow-500 text-black"
                 : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-gray-200"

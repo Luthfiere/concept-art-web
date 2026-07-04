@@ -179,7 +179,7 @@ const JobDetail = ({ job }) => {
                 <button
                   type="button"
                   onClick={() => setReportOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
+                  className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
                   title="Report this posting"
                 >
                   <FlagIcon className="w-3.5 h-3.5" />
@@ -344,7 +344,7 @@ const JobDetail = ({ job }) => {
                 <button
                   onClick={applyJob}
                   disabled={loading}
-                  className={`px-6 py-2.5 rounded-lg font-semibold transition shadow-md ${
+                  className={`cursor-pointer px-6 py-2.5 rounded-lg font-semibold transition shadow-md ${
                     loading
                       ? "bg-yellow-400/50 text-black/60 cursor-not-allowed"
                       : "bg-yellow-400 hover:bg-yellow-300 text-black hover:shadow-yellow-400/30"

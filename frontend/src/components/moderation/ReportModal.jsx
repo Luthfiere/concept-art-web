@@ -94,7 +94,7 @@ const ReportModal = ({ entityType, entityId, onClose }) => {
             type="button"
             disabled={submitting}
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition disabled:opacity-50"
+            className="cursor-pointer px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition disabled:opacity-50"
           >
             Cancel
           </button>
@@ -102,7 +102,7 @@ const ReportModal = ({ entityType, entityId, onClose }) => {
             type="button"
             disabled={submitting}
             onClick={submit}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-400 text-white transition disabled:opacity-50"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-400 text-white transition disabled:opacity-50 cursor-pointer"
           >
             {submitting ? "Submitting..." : "Submit report"}
           </button>

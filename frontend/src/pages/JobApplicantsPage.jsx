@@ -166,7 +166,7 @@ const JobApplicantsPage = () => {
         {/* ── BACK ── */}
         <button
           onClick={() => navigate(-1)}
-          className="group flex items-center gap-2 text-white/30 hover:text-yellow-400 text-sm mb-6 sm:mb-10 transition-colors duration-200"
+          className="cursor-pointer group flex items-center gap-2 text-white/30 hover:text-yellow-400 text-sm mb-6 sm:mb-10 transition-colors duration-200"
         >
           <span className="group-hover:-translate-x-1 transition-transform duration-200">
             ←
@@ -228,7 +228,7 @@ const JobApplicantsPage = () => {
               <button
                 onClick={toggleJobStatus}
                 disabled={togglingStatus}
-                className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition shadow-md ${
+                className={`cursor-pointer px-5 py-2.5 rounded-lg font-semibold text-sm transition shadow-md ${
                   job.status === "Active"
                     ? "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30"
                     : "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30"
@@ -277,7 +277,7 @@ const JobApplicantsPage = () => {
               onClick={() =>
                 setActiveFilter(activeFilter === key ? "all" : key)
               }
-              className={`p-3 sm:p-4 rounded-xl border bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-200 text-left
+              className={`cursor-pointer p-3 sm:p-4 rounded-xl border bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-200 text-left
                 ${activeFilter === key ? border + " " + "bg-white/[0.06]" : "border-white/[0.06]"}`}
             >
               <p className={`text-xl sm:text-2xl font-bold ${color}`}>
@@ -294,7 +294,7 @@ const JobApplicantsPage = () => {
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200
+              className={`cursor-pointer px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200
                 ${
                   activeFilter === f
                     ? "bg-yellow-400 text-black border-yellow-400"
@@ -372,7 +372,7 @@ const JobApplicantsPage = () => {
                   {(app.cover_letter || app.cv) && (
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : app.id)}
-                      className="text-white/20 hover:text-white/60 text-xs border border-white/10 hover:border-white/20 rounded-lg px-3 py-1.5 transition-all duration-150"
+                      className="cursor-pointer text-white/20 hover:text-white/60 text-xs border border-white/10 hover:border-white/20 rounded-lg px-3 py-1.5 transition-all duration-150"
                     >
                       {isExpanded ? "Hide" : "Detail"}
                     </button>
@@ -412,14 +412,14 @@ const JobApplicantsPage = () => {
                       <button
                         onClick={() => updateStatus(app.id, "shortlisted")}
                         disabled={updatingId === app.id}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-blue-400/10 text-blue-300 border border-blue-400/20 hover:bg-blue-400/20 hover:border-blue-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="cursor-pointer px-4 py-2 text-xs font-medium rounded-lg bg-blue-400/10 text-blue-300 border border-blue-400/20 hover:bg-blue-400/20 hover:border-blue-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Shortlist
                       </button>
                       <button
                         onClick={() => updateStatus(app.id, "rejected")}
                         disabled={updatingId === app.id}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="cursor-pointer px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Reject
                       </button>
@@ -431,14 +431,14 @@ const JobApplicantsPage = () => {
                       <button
                         onClick={() => updateStatus(app.id, "hired")}
                         disabled={updatingId === app.id}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-green-400/10 text-green-300 border border-green-400/20 hover:bg-green-400/20 hover:border-green-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="cursor-pointer px-4 py-2 text-xs font-medium rounded-lg bg-green-400/10 text-green-300 border border-green-400/20 hover:bg-green-400/20 hover:border-green-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         ✓ Hire
                       </button>
                       <button
                         onClick={() => updateStatus(app.id, "rejected")}
                         disabled={updatingId === app.id}
-                        className="px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="cursor-pointer px-4 py-2 text-xs font-medium rounded-lg bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 hover:border-red-400/40 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Reject
                       </button>

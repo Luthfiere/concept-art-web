@@ -29,7 +29,7 @@ const daysRemaining = (iso) => {
   return Math.ceil(diff / 86_400_000);
 };
 
-// ─── Icon Components ──────────────────────────────────────────────────────────
+// Icon Components 
 
 const CameraIcon = () => (
   <svg
@@ -121,7 +121,7 @@ const CalendarIcon = () => (
   </svg>
 );
 
-// ─── Reusable Sub-components ──────────────────────────────────────────────────
+// ─── Reusable Sub-components 
 
 const SectionCard = ({ icon, title, accent = false, children }) => (
   <div
@@ -169,7 +169,7 @@ const InputField = ({ label, ...props }) => (
   </div>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// Main Component 
 
 export default function SettingsPage() {
   const token = localStorage.getItem("token");
@@ -516,7 +516,7 @@ export default function SettingsPage() {
                 {avatar && (
                   <button
                     onClick={handleUploadAvatar}
-                    className="px-3 py-1.5 rounded-lg bg-yellow-400 text-black text-xs font-medium hover:bg-yellow-300 transition-colors"
+                    className="cursor-pointer px-3 py-1.5 rounded-lg bg-yellow-400 text-black text-xs font-medium hover:bg-yellow-300 transition-colors"
                   >
                     Upload
                   </button>
@@ -569,7 +569,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => navigate("/subscription")}
-                  className="flex items-center gap-1.5 px-3 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
+                  className="cursor-pointer flex items-center gap-1.5 px-3 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
                 >
                   <StarIcon />
                   Upgrade
@@ -621,7 +621,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2.5 rounded-lg bg-yellow-400 text-black text-sm font-semibold
+                className="cursor-pointer px-5 py-2.5 rounded-lg bg-yellow-400 text-black text-sm font-semibold
                   hover:bg-yellow-300 disabled:opacity-40 disabled:cursor-not-allowed
                   transition-colors duration-150"
               >
@@ -637,7 +637,7 @@ export default function SettingsPage() {
                     confirm_password: "",
                   }))
                 }
-                className="px-5 py-2.5 rounded-lg border border-[#2a2a2a] text-neutral-400 text-sm
+                className="cursor-pointer px-5 py-2.5 rounded-lg border border-[#2a2a2a] text-neutral-400 text-sm
                   hover:text-white hover:border-neutral-600 transition-colors duration-150"
               >
                 Cancel
@@ -673,7 +673,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={() => navigate("/subscription")}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
+                    className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
                   >
                     <StarIcon />
                     Upgrade
@@ -705,7 +705,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={() => navigate("/subscription")}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
+                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 text-black rounded-md text-xs font-semibold hover:bg-yellow-300 transition-colors"
                   >
                     <StarIcon />
                     Upgrade again
@@ -767,7 +767,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={handleCancelSubscription}
                     disabled={cancelingSub}
-                    className="px-4 py-2 rounded-lg border border-red-400/40 bg-red-500/10 text-red-300 text-sm font-semibold hover:bg-red-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="cursor-pointer px-4 py-2 rounded-lg border border-red-400/40 bg-red-500/10 text-red-300 text-sm font-semibold hover:bg-red-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {cancelingSub ? "Canceling…" : "Cancel subscription"}
                   </button>
@@ -811,7 +811,7 @@ export default function SettingsPage() {
                         ? "Currently open. Click to close DMs."
                         : "Currently closed. Click to open DMs."
                     }
-                    className={`relative shrink-0 inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                    className={`cursor-pointer relative shrink-0 inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
                       isOpen ? "bg-yellow-400" : "bg-white/15"
                     } ${collabSaving || !user ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                   >

@@ -17,7 +17,7 @@ const SubscriptionCallback = () => {
         </p>
         <button
           onClick={relogin}
-          className="inline-block bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2.5 rounded-lg font-semibold shadow-md transition"
+          className="cursor-pointer inline-block bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2.5 rounded-lg font-semibold shadow-md transition"
         >
           Re-login now
         </button>

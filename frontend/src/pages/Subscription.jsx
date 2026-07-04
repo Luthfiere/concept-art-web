@@ -180,7 +180,7 @@ const Subscription = () => {
             </p>
             <button
               onClick={handleCancel}
-              className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border border-red-400/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition"
+              className="cursor-pointer shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border border-red-400/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition"
             >
               Cancel subscription
             </button>
@@ -225,7 +225,7 @@ const Subscription = () => {
                   </div>
                   <button
                     onClick={() => openPaymentModal(p)}
-                    className="mt-5 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2.5 rounded-lg shadow-md transition"
+                    className="cursor-pointer mt-5 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2.5 rounded-lg shadow-md transition"
                   >
                     Subscribe
                   </button>
@@ -364,7 +364,7 @@ const Subscription = () => {
                 type="button"
                 disabled={submitting}
                 onClick={closeModal}
-                className="px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition disabled:opacity-50"
+                className="cursor-pointer px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -372,7 +372,7 @@ const Subscription = () => {
                 type="button"
                 disabled={submitting || !isFormValid}
                 onClick={confirmUpgrade}
-                className="px-5 py-2 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 text-black transition disabled:opacity-50"
+                className="cursor-pointer px-5 py-2 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 text-black transition disabled:opacity-50"
               >
                 {submitting ? "Upgrading\u2026" : "Upgrade"}
               </button>

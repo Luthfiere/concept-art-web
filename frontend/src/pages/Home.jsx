@@ -15,7 +15,6 @@ const isVideo = (path) =>
   /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
 
 const POSTS_PREVIEW_COUNT = 6;
-
 const ARTS_PREVIEW_COUNT = 12;
 
 const Home = () => {
@@ -25,6 +24,9 @@ const Home = () => {
   const [searchArt, setSearchArt] = useState("");
   const navigate = useNavigate();
   const [showAllArts, setShowAllArts] = useState(false);
+
+  // State untuk menyimpan data user yang sedang login
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Posts section — shared between ideation & community
   const [postsMode, setPostsMode] = useState("ideation");
@@ -56,6 +58,17 @@ const Home = () => {
   };
 
   useEffect(() => {
+    const userString = localStorage.getItem("user"); 
+    if (userString) {
+      try {
+        setCurrentUser(JSON.parse(userString));
+      } catch (e) {
+        console.error("Error parsing user data", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchArtworks = async () => {
       try {
         const resArt = await api.get("/concept-arts");
@@ -83,7 +96,6 @@ const Home = () => {
     fetchArtworks();
   }, [fetchKey]);
 
-  // Reset filters when switching modes
   const handleModeSwitch = (mode) => {
     setPostsMode(mode);
     setSelectedPostCategory("All");
@@ -91,12 +103,32 @@ const Home = () => {
     setShowAllPosts(false);
   };
 
-  // Split by category
-  const artOnly = artworks.filter((item) => item.category === "art");
-  const ideationOnly = artworks.filter((item) => item.category === "post");
-  const communityOnly = artworks.filter(
-    (item) => item.category === "community",
-  );
+  const checkVisibility = (item) => {
+    if (item.status === "Open") return true;
+
+    if (item.status === "Closed") {
+      if (!currentUser) return false;
+
+      const isOwner = currentUser.id === item.user_id; 
+      const isAdmin = currentUser.role === "moderator"; 
+
+      return isOwner || isAdmin;
+    }
+    return true;
+  };
+
+  // Filter berdasarkan Kategori utama & Hak Akses Visibility
+  const artOnly = artworks
+    .filter((item) => item.category === "art")
+    .filter(checkVisibility);
+
+  const ideationOnly = artworks
+    .filter((item) => item.category === "post")
+    .filter(checkVisibility);
+
+  const communityOnly = artworks
+    .filter((item) => item.category === "community")
+    .filter(checkVisibility);
 
   // Art filters
   const artCategories = [
@@ -147,7 +179,7 @@ const Home = () => {
       <Navbar />
       <HeroSection />
 
-      {/* ──── ART GALLERY (full-width, outside container) ──── */}
+      {/* ──── ART GALLERY ──── */}
       <section id="art-section" className="scroll-mt-14">
         <FilterToolbar
           type="art"
@@ -172,7 +204,7 @@ const Home = () => {
             <div className="flex justify-center mt-8">
               <button
                 onClick={() => setShowAllArts(!showAllArts)}
-                className="px-6 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300 hover:bg-white/10 hover:border-white/15 transition-all duration-200"
+                className="cursor-pointer px-6 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300 hover:bg-white/10 hover:border-white/15 transition-all duration-200"
               >
                 {showAllArts
                   ? "Show Less"
@@ -196,7 +228,6 @@ const Home = () => {
 
       {/* ──── POSTS SECTION ──── */}
       <section id="posts-section" className="scroll-mt-14 pt-2">
-        {/* Header: title + pill toggle + description */}
         <div className="px-4 sm:px-6 pt-8 pb-1">
           <div className="flex items-center flex-wrap gap-3">
             <h2 className="text-lg font-bold text-white tracking-tight">
@@ -207,7 +238,7 @@ const Home = () => {
             <div className="flex items-center bg-white/5 rounded-lg p-0.5">
               <button
                 onClick={() => handleModeSwitch("ideation")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
                   postsMode === "ideation"
                     ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25"
                     : "text-gray-400 hover:text-gray-200"
@@ -224,7 +255,7 @@ const Home = () => {
               </button>
               <button
                 onClick={() => handleModeSwitch("community")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
                   postsMode === "community"
                     ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
                     : "text-gray-400 hover:text-gray-200"
@@ -280,7 +311,7 @@ const Home = () => {
             <div className="flex justify-center mt-8">
               <button
                 onClick={() => setShowAllPosts(!showAllPosts)}
-                className="px-6 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300 hover:bg-white/10 hover:border-white/15 transition-all duration-200"
+                className="cursor-pointer px-6 py-2.5 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300 hover:bg-white/10 hover:border-white/15 transition-all duration-200"
               >
                 {showAllPosts
                   ? "Show Less"

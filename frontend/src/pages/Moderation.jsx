@@ -116,7 +116,7 @@ const Moderation = () => {
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+              className={`cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium transition ${
                 filter === f.value
                   ? "bg-yellow-400 text-black"
                   : "bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10"
@@ -190,7 +190,7 @@ const Moderation = () => {
                     </a>
                     <button
                       onClick={() => handleDismiss(row)}
-                      className="px-3 py-1.5 rounded-md text-xs font-semibold bg-white/5 border border-emerald-400/30 text-emerald-300/90 hover:bg-emerald-400/10"
+                      className="cursor-pointer px-3 py-1.5 rounded-md text-xs font-semibold bg-white/5 border border-emerald-400/30 text-emerald-300/90 hover:bg-emerald-400/10"
                     >
                       Dismiss
                     </button>
@@ -202,7 +202,7 @@ const Moderation = () => {
                           title: row.title,
                         })
                       }
-                      className="px-3 py-1.5 rounded-md text-xs font-semibold bg-red-500 hover:bg-red-400 text-white"
+                      className="cursor-pointer px-3 py-1.5 rounded-md text-xs font-semibold bg-red-500 hover:bg-red-400 text-white"
                     >
                       Delete
                     </button>

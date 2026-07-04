@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired, isModerator } from "../services/api";
 import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
+import { Trash2 } from "lucide-react";
 
 const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
   <svg
@@ -198,6 +199,18 @@ const PostDetail = () => {
     }
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Delete this comment?")) return;
+
+    try {
+      await api.delete(`/comments/${commentId}`);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch (err) {
+      console.error("Delete comment error:", err);
+      alert(err.response?.data?.message || "Failed to delete comment");
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -229,7 +242,7 @@ const PostDetail = () => {
         {/* Back button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
+          className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
         >
           <ArrowLeftIcon />
           Back
@@ -242,22 +255,22 @@ const PostDetail = () => {
           <div className="bg-[#111427] rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4">
             {/* LIKE COLUMN */}
             {!moderator && (
-            <div className="flex flex-col items-center text-gray-400 shrink-0">
-              <button
-                onClick={handleLike}
-                disabled={likeLoading}
-                className={`p-1.5 rounded-md transition-colors duration-200 ${
-                  liked
-                    ? "text-yellow-500"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                aria-label={liked ? "Unlike" : "Like"}
-              >
-                <HeartIcon className="w-5 h-5" filled={liked} />
-              </button>
+              <div className="flex flex-col items-center text-gray-400 shrink-0">
+                <button
+                  onClick={handleLike}
+                  disabled={likeLoading}
+                  className={`cursor-pointer p-1.5 rounded-md transition-colors duration-200 ${
+                    liked
+                      ? "text-yellow-500"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  aria-label={liked ? "Unlike" : "Like"}
+                >
+                  <HeartIcon className="cursor-pointer w-5 h-5" filled={liked} />
+                </button>
 
-              <span className="text-sm font-semibold mt-1">{likes}</span>
-            </div>
+                <span className="text-sm font-semibold mt-1">{likes}</span>
+              </div>
             )}
 
             {/* CONTENT */}
@@ -380,15 +393,17 @@ const PostDetail = () => {
                   <ChatBubbleIcon className="w-4 h-4" />
                   {comments.length} Comments
                 </span>
-                {isLoggedIn && !moderator && post.user_id !== Number(currentUserId) && (
-                  <button
-                    onClick={() => setReportOpen(true)}
-                    className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
-                  >
-                    <FlagIcon className="w-3.5 h-3.5" />
-                    Report
-                  </button>
-                )}
+                {isLoggedIn &&
+                  !moderator &&
+                  post.user_id !== Number(currentUserId) && (
+                    <button
+                      onClick={() => setReportOpen(true)}
+                      className="cursor-pointer ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
+                    >
+                      <FlagIcon className="w-3.5 h-3.5" />
+                      Report
+                    </button>
+                  )}
               </div>
             </div>
           </div>
@@ -399,21 +414,21 @@ const PostDetail = () => {
 
             {/* Input */}
             {!moderator && (
-            <div className="flex gap-2 mb-4 min-w-0">
-              <input
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="flex-1 min-w-0 bg-[#1a1d2e] p-2 rounded text-sm"
-                placeholder="Write a comment..."
-              />
-              <button
-                onClick={handleComment}
-                className="shrink-0 bg-yellow-500 px-3 sm:px-4 rounded text-black text-sm"
-              >
-                Post
-              </button>
-            </div>
+              <div className="flex gap-2 mb-4 min-w-0">
+                <input
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="flex-1 min-w-0 bg-[#1a1d2e] p-2 rounded text-sm"
+                  placeholder="Write a comment..."
+                />
+                <button
+                  onClick={handleComment}
+                  className="cursor-pointer cursor-pointer shrink-0 bg-yellow-500 hover:bg-yellow-800 px-3 sm:px-4 rounded text-black text-sm"
+                >
+                  Post
+                </button>
+              </div>
             )}
 
             {/* Comment list */}
@@ -436,18 +451,33 @@ const PostDetail = () => {
                     />
                   )}
                   <div className="min-w-0 flex-1">
-                    {c.user_id ? (
-                      <Link
-                        to={`/profile/${c.user_id}`}
-                        className="text-sm font-medium text-yellow-500 hover:text-yellow-300 hover:underline"
-                      >
-                        {c.username}
-                      </Link>
-                    ) : (
-                      <p className="text-sm font-medium text-yellow-500">
-                        {c.username}
-                      </p>
-                    )}
+                    <div className="flex items-center justify-between gap-2">
+                      {c.user_id ? (
+                        <Link
+                          to={`/profile/${c.user_id}`}
+                          className="text-sm font-medium text-yellow-500 hover:text-yellow-300 hover:underline"
+                        >
+                          {c.username}
+                        </Link>
+                      ) : (
+                        <p className="text-sm font-medium text-yellow-500">
+                          {c.username}
+                        </p>
+                      )}
+
+                      {isLoggedIn &&
+                        (Number(c.user_id) === Number(currentUserId) ||
+                          moderator) && (
+                          <button
+                            onClick={() => handleDeleteComment(c.id)}
+                            className="cursor-pointer text-[11px] text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+                            title="Delete comment"
+                            aria-label="Delete comment"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                    </div>
 
                     <p className="text-sm text-gray-300 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                       {c.comment}

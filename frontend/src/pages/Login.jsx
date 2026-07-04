@@ -81,7 +81,7 @@ const Login = () => {
 
       setCaptchaToken(null);
 
-      // 🔥 reset captcha UI
+    
       if (captchaRef.current) {
         captchaRef.current.reset();
       }
@@ -155,7 +155,7 @@ const Login = () => {
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition"
+                className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition"
               >
                 {showPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
@@ -169,7 +169,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={!captchaToken}
-            className="w-full bg-yellow-500 disabled:bg-yellow-500/40 disabled:cursor-not-allowed text-black py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-all duration-200 hover:scale-[1.02] disabled:hover:scale-100"
+            className="cursor-pointer w-full bg-yellow-500 disabled:bg-yellow-500/40 disabled:cursor-not-allowed text-black py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-all duration-200 hover:scale-[1.02] disabled:hover:scale-100"
           >
             Sign In
           </button>

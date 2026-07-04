@@ -135,7 +135,7 @@ const PostForm = () => {
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-4"
+          className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-4"
         >
           <svg
             className="w-4 h-4"
@@ -168,7 +168,7 @@ const PostForm = () => {
                 onClick={() =>
                   setForm((prev) => ({ ...prev, category: "post" }))
                 }
-                className={`px-3 py-1 rounded text-[11px] font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded text-[11px] font-medium transition-all duration-200 ${
                   !isCommunity
                     ? "bg-blue-500 text-white"
                     : "text-gray-400 hover:text-gray-200"
@@ -181,7 +181,7 @@ const PostForm = () => {
                 onClick={() =>
                   setForm((prev) => ({ ...prev, category: "community" }))
                 }
-                className={`px-3 py-1 rounded text-[11px] font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded text-[11px] font-medium transition-all duration-200 ${
                   isCommunity
                     ? "bg-emerald-500 text-white"
                     : "text-gray-400 hover:text-gray-200"
@@ -220,7 +220,7 @@ const PostForm = () => {
 
             {/* Tag + Visibility — inline row */}
             <div className="flex flex-wrap gap-3">
-              <div className="flex-1 min-w-[150px]">
+              <div className="flex-1 min-w-[150px] ">
                 <label className="text-[11px] font-medium text-gray-500 mb-1 block">
                   Tags
                 </label>
@@ -236,7 +236,7 @@ const PostForm = () => {
                   className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-xs text-gray-200 placeholder-gray-600 transition-all duration-200"
                 />
                 <p className="text-[10px] text-gray-500 mt-1">
-                  Separate multiple tags with commas.
+                  Can Choose Multiple tags
                 </p>
               </div>
               <select
@@ -285,7 +285,7 @@ const PostForm = () => {
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
-                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white text-[9px] flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
+                      className="cursor-pointer absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white text-[9px] flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
                     >
                       &times;
                     </button>
@@ -305,7 +305,7 @@ const PostForm = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors duration-200"
+                  className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors duration-200"
                 >
                   <svg
                     className="w-5 h-5"
@@ -339,7 +339,7 @@ const PostForm = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`px-6 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
+                  className={`cursor-pointer px-6 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
                     loading
                       ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
                       : "bg-yellow-500 text-black hover:bg-yellow-400"

@@ -32,6 +32,39 @@ const CATEGORY_LABELS = {
   tutorial: "Tutorial",
 };
 
+// Data Opsi Game Genre
+const GAME_GENRES = [
+  "Action",
+  "Adventure",
+  "RPG",
+  "Simulation",
+  "Strategy",
+  "Puzzle",
+  "Platformer",
+  "Horror",
+  "Visual Novel",
+  "Racing / Sports",
+];
+
+// Data Opsi Tags dikelompokkan berdasarkan Kategori
+const TAG_CATEGORIES = {
+  Platform: ["PC", "Web Browser", "Mobile", "Console"],
+  "Engine & Tools": [
+    "Unity",
+    "Unreal Engine",
+    "Godot",
+    "GameMaker",
+    "RPG Maker",
+  ],
+  "Project Status": [
+    "Prototype",
+    "Demo",
+    "Early Access",
+    "Released",
+    "Looking for Team",
+  ],
+};
+
 const BADGE_COLORS = {
   milestone: "bg-blue-950/60 text-blue-300",
   tech_discussion: "bg-violet-950/60 text-violet-300",
@@ -49,7 +82,6 @@ export default function Devlogs() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaPreview, setMediaPreview] = useState([]);
   const [isDraggingMedia, setIsDraggingMedia] = useState(false);
-  const [dragIndex, setDragIndex] = useState(null);
   const [devlogs, setDevlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
@@ -64,7 +96,7 @@ export default function Devlogs() {
     content: "",
     category: "devlog",
     genre: "",
-    tag: "",
+    tag: [], // Diubah menjadi array untuk menampung checklist
     status: "Published",
     cover_image: null,
   });
@@ -73,7 +105,6 @@ export default function Devlogs() {
 
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
-
     let remaining = MAX_FILES - mediaFiles.length;
 
     if (remaining <= 0) {
@@ -86,12 +117,10 @@ export default function Devlogs() {
 
     files.slice(0, remaining).forEach((file) => {
       const isVideo = file.type.startsWith("video");
-
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
         alert(`Video "${file.name}" melebihi 20MB`);
-        return; // ❗ skip saja, jangan reset semua
+        return;
       }
-
       validFiles.push(file);
       previews.push({
         url: URL.createObjectURL(file),
@@ -109,7 +138,6 @@ export default function Devlogs() {
 
   const processFiles = (files) => {
     const incoming = Array.from(files);
-
     let remaining = MAX_FILES - mediaFiles.length;
 
     if (remaining <= 0) {
@@ -118,18 +146,15 @@ export default function Devlogs() {
     }
 
     setError("");
-
     const validFiles = [];
     const previews = [];
 
     incoming.slice(0, remaining).forEach((file) => {
       const isVideo = file.type.startsWith("video");
-
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
         setError(`Video "${file.name}" melebihi 20MB`);
-        return; // ❗ skip aja
+        return;
       }
-
       validFiles.push(file);
       previews.push({
         url: URL.createObjectURL(file),
@@ -154,20 +179,23 @@ export default function Devlogs() {
       });
       const result = await res.json();
       const raw = result.data || [];
+
       setDevlogs(
-        raw.map((log) => ({
-          ...log,
-          cover_image: log.cover_image
-            ? log.cover_image.startsWith("http")
-              ? log.cover_image
-              : `${BASE_URL}/${log.cover_image}`
-            : null,
-          category: log.category || "devlog",
-          author: log.username || "Unknown",
-          excerpt:
-            log.excerpt ||
-            (log.content ? log.content.slice(0, 120) + "..." : ""),
-        })),
+        raw
+          .filter((log) => log.status === "Published")
+          .map((log) => ({
+            ...log,
+            cover_image: log.cover_image
+              ? log.cover_image.startsWith("http")
+                ? log.cover_image
+                : `${BASE_URL}/${log.cover_image}`
+              : null,
+            category: log.category || "devlog",
+            author: log.username || "Unknown",
+            excerpt:
+              log.excerpt ||
+              (log.content ? log.content.slice(0, 120) + "..." : ""),
+          })),
       );
     } catch (err) {
       console.error(err);
@@ -200,6 +228,17 @@ export default function Devlogs() {
     }
   };
 
+  // Handler khusus untuk mengelola array Tag dari checklist
+  const handleTagCheck = (tagValue) => {
+    setForm((prev) => {
+      const isExist = prev.tag.includes(tagValue);
+      const updatedTags = isExist
+        ? prev.tag.filter((t) => t !== tagValue)
+        : [...prev.tag, tagValue];
+      return { ...prev, tag: updatedTags };
+    });
+  };
+
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -222,11 +261,13 @@ export default function Devlogs() {
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
-
     const missingFields = [];
 
     if (!form.title.trim()) missingFields.push("Devlog Title");
     if (!form.content.trim()) missingFields.push("Description");
+    if (!form.genre) missingFields.push("Game Genre");
+    if (form.tag.length === 0) missingFields.push("Tags (At least select one)");
+    if (!form.cover_image) missingFields.push("Cover Image");
 
     if (missingFields.length > 0) {
       alert(
@@ -238,11 +279,16 @@ export default function Devlogs() {
     setSubmitting(true);
 
     try {
-      // =========================
-      // 1. CREATE DEVLOG
-      // =========================
+      const stringifiedTags = form.tag.join(", ");
+
+      const dataToSanitize = {
+        ...form,
+        tag: stringifiedTags,
+        status: "Published",
+      };
+
       const formData = new FormData();
-      const cleanForm = sanitizeFields(form, [
+      const cleanForm = sanitizeFields(dataToSanitize, [
         "title",
         "content",
         "category",
@@ -275,16 +321,11 @@ export default function Devlogs() {
 
       const devlogId = result.data.id;
 
-      // =========================
-      // 2. UPLOAD MEDIA (MULTIPLE)
-      // =========================
       if (mediaFiles.length > 0) {
         const mediaForm = new FormData();
-
         mediaFiles.forEach((file) => {
           mediaForm.append("media", file);
         });
-
         mediaForm.append("log_id", devlogId);
 
         await fetch(`${API_BASE}/devlog-media/log/${devlogId}`, {
@@ -296,30 +337,125 @@ export default function Devlogs() {
         });
       }
 
-      // =========================
-      // RESET
-      // =========================
       setShowModal(false);
-
       setForm({
         title: "",
         content: "",
         category: "devlog",
         genre: "",
-        tag: "",
+        tag: [],
         status: "Published",
         cover_image: null,
       });
 
-      // 🔥 reset cover
       setPreview(null);
-
-      // 🔥 reset media
       setMediaFiles([]);
       setMediaPreview([]);
 
-      alert("Post Success 🚀");
+      alert("Post Success");
+      fetchDevlogs(activeFilter);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create devlog");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
+  const handleSave = async () => {
+    const token = localStorage.getItem("token");
+    const missingFields = [];
+
+    if (!form.title.trim()) missingFields.push("Devlog Title");
+    if (!form.content.trim()) missingFields.push("Description");
+    if (!form.genre) missingFields.push("Game Genre");
+    if (form.tag.length === 0) missingFields.push("Tags (At least select one)");
+    if (!form.cover_image) missingFields.push("Cover Image");
+
+    if (missingFields.length > 0) {
+      alert(
+        `Please fill the following fields:\n\n• ${missingFields.join("\n• ")}`,
+      );
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const stringifiedTags = form.tag.join(", ");
+
+      const dataToSanitize = {
+        ...form,
+        tag: stringifiedTags,
+        status: "Draft",
+      };
+
+      const formData = new FormData();
+      const cleanForm = sanitizeFields(dataToSanitize, [
+        "title",
+        "content",
+        "category",
+        "genre",
+        "tag",
+        "status",
+      ]);
+
+      formData.append("title", cleanForm.title);
+      formData.append("content", cleanForm.content);
+      formData.append("category", cleanForm.category);
+      formData.append("genre", cleanForm.genre);
+      formData.append("tag", cleanForm.tag);
+      formData.append("status", cleanForm.status);
+
+      if (form.cover_image) {
+        formData.append("cover_image", form.cover_image);
+      }
+
+      const res = await fetch(`${API_BASE}/devlog`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message);
+
+      const devlogId = result.data.id;
+
+      if (mediaFiles.length > 0) {
+        const mediaForm = new FormData();
+        mediaFiles.forEach((file) => {
+          mediaForm.append("media", file);
+        });
+        mediaForm.append("log_id", devlogId);
+
+        await fetch(`${API_BASE}/devlog-media/log/${devlogId}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: mediaForm,
+        });
+      }
+
+      setShowModal(false);
+      setForm({
+        title: "",
+        content: "",
+        category: "devlog",
+        genre: "",
+        tag: [],
+        status: "Published",
+        cover_image: null,
+      });
+
+      setPreview(null);
+      setMediaFiles([]);
+      setMediaPreview([]);
+
+      alert("Save Success");
       fetchDevlogs(activeFilter);
     } catch (err) {
       console.error(err);
@@ -346,7 +482,7 @@ export default function Devlogs() {
           {isLoggedIn && !isModerator() ? (
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-black text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
+              className="cursor-pointer flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-black text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
             >
               <span className="text-base">+</span> New Devlog
             </button>
@@ -366,7 +502,7 @@ export default function Devlogs() {
             <button
               key={cat}
               onClick={() => setActiveFilter(cat)}
-              className={`text-xs px-4 py-1.5 rounded-full border whitespace-nowrap transition ${
+              className={`cursor-pointer text-xs px-4 py-1.5 rounded-full border whitespace-nowrap transition ${
                 activeFilter === cat
                   ? "bg-yellow-400 text-black border-yellow-400 font-semibold"
                   : "border-white/10 text-gray-400 hover:border-yellow-400 hover:text-yellow-400"
@@ -457,17 +593,18 @@ export default function Devlogs() {
           </div>
         )}
       </div>
+
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-[#0f172a] w-full max-w-lg rounded-xl border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
             {/* SCROLL AREA */}
             <div
               className="p-6 overflow-y-auto
-        [&::-webkit-scrollbar]:w-2
-        [&::-webkit-scrollbar-track]:bg-[#020617]
-        [&::-webkit-scrollbar-thumb]:bg-[#1e293b]
-        [&::-webkit-scrollbar-thumb]:rounded-full
-        hover:[&::-webkit-scrollbar-thumb]:bg-[#334155]"
+                [&::-webkit-scrollbar]:w-2
+                [&::-webkit-scrollbar-track]:bg-[#020617]
+                [&::-webkit-scrollbar-thumb]:bg-[#1e293b]
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                hover:[&::-webkit-scrollbar-thumb]:bg-[#334155]"
               style={{
                 scrollbarWidth: "thin",
                 scrollbarColor: "#1e293b #020617",
@@ -485,7 +622,7 @@ export default function Devlogs() {
                   name="title"
                   value={form.title}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400 text-white"
                 />
               </div>
 
@@ -500,7 +637,7 @@ export default function Devlogs() {
                   onChange={handleChange}
                   rows={4}
                   placeholder="Describe what you built, fixed, or learned in this update..."
-                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400 text-white"
                 />
               </div>
 
@@ -513,7 +650,7 @@ export default function Devlogs() {
                   name="category"
                   value={form.category}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none"
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none text-white"
                 >
                   {CATEGORIES.filter((c) => c !== "all").map((cat) => (
                     <option key={cat} value={cat}>
@@ -521,47 +658,73 @@ export default function Devlogs() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-gray-500 mt-1">
-                  Pick the label that best describes this post (e.g. patch
-                  notes, feature, milestone).
-                </p>
               </div>
 
-              {/* Genre */}
+              {/* Game Genre (Ubah menjadi Select Dropdown) */}
               <div className="mb-3">
                 <label className="text-xs font-medium text-gray-400 mb-1 block">
-                  Game Genre
+                  Game Genre <span className="text-red-400">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="genre"
                   value={form.genre}
                   onChange={handleChange}
-                  placeholder="e.g. 3D Platformer, FPS, Roguelike"
-                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-                />
+                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none text-white focus:border-yellow-400"
+                >
+                  <option value="" disabled>
+                    -- Select Game Genre --
+                  </option>
+                  {GAME_GENRES.map((genre) => (
+                    <option key={genre} value={genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
                 <p className="text-[10px] text-gray-500 mt-1">
                   The kind of game you're making — shown on your devlog so
                   readers know the context.
                 </p>
               </div>
 
-              {/* Tag */}
-              <div className="mb-3">
+              {/* Tags (Ubah menjadi Checklist dengan struktur Pills samping) */}
+              <div className="mb-4">
                 <label className="text-xs font-medium text-gray-400 mb-1 block">
-                  Tags
+                  Tags <span className="text-red-400">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="tag"
-                  value={form.tag}
-                  onChange={handleChange}
-                  placeholder="e.g. boss fight, AI, open world"
-                  className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm outline-none focus:border-yellow-400"
-                />
+
+                <div className="space-y-3 bg-[#020617] p-3 rounded-lg border border-white/5">
+                  {Object.entries(TAG_CATEGORIES).map(
+                    ([categoryName, tags]) => (
+                      <div key={categoryName}>
+                        <span className="text-[11px] font-semibold text-gray-500 tracking-wider block mb-1.5 uppercase">
+                          {categoryName}
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {tags.map((tag) => {
+                            const isChecked = form.tag.includes(tag);
+                            return (
+                              <button
+                                type="button"
+                                key={tag}
+                                onClick={() => handleTagCheck(tag)}
+                                className={`cursor-pointer text-xs px-3 py-1 rounded-full border transition-all duration-150 ${
+                                  isChecked
+                                    ? "bg-yellow-400/20 border-yellow-400 text-yellow-400 font-medium"
+                                    : "border-white/10 text-gray-400 bg-white/[0.02] hover:border-white/30"
+                                }`}
+                              >
+                                {tag}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
                 <p className="text-[10px] text-gray-500 mt-1">
-                  Specific features, systems, or topics covered. Separate
-                  multiple tags with commas.
+                  Select platforms, engine tools, or current team state relevant
+                  to this development post.
                 </p>
               </div>
 
@@ -575,13 +738,14 @@ export default function Devlogs() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 className={`relative overflow-hidden border-2 border-dashed rounded-xl transition-all duration-200
-    ${
-      isDragging
-        ? "border-yellow-400 bg-yellow-400/10 scale-[1.01]"
-        : "border-white/10 hover:border-yellow-400/50 hover:bg-white/[0.02]"
-    }`}
+                  ${
+                    isDragging
+                      ? "border-yellow-400 bg-yellow-400/10 scale-[1.01]"
+                      : "border-white/10 hover:border-yellow-400/50 hover:bg-white/[0.02]"
+                  }`}
               >
                 <input
+                  required
                   ref={fileInputRef}
                   type="file"
                   name="cover_image"
@@ -598,13 +762,9 @@ export default function Devlogs() {
                       alt="Cover Preview"
                       className="w-full h-52 object-cover"
                     />
-
-                    {/* Badge */}
                     <div className="absolute top-3 right-3 bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs text-white">
                       Change Image
                     </div>
-
-                    {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
                       <svg
                         className="w-8 h-8 text-white"
@@ -616,10 +776,8 @@ export default function Devlogs() {
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
-                        />
+                        ></path>
                       </svg>
-
                       <span className="text-white text-sm font-medium">
                         Click or drop another image
                       </span>
@@ -640,11 +798,9 @@ export default function Devlogs() {
                         d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
                       />
                     </svg>
-
                     <p className="text-sm text-gray-300">
                       Drag & drop cover image here
                     </p>
-
                     <p className="text-xs text-gray-500 mt-1">
                       PNG, JPG, WEBP • Recommended 16:9
                     </p>
@@ -673,11 +829,11 @@ export default function Devlogs() {
                 }}
                 onDragLeave={() => setIsDraggingMedia(false)}
                 className={`relative overflow-hidden border-2 border-dashed rounded-xl transition-all duration-200
-    ${
-      isDraggingMedia
-        ? "border-yellow-400 bg-yellow-400/10 scale-[1.01]"
-        : "border-white/10 hover:border-yellow-400/50 hover:bg-white/[0.02]"
-    }`}
+                  ${
+                    isDraggingMedia
+                      ? "border-yellow-400 bg-yellow-400/10 scale-[1.01]"
+                      : "border-white/10 hover:border-yellow-400/50 hover:bg-white/[0.02]"
+                  }`}
               >
                 <input
                   type="file"
@@ -705,11 +861,9 @@ export default function Devlogs() {
                       d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
                     />
                   </svg>
-
                   <p className="text-sm text-gray-300">
                     Drag & drop media files here
                   </p>
-
                   <p className="text-xs text-gray-500 mt-1">
                     Images & Videos • Max 8 files
                   </p>
@@ -718,13 +872,11 @@ export default function Devlogs() {
                 {mediaPreview.length > 0 && (
                   <>
                     <div className="border-t border-white/10" />
-
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="text-sm font-medium text-gray-300">
                           Selected Media
                         </h4>
-
                         <span className="text-xs bg-white/10 px-2 py-1 rounded-full text-gray-400">
                           {mediaPreview.length} file
                           {mediaPreview.length > 1 ? "s" : ""}
@@ -734,7 +886,6 @@ export default function Devlogs() {
                       <div className="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto">
                         {mediaPreview.map((m, i) => {
                           const isVideo = m.type.startsWith("video");
-
                           return (
                             <div
                               key={i}
@@ -761,12 +912,11 @@ export default function Devlogs() {
                                   setMediaFiles((prev) =>
                                     prev.filter((_, idx) => idx !== i),
                                   );
-
                                   setMediaPreview((prev) =>
                                     prev.filter((_, idx) => idx !== i),
                                   );
                                 }}
-                                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 transition"
+                                className="cursor-pointer absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 transition"
                               >
                                 ✕
                               </button>
@@ -789,15 +939,23 @@ export default function Devlogs() {
             <div className="flex justify-end gap-2 p-4 border-t border-white/10 bg-[#0f172a] sticky bottom-0">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white"
+                className="cursor-pointer px-4 py-2 text-sm text-gray-400 hover:text-white"
               >
                 Cancel
               </button>
 
               <button
+                onClick={handleSave}
+                disabled={submitting}
+                className="cursor-pointer bg-blue-400 hover:bg-blue-300 text-black px-4 py-2 rounded-lg text-sm font-semibold"
+              >
+                {submitting ? "Saving to Draft..." : "Save"}
+              </button>
+
+              <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-lg text-sm font-semibold"
+                className="cursor-pointer bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-lg text-sm font-semibold"
               >
                 {submitting ? "Posting..." : "Post"}
               </button>

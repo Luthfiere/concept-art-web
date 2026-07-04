@@ -53,7 +53,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
       <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-1.5 -ml-1 text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+          className="cursor-pointer md:hidden p-1.5 -ml-1 text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
           aria-label="Toggle menu"
         >
           {mobileOpen ? (
@@ -124,7 +124,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
           <div className="relative">
             <button
               onClick={() => setCreateOpen(!createOpen)}
-              className="w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 text-gray-300 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="cursor-pointer w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 text-gray-300 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
               aria-label="Create new post"
             >
               <svg
@@ -156,7 +156,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
                         setCreateOpen(false);
                         navigate(action.path);
                       }}
-                      className="block w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition"
+                      className="cursor-pointer block w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition"
                     >
                       {action.label}
                     </button>
@@ -170,7 +170,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
           {/* Chat icon */}
           <button
             onClick={toggleChat}
-            className="relative w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 text-gray-300 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            className="cursor-pointer relative w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 text-gray-300 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
             aria-label="Open chat"
           >
             <svg
@@ -196,7 +196,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
           <div className="relative">
             <button
               onClick={() => setOpen(!open)}
-              className="rounded-full focus:ring-2 focus:ring-yellow-400"
+              className="cursor-pointer rounded-full focus:ring-2 focus:ring-yellow-400"
             >
               <img
                 className="w-9 h-9 rounded-full border border-white/20 hover:border-yellow-400 transition"
@@ -237,7 +237,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
                   <li>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 hover:bg-white/5"
+                      className="cursor-pointer block w-full text-left px-4 py-2 hover:bg-white/5"
                     >
                       Sign out
                     </button>

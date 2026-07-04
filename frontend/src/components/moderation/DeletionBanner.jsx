@@ -68,7 +68,7 @@ const DeletionBanner = () => {
           </div>
           <button
             onClick={() => dismiss(a.id)}
-            className="shrink-0 text-xs font-semibold bg-white/15 hover:bg-white/25 px-3 py-1 rounded-md transition"
+            className="cursor-pointer shrink-0 text-xs font-semibold bg-white/15 hover:bg-white/25 px-3 py-1 rounded-md transition"
           >
             Dismiss
           </button>

@@ -10,21 +10,54 @@ const MAX_VIDEO = 30 * MB;
 const MAX_FILES = 6;
 const ACCEPT = "image/*,video/*";
 
+const TAG_OPTIONS = [
+    "Fantasy",
+    "Sci-Fi",
+    "Cyberpunk",
+    "Anime",
+    "Realistic",
+    "Dark Fantasy",
+    "Steampunk",
+    "Horror",
+    "Abstract",
+    "Stylized",       
+    "Retro / Neon",
+    "Portrait",
+    "Landscape",
+    "Character Design",
+    "Concept Art",
+    "Fan Art",
+    "Original",
+    "Environment Art", 
+    "UI Asset",        
+    "Sprite Sheet",    
+    "Texture / Material",
+    "Pixel Art",       
+    "Voxel Art",       
+    "Low Poly",       
+    "High Poly / Sculpting",
+    "Digital Painting",
+    "Vector Art",
+    "3D Render"
+];
+
 const PostArt = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const tagDropdownRef = useRef(null);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
+  const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
     description: "",
     status: "Open",
-    tag: "",
+    tags: [],
     category: "art",
   });
 
@@ -42,6 +75,36 @@ const PostArt = () => {
       return copy;
     });
   };
+
+  const toggleTag = (tag) => {
+    setForm((prev) => {
+      const exists = prev.tags.includes(tag);
+      return {
+        ...prev,
+        tags: exists ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+      };
+    });
+
+    setErrors((prev) => {
+      const copy = { ...prev };
+      delete copy.tag;
+      return copy;
+    });
+  };
+
+  // Tutup dropdown tag kalau klik di luar area dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        tagDropdownRef.current &&
+        !tagDropdownRef.current.contains(e.target)
+      ) {
+        setTagDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const showToast = (message) => {
     setToast(message);
@@ -124,7 +187,11 @@ const PostArt = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = sanitizeFields(form, ["title", "description", "tag"]);
+    const sanitized = sanitizeFields(form, ["title", "description"]);
+    const payload = {
+      ...sanitized,
+      tag: form.tags.join(", "),
+    };
 
     const newErrors = {};
 
@@ -133,7 +200,8 @@ const PostArt = () => {
     if (!payload.description)
       newErrors.description = "Please add a description.";
 
-    if (!payload.tag) newErrors.tag = "Please add at least one tag.";
+    if (form.tags.length === 0)
+      newErrors.tag = "Please select at least one tag.";
 
     if (files.length === 0)
       newErrors.media = "Please upload at least one image or video.";
@@ -203,7 +271,7 @@ const PostArt = () => {
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-4"
+          className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-4"
         >
           <svg
             className="w-4 h-4"
@@ -346,7 +414,7 @@ const PostArt = () => {
                       <button
                         type="button"
                         onClick={() => removeFile(i)}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white text-[10px] flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
+                        className="cursor-pointer absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white text-[10px] flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
                       >
                         &times;
                       </button>
@@ -382,25 +450,77 @@ const PostArt = () => {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <div className="flex-1 min-w-[150px]">
+                {/* Tags — dropdown checklist (multi-select) */}
+                <div
+                  className="flex-1 min-w-[150px] relative"
+                  ref={tagDropdownRef}
+                >
                   <label className="text-xs font-medium text-gray-400 mb-1 block">
                     Tags <span className="text-red-400">*</span>
                   </label>
-                  <input
-                    name="tag"
-                    value={form.tag}
-                    onChange={handleChange}
-                    placeholder="e.g. Fantasy, Sci-Fi"
-                    className={`w-full px-4 py-3 rounded-lg bg-white/5 outline-none text-sm text-gray-200 placeholder-gray-600 transition-all duration-200 ${
+
+                  <button
+                    type="button"
+                    onClick={() => setTagDropdownOpen((o) => !o)}
+                    className={`cursor-pointer w-full px-4 py-3 rounded-lg bg-white/5 outline-none text-sm text-left flex items-center justify-between gap-2 transition-all duration-200 ${
                       errors.tag
                         ? "border border-red-500"
                         : "border border-white/10 focus:border-yellow-500/50"
                     }`}
-                  />
+                  >
+                    <span
+                      className={`truncate ${
+                        form.tags.length ? "text-gray-200" : "text-gray-600"
+                      }`}
+                    >
+                      {form.tags.length
+                        ? form.tags.join(", ")
+                        : "Select tags..."}
+                    </span>
+                    <svg
+                      className={`w-3.5 h-3.5 text-gray-500 shrink-0 transition-transform duration-200 ${
+                        tagDropdownOpen ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                      />
+                    </svg>
+                  </button>
+
+                  {tagDropdownOpen && (
+                    <div className="absolute z-20 mt-1.5 w-full max-h-56 overflow-y-auto rounded-lg bg-[#12162c] border border-white/10 shadow-xl py-1.5">
+                      {TAG_OPTIONS.map((tag) => {
+                        const checked = form.tags.includes(tag);
+                        return (
+                          <label
+                            key={tag}
+                            className="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-200 hover:bg-white/5 cursor-pointer transition-colors duration-150"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleTag(tag)}
+                              className="w-3.5 h-3.5 rounded border-white/20 bg-white/5 accent-yellow-500"
+                            />
+                            {tag}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   <p className="text-[10px] text-gray-500 mt-1">
-                    Separate multiple tags with commas.
+                    Pilih satu atau lebih tag yang sesuai.
                   </p>
                 </div>
+
                 <div className="w-32">
                   <label className="text-xs font-medium text-gray-400 mb-1 block">
                     Visibility
@@ -409,16 +529,23 @@ const PostArt = () => {
                     name="status"
                     value={form.status}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 focus:bg-white/[0.07] outline-none text-sm text-gray-200 transition-all duration-200 appearance-none"
+                    className="w-full px-3 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-yellow-500/50 outline-none text-xs text-gray-200 transition-all duration-200 appearance-none w-24"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`,
                       backgroundRepeat: "no-repeat",
-                      backgroundPosition: "right 10px center",
-                      backgroundSize: "14px",
+                      backgroundPosition: "right 8px center",
+                      backgroundSize: "12px",
                     }}
                   >
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
+                    <option value="Open" className="bg-[#0a0d1f] text-gray-200">
+                      Open
+                    </option>
+                    <option
+                      value="Closed"
+                      className="bg-[#0a0d1f] text-gray-200"
+                    >
+                      Closed
+                    </option>
                   </select>
                 </div>
               </div>
@@ -426,7 +553,7 @@ const PostArt = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
+                className={`cursor-pointer w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
                   loading
                     ? "bg-yellow-500/50 text-black/50 cursor-not-allowed"
                     : "bg-yellow-500 text-black hover:bg-yellow-400"

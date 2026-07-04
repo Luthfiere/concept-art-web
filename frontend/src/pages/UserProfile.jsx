@@ -251,7 +251,7 @@ const UserProfile = () => {
       <div className="relative z-10 w-full px-4 sm:px-6 md:px-8 pt-6 sm:pt-10 pb-16 sm:pb-20">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
+          className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
         >
           <ArrowLeftIcon />
           Back
@@ -292,7 +292,7 @@ const UserProfile = () => {
               onClick={handleMessage}
               disabled={messageButtonDisabled}
               title={messageButtonTitle}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 messageButtonDisabled
                   ? "bg-white/5 border border-white/10 text-white/30 cursor-not-allowed"
                   : "bg-white/10 border border-white/15 text-white hover:bg-white/15"
@@ -369,7 +369,7 @@ const UserProfile = () => {
             <div className="flex items-center bg-white/5 rounded-lg p-0.5">
               <button
                 onClick={() => setPostsMode("post")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
                   postsMode === "post"
                     ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25"
                     : "text-gray-400 hover:text-gray-200"
@@ -386,7 +386,7 @@ const UserProfile = () => {
               </button>
               <button
                 onClick={() => setPostsMode("community")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
                   postsMode === "community"
                     ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
                     : "text-gray-400 hover:text-gray-200"

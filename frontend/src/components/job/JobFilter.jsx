@@ -27,7 +27,7 @@ const JobFilter = ({
           <button
             type="button"
             onClick={() => setSearch("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition flex items-center justify-center text-sm leading-none"
+            className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition flex items-center justify-center text-sm leading-none"
             aria-label="Clear search"
           >
             ×

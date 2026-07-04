@@ -392,7 +392,7 @@ const PostJobForm = () => {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-yellow-400 hover:bg-yellow-300 disabled:bg-yellow-400/50 disabled:cursor-not-allowed text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-yellow-400/30 transition"
+          className="cursor-pointer w-full bg-yellow-400 hover:bg-yellow-300 disabled:bg-yellow-400/50 disabled:cursor-not-allowed text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-yellow-400/30 transition"
         >
           {submitting ? "Publishing…" : "Publish job"}
         </button>

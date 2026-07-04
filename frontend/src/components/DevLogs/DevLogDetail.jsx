@@ -4,6 +4,7 @@ import api, { isTokenExpired, isModerator } from "../../services/api";
 import { parseTags } from "../../utils/sanitize";
 import Navbar from "../layout/Navbar";
 import ReportModal, { FlagIcon } from "../moderation/ReportModal";
+import { Trash2 } from "lucide-react";
 
 const API_BASE = "/api";
 const BASE_URL = "";
@@ -153,6 +154,19 @@ export default function DevlogDetail() {
     }
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Delete this comment?")) return;
+
+    try {
+      await api.delete(`/comments/${commentId}`);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      setTotalComments((prev) => prev - 1);
+    } catch (err) {
+      console.error("Delete comment error:", err);
+      alert(err.response?.data?.message || "Failed to delete comment");
+    }
+  };
+
   const imageMedia = media.filter((m) => {
     const file = m.file_path || m.media;
     return file && !/\.(mp4|webm|ogg)$/i.test(file);
@@ -210,7 +224,7 @@ export default function DevlogDetail() {
       <div className="max-w-6xl mx-auto px-6 pt-8">
         <button
           onClick={() => navigate(-1)}
-          className="text-sm text-gray-500 hover:text-yellow-400 flex items-center gap-2 mb-8 transition"
+          className="cursor-pointer text-sm text-gray-500 hover:text-yellow-400 flex items-center gap-2 mb-8 transition"
         >
           ← Back to devlogs
         </button>
@@ -259,7 +273,7 @@ export default function DevlogDetail() {
             {/* TAGS inline */}
             <div className="flex gap-2">
               {devlog.genre && (
-                <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400">
+                <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400 hover:text-yellow-400 hover:border-yellow-400/40 transition">
                   {devlog.genre}
                 </span>
               )}
@@ -275,25 +289,25 @@ export default function DevlogDetail() {
 
             {/* LIKE BUTTON inline */}
             {!moderator && (
-            <button
-              onClick={handleLike}
-              disabled={likeLoading}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition border ${
-                liked
-                  ? "bg-yellow-400 text-black border-yellow-400"
-                  : "bg-transparent text-gray-400 border-white/15 hover:border-yellow-400/40 hover:text-yellow-400"
-              }`}
-            >
-              <span>{liked ? "❤️" : "🤍"}</span>
-              <span>{likes}</span>
-            </button>
+              <button
+                onClick={handleLike}
+                disabled={likeLoading}
+                className={`flex cursor-pointer items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition border ${
+                  liked
+                    ? "bg-yellow-400 text-black border-yellow-400"
+                    : "bg-transparent text-gray-400 border-white/15 hover:border-yellow-400/40 hover:text-yellow-400"
+                }`}
+              >
+                <span>{liked ? "❤️" : "🤍"}</span>
+                <span>{likes}</span>
+              </button>
             )}
 
             {/* REPORT button */}
             {isLoggedIn && !moderator && devlog.user_id !== currentUserId && (
               <button
                 onClick={() => setReportOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
+                className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
               >
                 <FlagIcon className="w-3.5 h-3.5" />
                 Report
@@ -392,7 +406,7 @@ export default function DevlogDetail() {
                     <button
                       onClick={handleComment}
                       disabled={!newComment.trim()}
-                      className="bg-yellow-400 disabled:opacity-40 text-black px-5 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition"
+                      className="cursor-pointer bg-yellow-400 disabled:opacity-40 text-black px-5 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-800 transition"
                     >
                       Post
                     </button>
@@ -425,18 +439,33 @@ export default function DevlogDetail() {
                   )}
 
                   <div className="min-w-0 flex-1 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3 overflow-hidden">
-                    {c.user_id ? (
-                      <Link
-                        to={`/profile/${c.user_id}`}
-                        className="block text-sm font-medium text-gray-200 mb-1 hover:text-yellow-300 hover:underline break-words"
-                      >
-                        {c.username}
-                      </Link>
-                    ) : (
-                      <p className="text-sm font-medium text-gray-200 mb-1 break-words">
-                        {c.username}
-                      </p>
-                    )}
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      {c.user_id ? (
+                        <Link
+                          to={`/profile/${c.user_id}`}
+                          className="text-sm font-medium text-gray-200 hover:text-yellow-300 hover:underline break-words"
+                        >
+                          {c.username}
+                        </Link>
+                      ) : (
+                        <p className="text-sm font-medium text-gray-200 break-words">
+                          {c.username}
+                        </p>
+                      )}
+
+                      {isLoggedIn &&
+                        (Number(c.user_id) === Number(currentUserId) ||
+                          moderator) && (
+                          <button
+                            onClick={() => handleDeleteComment(c.id)}
+                            className="text-[11px] text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
+                            title="Delete comment"
+                            aria-label="Delete comment"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                    </div>
 
                     <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                       {c.comment}
@@ -532,7 +561,7 @@ export default function DevlogDetail() {
               navigator.clipboard.writeText(window.location.href);
               alert("Link copied!");
             }}
-            className="w-full bg-yellow-400 text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-yellow-300 transition"
+            className="w-full cursor-pointer bg-yellow-400 text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-yellow-800 transition cursor-pointer"
           >
             Copy Link
           </button>
@@ -547,7 +576,7 @@ export default function DevlogDetail() {
         >
           {/* Close */}
           <button
-            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white text-lg flex items-center justify-center transition"
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white text-lg flex items-center justify-center transition cursor-pointer"
             onClick={() => setLightbox(null)}
           >
             ✕
@@ -556,7 +585,7 @@ export default function DevlogDetail() {
           {/* Prev */}
           {imageMedia.length > 1 && (
             <button
-              className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition"
+              className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 lightboxNav(-1);
@@ -577,7 +606,7 @@ export default function DevlogDetail() {
           {/* Next */}
           {imageMedia.length > 1 && (
             <button
-              className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition"
+              className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 lightboxNav(1);
@@ -608,7 +637,7 @@ export default function DevlogDetail() {
       {/* SCROLL TO TOP */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-6 right-6 w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center shadow-lg transition-all duration-300 ${
+        className={`cursor-pointer fixed bottom-6 right-6 w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center shadow-lg transition-all duration-300 ${
           scrolled
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4 pointer-events-none"

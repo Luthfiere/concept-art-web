@@ -116,7 +116,7 @@ export default function Register() {
               type="button"
               onClick={() => setShowPassword((s) => !s)}
               aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition"
+              className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition"
             >
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
@@ -135,7 +135,7 @@ export default function Register() {
                 type="button"
                 onClick={() => setShowConfirmPassword((s) => !s)}
                 aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition"
+                className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition"
               >
                 {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
@@ -152,7 +152,7 @@ export default function Register() {
           <button
             onClick={handleRegister}
             disabled={!captchaToken}
-            className="w-full bg-yellow-500 disabled:bg-yellow-500/40 disabled:cursor-not-allowed text-black py-3 rounded-xl font-semibold hover:scale-105 disabled:hover:scale-100 transition"
+            className="cursor-pointer w-full bg-yellow-500 disabled:bg-yellow-500/40 disabled:cursor-not-allowed text-black py-3 rounded-xl font-semibold hover:scale-105 disabled:hover:scale-100 transition"
           >
             Register
           </button>

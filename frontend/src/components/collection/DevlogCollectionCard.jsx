@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { parseTags } from "../../utils/sanitize";
+import CardActions from "./CardActions";
 
 const BASE_URL = "";
 
@@ -11,12 +12,14 @@ const DevlogCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
   }, [item]);
 
   const isPublished = item.status === "Published";
+  const isDrafted = item.status === "Draft";
+  const isArchived = item.status === "Archived";
   const mediaCount = item.media?.length ?? 0;
 
   return (
     <div
       onClick={onClick}
-      className="group relative flex flex-col bg-[#0c0f1d] border border-white/10 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-[2px] hover:border-indigo-400/40"
+      className="group relative flex flex-col bg-[#0a0d1a] border border-white/[0.06] rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-[2px] hover:border-white/20"
     >
       {/* COVER */}
       <div className="relative aspect-video bg-[#060914] overflow-hidden">
@@ -50,7 +53,7 @@ const DevlogCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
         <div className="absolute inset-0 pointer-events-none bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.04)_2px,rgba(0,0,0,0.04)_4px)]" />
 
         {/* GRADIENT */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[#0c0f1d]" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[#0a0d1a]" />
 
         {/* STATUS BADGE */}
         {item.status && (
@@ -58,7 +61,11 @@ const DevlogCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
             className={`absolute top-2 right-2 z-10 px-2 py-[2px] rounded-full text-[9px] font-mono tracking-widest uppercase border ${
               isPublished
                 ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/30"
-                : "bg-yellow-400/10 text-yellow-300 border-yellow-400/30"
+                : isDrafted
+                ? "bg-emerald-400/10 text-blue-300 border-blue-400/30"
+                : isArchived
+                ? "bg-emerald-400/10 text-yellow-300 border-yellow-400/30":
+                "bg-emerald-400/10 text-emerald-300 border-emerald-400/30"
             }`}
           >
             {item.status}
@@ -144,22 +151,10 @@ const DevlogCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
 
       {/* ACTIONS */}
       <div
-        className="absolute bottom-0 left-0 right-0 z-20 px-3 pb-3 pt-6 bg-gradient-to-t from-[#0c0f1d] to-transparent opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 flex gap-2"
+        className="absolute bottom-0 left-0 right-0 z-20 px-3 pb-3 pt-6 bg-gradient-to-t from-[#0a0d1a] to-transparent opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={() => onEdit?.(item)}
-          className="flex-1 py-1.5 text-[10px] font-mono tracking-wider rounded-md border border-indigo-400/30 text-indigo-300 bg-indigo-400/10 hover:opacity-80 transition"
-        >
-          Edit
-        </button>
-
-        <button
-          onClick={() => onDelete?.(item)}
-          className="flex-1 py-1.5 text-[10px] font-mono tracking-wider rounded-md border border-red-400/30 text-red-300 bg-red-400/10 hover:opacity-80 transition"
-        >
-          Delete
-        </button>
+        <CardActions item={item} onEdit={onEdit} onDelete={onDelete} />
       </div>
     </div>
   );

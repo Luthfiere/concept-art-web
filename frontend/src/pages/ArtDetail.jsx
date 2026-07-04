@@ -4,54 +4,7 @@ import Navbar from "../components/layout/Navbar";
 import api, { isTokenExpired, isModerator } from "../services/api";
 import { parseTags } from "../utils/sanitize";
 import ReportModal, { FlagIcon } from "../components/moderation/ReportModal";
-
-const HeartIcon = ({ className = "w-4 h-4", filled = false }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill={filled ? "currentColor" : "none"}
-    stroke={filled ? "none" : "currentColor"}
-    strokeWidth={filled ? 0 : 1.5}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
-    />
-  </svg>
-);
-
-const ChatBubbleIcon = ({ className = "w-4 h-4" }) => (
-  <svg
-    className={className}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={1.5}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-    />
-  </svg>
-);
-
-const ArrowLeftIcon = () => (
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-    />
-  </svg>
-);
+import { Heart, MessageCircle, ArrowLeft, Trash2 } from "lucide-react";
 
 const ArtDetail = () => {
   const { id: rawId } = useParams();
@@ -163,6 +116,19 @@ const ArtDetail = () => {
     }
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Delete this comment?")) return;
+
+    try {
+      await api.delete(`/comments/${commentId}`);
+
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch (err) {
+      console.error("Delete comment error:", err);
+      alert(err.response?.data?.message || "Failed to delete comment");
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -170,8 +136,7 @@ const ArtDetail = () => {
     }
   };
 
-  const mediaSrc = (path) =>
-    path.startsWith("http") ? path : `/${path}`;
+  const mediaSrc = (path) => (path.startsWith("http") ? path : `/${path}`);
 
   const isVideo = (path) =>
     /\.(mp4|webm|mkv|avi|mov|wmv|flv|m4v|ogv)$/i.test(path);
@@ -227,7 +192,7 @@ const ArtDetail = () => {
                       prev === 0 ? art.images.length - 1 : prev - 1,
                     )
                   }
-                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
+                  className="cursor-pointer absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
                 >
                   <svg
                     width="18"
@@ -249,7 +214,7 @@ const ArtDetail = () => {
                       prev === art.images.length - 1 ? 0 : prev + 1,
                     )
                   }
-                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
+                  className="cursor-pointer absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/20 transition-all duration-300"
                 >
                   <svg
                     width="18"
@@ -317,9 +282,9 @@ const ArtDetail = () => {
             {/* Back button */}
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
+              className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors duration-200 mb-5"
             >
-              <ArrowLeftIcon />
+              <ArrowLeft />
               Back
             </button>
 
@@ -362,20 +327,20 @@ const ArtDetail = () => {
 
             {/* Like button + Stats */}
             {!moderator && (
-            <div className="flex items-center gap-3 mb-4">
-              <button
-                onClick={handleLike}
-                disabled={likeLoading}
-                className={`flex-1 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm ${
-                  liked
-                    ? "bg-yellow-500 text-black"
-                    : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <HeartIcon className="w-4 h-4" filled={liked} />
-                {liked ? "Liked" : "Like"}
-              </button>
-            </div>
+              <div className="flex items-center gap-3 mb-4">
+                <button
+                  onClick={handleLike}
+                  disabled={likeLoading}
+                  className={`cursor-pointer flex-1 py-2 rounded-lg font-medium transition-all hover:bg-yellow-800 duration-200 flex items-center justify-center gap-2 text-sm ${
+                    liked
+                      ? "bg-yellow-500 text-black"
+                      : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                  } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <Heart className="w-4 h-4" filled={liked} />
+                  {liked ? "Liked" : "Like"}
+                </button>
+              </div>
             )}
 
             {/* Report button */}
@@ -383,7 +348,7 @@ const ArtDetail = () => {
               <div className="mb-4">
                 <button
                   onClick={() => setReportOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
+                  className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-300 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors duration-200"
                 >
                   <FlagIcon className="w-3.5 h-3.5" />
                   Report
@@ -393,11 +358,11 @@ const ArtDetail = () => {
 
             <div className="flex items-center gap-4 text-xs text-gray-500 mb-5">
               <span className="flex items-center gap-1">
-                <HeartIcon className="w-3.5 h-3.5" />
+                <Heart className="w-3.5 h-3.5" />
                 {likes} {likes === 1 ? "like" : "likes"}
               </span>
               <span className="flex items-center gap-1">
-                <ChatBubbleIcon className="w-3.5 h-3.5" />
+                <MessageCircle className="w-3.5 h-3.5" />
                 {comments.length}{" "}
                 {comments.length === 1 ? "comment" : "comments"}
               </span>
@@ -415,31 +380,31 @@ const ArtDetail = () => {
             {/* Comments section */}
             <div className="border-t border-white/5 pt-4">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5 text-gray-200">
-                <ChatBubbleIcon className="w-4 h-4 text-gray-500" />
+                <MessageCircle className="w-4 h-4 text-gray-500" />
                 {comments.length}{" "}
                 {comments.length === 1 ? "Comment" : "Comments"}
               </h3>
 
               {/* Comment input */}
               {!moderator && (
-              <div className="flex gap-2 mb-4 min-w-0">
-                <input
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onFocus={() => requireLogin()}
-                  className="flex-1 min-w-0 bg-white/5 border border-white/10 px-3 py-2 rounded-lg text-sm text-gray-200 outline-none focus:border-yellow-500/50 focus:bg-white/[0.07] placeholder-gray-500 transition-all duration-200"
-                  placeholder={
-                    isLoggedIn ? "Add a comment..." : "Sign in to comment..."
-                  }
-                />
-                <button
-                  onClick={handleComment}
-                  className="shrink-0 bg-yellow-500 px-3 sm:px-4 rounded-lg text-black text-xs font-semibold hover:bg-yellow-400 transition-colors duration-200"
-                >
-                  Post
-                </button>
-              </div>
+                <div className="flex gap-2 mb-4 min-w-0">
+                  <input
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => requireLogin()}
+                    className="flex-1 min-w-0 bg-white/5 border border-white/10 px-3 py-2 rounded-lg text-sm text-gray-200 outline-none focus:border-yellow-500/50 focus:bg-white/[0.07] placeholder-gray-500 transition-all duration-200"
+                    placeholder={
+                      isLoggedIn ? "Add a comment..." : "Sign in to comment..."
+                    }
+                  />
+                  <button
+                    onClick={handleComment}
+                    className="cursor-pointer shrink-0 bg-yellow-500 px-3 sm:px-4 rounded-lg text-black text-xs font-semibold hover:bg-yellow-800 transition-colors duration-200"
+                  >
+                    Post
+                  </button>
+                </div>
               )}
 
               {/* Comments list */}
@@ -465,13 +430,26 @@ const ArtDetail = () => {
                       />
                     </Link>
 
-                    <div className="min-w-0">
-                      <Link
-                        to={c.user_id ? `/profile/${c.user_id}` : "#"}
-                        className="text-xs font-medium text-yellow-500 hover:underline"
-                      >
-                        {c.username}
-                      </Link>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <Link
+                          to={c.user_id ? `/profile/${c.user_id}` : "#"}
+                          className="text-xs font-medium text-yellow-500 hover:underline"
+                        >
+                          {c.username}
+                        </Link>
+
+                        {isLoggedIn &&
+                          (Number(c.user_id) === Number(currentUserId) ||
+                            moderator) && (
+                            <button
+                              onClick={() => handleDeleteComment(c.id)}
+                              className="cursor-pointer text-[11px] text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                      </div>
 
                       <p className="text-xs text-gray-300 mt-0.5 break-words leading-relaxed">
                         {c.comment}
