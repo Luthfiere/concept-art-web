@@ -21,7 +21,6 @@ const ALLOWED_MIMES = [
 ];
 const ALLOWED_EXTS = ['.pdf', '.doc', '.docx'];
 
-// 🔥 harus sinkron dengan validasi di frontend (JobDetail.jsx)
 const ALLOWED_NAME_PREFIXES = ['cv-', 'resume-'];
 
 function hasValidPrefix(filename) {
