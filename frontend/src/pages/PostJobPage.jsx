@@ -25,7 +25,7 @@ const PostJobPage = () => {
   const canPost = hasPayingRole && hasActiveSub;
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
+    <div className="w-full min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       

@@ -87,6 +87,8 @@ export default function DevlogDetail() {
     }
   };
 
+  
+
   const fetchDevLogDetails = async () => {
     try {
       const [likeres, commentres, mediares] = await Promise.all([
@@ -193,7 +195,7 @@ export default function DevlogDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white font-sans break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       {/* HERO */}
@@ -316,8 +318,19 @@ export default function DevlogDetail() {
           </div>
 
           {/* CONTENT */}
-          <div className="text-gray-300 leading-relaxed text-[15px] whitespace-pre-line mb-10">
-            {devlog.content}
+          <div className="text-gray-300 leading-relaxed text-[15px] mb-10 space-y-4 max-w-full overflow-hidden">
+            {devlog.content
+              .split(/\n\s*\n/)
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .map((paragraph, idx) => (
+                <p
+                  key={idx}
+                  className="whitespace-pre-line break-words [overflow-wrap:anywhere]"
+                >
+                  {paragraph}
+                </p>
+              ))}
           </div>
 
           {/* MEDIA GRID */}
@@ -521,10 +534,10 @@ export default function DevlogDetail() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="bg-white/5 rounded-lg px-3 py-3 text-center"
+                  className="bg-white/5 rounded-lg px-2 py-3 flex flex-col items-center justify-center text-center min-h-[72px]"
                 >
                   <p className="text-lg font-semibold text-white">{s.value}</p>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5 leading-tight">
                     {s.label}
                   </p>
                 </div>

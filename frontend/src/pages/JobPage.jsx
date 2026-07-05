@@ -57,7 +57,7 @@ const JobPage = () => {
   const setSelectedJob = (job) => setSelectedId(job?.id ?? null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       <div className="w-full mx-auto px-4 sm:px-6 py-6">

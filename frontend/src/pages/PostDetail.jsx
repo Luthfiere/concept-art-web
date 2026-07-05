@@ -231,7 +231,7 @@ const PostDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0d1f] text-white">
+    <div className="min-h-screen bg-[#0a0d1f] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 pt-6">
@@ -270,7 +270,7 @@ const PostDetail = () => {
             )}
 
             {/* CONTENT */}
-            <div className="flex-1 min-w-0 space-y-4">
+            <div className="flex-1 min-w-0 space-y-4 ">
               {/* Title */}
               <h1 className="text-lg sm:text-xl font-bold break-words">
                 {post.title}
@@ -375,7 +375,7 @@ const PostDetail = () => {
               )}
 
               {/* Description */}
-              <p className="text-gray-300 text-sm whitespace-pre-line">
+              <p className="text-gray-300 text-sm whitespace-pre-line ">
                 {post.description}
               </p>
 

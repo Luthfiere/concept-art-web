@@ -441,7 +441,7 @@ export default function SettingsPage() {
       : getDefaultAvatar();
 
   return (
-    <div className="min-h-screen bg-[#0b0f1a] text-white">
+    <div className="min-h-screen bg-[#0b0f1a] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-4 py-8">

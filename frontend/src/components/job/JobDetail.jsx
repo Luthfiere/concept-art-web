@@ -178,7 +178,7 @@ const JobDetail = ({ job }) => {
 
       <div
         key={job.id}
-        className="animate-fade-in bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl lg:h-[calc(100vh-240px)] overflow-y-auto"
+        className="animate-fade-in bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl lg:h-[calc(100vh-240px)] overflow-y-auto break-words [overflow-wrap:anywhere]"
       >
         <div className="p-4 sm:p-6 lg:p-8">
           {/* Header */}

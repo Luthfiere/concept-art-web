@@ -169,7 +169,7 @@ const Home = () => {
     : filteredArtworks.slice(0, ARTS_PREVIEW_COUNT);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
       <HeroSection />
 

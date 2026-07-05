@@ -154,7 +154,7 @@ const ArtDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0d1f] text-white flex flex-col">
+    <div className="min-h-screen bg-[#0a0d1f] text-white flex flex-col break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       {/* ──── MAIN: side-by-side layout ──── */}
@@ -370,8 +370,8 @@ const ArtDetail = () => {
 
             {/* Description */}
             {art.description && (
-              <div className="border-t border-white/5 pt-4 mb-5">
-                <p className="text-sm text-gray-300 leading-relaxed">
+              <div className="border-t border-white/5 pt-4 mb-5 max-w-full overflow-hidden">
+                <p className="text-sm text-gray-300 leading-relaxed ">
                   {art.description}
                 </p>
               </div>

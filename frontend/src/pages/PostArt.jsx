@@ -253,7 +253,7 @@ const PostArt = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0d1f] text-white">
+    <div className="min-h-screen bg-[#0a0d1f] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       {toast && (

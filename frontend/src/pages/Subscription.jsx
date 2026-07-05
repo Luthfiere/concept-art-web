@@ -150,7 +150,7 @@ const Subscription = () => {
     form.cvv.length >= 3;
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white">
+    <div className="w-full min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">

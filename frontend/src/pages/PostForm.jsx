@@ -127,7 +127,7 @@ const PostForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0d1f] text-white">
+    <div className="min-h-screen bg-[#0a0d1f] text-white break-words [overflow-wrap:anywhere]">
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 animate-fade-in-up">

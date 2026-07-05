@@ -320,9 +320,13 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
             onChange={handleChange}
             className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm"
           >
-            <option value="Draft" disabled>Draft</option>
+            <option value="Draft" disabled>
+              Draft
+            </option>
             <option value="Published">Published</option>
-            <option value="Archived">Archived</option>
+            <option value="Archived" disabled={form.status === "Draft"}>
+              Archived
+            </option>
           </select>
         </div>
 
@@ -514,7 +518,7 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
                 window.confirm("Are you sure you want to save these changes?")
               ) {
                 onSubmit({
-                  ...form, 
+                  ...form,
                   mediaFiles,
                   deletedMedia,
                 });

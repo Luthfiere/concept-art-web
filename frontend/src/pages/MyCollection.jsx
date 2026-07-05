@@ -467,7 +467,7 @@ const MyCollection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#020408] via-[#06091a] to-[#080c20] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#020408] via-[#06091a] to-[#080c20] text-white break-words [overflow-wrap:anywhere]">
       {/* Ambient glow */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-indigo-500/5 blur-3xl pointer-events-none z-0" />
 

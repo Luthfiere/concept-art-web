@@ -15,7 +15,7 @@ const JobFilter = ({
     "bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition";
 
   return (
-    <div className="bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+    <div className="bg-[#111427]/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center break-words [overflow-wrap:anywhere]">
       <div className="relative flex-1">
         <input
           value={search}

@@ -60,7 +60,7 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 text-white relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center px-4 text-white relative overflow-hidden break-words [overflow-wrap:anywhere]"
       style={{
         background: "linear-gradient(to bottom, #050816, #0b0f2a)",
       }}
