@@ -320,7 +320,7 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
             onChange={handleChange}
             className="w-full px-3 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm"
           >
-            <option value="Draft">Draft</option>
+            <option value="Draft" disabled>Draft</option>
             <option value="Published">Published</option>
             <option value="Archived">Archived</option>
           </select>
