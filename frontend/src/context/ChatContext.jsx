@@ -13,14 +13,12 @@ export const ChatProvider = ({ children }) => {
 
   const isLoggedIn = !isTokenExpired();
 
-  // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
     if (isTokenExpired()) return;
     try {
       const res = await api.get("/messages/unread-count");
       setUnreadCount(res.data.count);
     } catch {
-      // silently fail
     }
   }, []);
 

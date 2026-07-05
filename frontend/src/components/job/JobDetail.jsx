@@ -74,6 +74,13 @@ const JobDetail = ({ job }) => {
     );
   }
 
+  const ALLOWED_NAME_PREFIXES = ["cv-", "resume-"];
+
+  const hasValidPrefix = (filename) => {
+    const lower = filename.toLowerCase();
+    return ALLOWED_NAME_PREFIXES.some((prefix) => lower.startsWith(prefix));
+  };
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -86,11 +93,23 @@ const JobDetail = ({ job }) => {
 
     if (!allowedTypes.includes(selectedFile.type)) {
       alert("Only PDF, DOC, and DOCX files are allowed!");
+      e.target.value = "";
       return;
     }
 
     if (selectedFile.size > 2 * 1024 * 1024) {
       alert("File size must be less than 2MB!");
+      e.target.value = "";
+      return;
+    }
+
+    if (!hasValidPrefix(selectedFile.name)) {
+      alert(
+        `File name must start with "CV-" or "Resume-".\nExample: CV-${
+          currentUser?.username || "YourName"
+        }.pdf`,
+      );
+      e.target.value = "";
       return;
     }
 
@@ -296,6 +315,12 @@ const JobDetail = ({ job }) => {
                 Sign in to apply
               </Link>
             </div>
+          ) : isOwnPosting ? (
+            <div className="px-4 py-6 rounded-xl border border-white/10 bg-white/[0.02] text-center">
+              <p className="text-sm text-gray-400">
+                Owner can&apos;t apply to their own job posting.
+              </p>
+            </div>
           ) : moderator ? (
             <div className="px-4 py-6 rounded-xl border border-white/10 bg-white/[0.02] text-center">
               <p className="text-sm text-gray-400">
@@ -328,8 +353,8 @@ const JobDetail = ({ job }) => {
                   </span>
                   <span className="text-xs text-gray-400 truncate">
                     {file
-                      ? `${file.name} \u00b7 ${(file.size / 1024).toFixed(0)} KB`
-                      : "PDF, DOC, or DOCX \u2014 max 2MB"}
+                      ? `${file.name} · ${(file.size / 1024).toFixed(0)} KB`
+                      : "CV-NamaAnda.pdf atau Resume-NamaAnda.pdf — max 2MB"}
                   </span>
                   <input
                     type="file"

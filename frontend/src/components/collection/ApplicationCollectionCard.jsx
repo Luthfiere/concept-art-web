@@ -17,13 +17,13 @@ const ApplicationCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
           {item.status}
         </div>
 
-        {/* Job ID */}
+        {/* Job title */}
         <div className="mt-3">
           <p className="text-[10px] text-gray-500 uppercase tracking-wider">
             Applied to Job
           </p>
-          <p className="text-red-400 text-lg font-bold font-mono mt-0.5">
-            #{item.job_id}
+          <p className="text-red-400 text-base font-bold mt-0.5 line-clamp-1">
+            {item.job_title || `#${item.job_id}`}
           </p>
         </div>
 

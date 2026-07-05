@@ -51,7 +51,7 @@ const EditPostModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
   const [dragging, setDragging] = useState(false);
   const [deletedMedia, setDeletedMedia] = useState([]);
 
-  // --- TAMBAHAN UNTUK FIX TAGS ---
+ 
   const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
   const tagDropdownRef = useRef(null);
 
@@ -108,7 +108,6 @@ const EditPostModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
   }, [media]);
 
   const handleChange = (e) => {
-    // Reset tags jika user mengganti kategori agar tidak terjadi cross-tags salah kategori
     if (e.target.name === "category") {
       setForm({ ...form, [e.target.name]: e.target.value, tags: [] });
     } else {

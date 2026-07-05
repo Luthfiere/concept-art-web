@@ -23,7 +23,6 @@ const CATEGORY_LABELS = {
   tutorial: "Tutorial",
 };
 
-// Data Opsi Game Genre
 const GAME_GENRES = [
   "Action",
   "Adventure",
@@ -37,7 +36,6 @@ const GAME_GENRES = [
   "Racing / Sports",
 ];
 
-// Data Opsi Tags dikelompokkan berdasarkan Kategori
 const TAG_CATEGORIES = {
   Platform: ["PC", "Web Browser", "Mobile", "Console"],
   "Engine & Tools": [
@@ -69,7 +67,6 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
   const descriptionRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Auto-resize textarea berdasarkan content
   useEffect(() => {
     if (descriptionRef.current) {
       descriptionRef.current.style.height = "auto";
@@ -77,7 +74,6 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
     }
   }, [form.content]);
 
-  // Sync media dari props
   useEffect(() => {
     setExistingMedia(media);
     setDeletedMedia([]);
@@ -85,7 +81,6 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
     setMediaPreview([]);
   }, [media]);
 
-  // Handle URL untuk cover image awal
   useEffect(() => {
     if (form.cover_image && typeof form.cover_image === "string") {
       setPreview(getMediaUrl(form.cover_image));
@@ -131,7 +126,6 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
       return;
     }
 
-    // PERBAIKAN: Jika name adalah description, update key 'content' di form
     if (name === "description") {
       setForm((prev) => ({ ...prev, content: value }));
       return;
@@ -177,7 +171,6 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
   };
 
   const handleRemoveNewMedia = (index) => {
-    // Revoke object URL yang dihapus agar hemat memori
     if (mediaPreview[index]?.url.startsWith("blob:")) {
       URL.revokeObjectURL(mediaPreview[index].url);
     }
@@ -521,7 +514,7 @@ const EditDevlogModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
                 window.confirm("Are you sure you want to save these changes?")
               ) {
                 onSubmit({
-                  ...form, // PERBAIKAN: Mengirim semua data teks form ter-update
+                  ...form, 
                   mediaFiles,
                   deletedMedia,
                 });

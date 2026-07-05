@@ -100,7 +100,6 @@ const PostDetail = () => {
           api.get(`/art-media/art/${id}`),
         ]);
 
-        // media
         const images = mediaRes.data.data.map((m) =>
           m.media.replace(/\\/g, "/"),
         );
@@ -119,7 +118,6 @@ const PostDetail = () => {
           api.post(`/concept-arts/${id}/view`).catch(() => {});
         }
 
-        // likes (optional)
         try {
           const likesRes = await api.get(`/likes/art/${id}`);
           setLikes(likesRes.data.data.length);
@@ -127,7 +125,6 @@ const PostDetail = () => {
           setLikes(0);
         }
 
-        // comments (optional)
         try {
           const commentsRes = await api.get(`/comments/art/${id}`);
           setComments(commentsRes.data.data);
@@ -135,7 +132,6 @@ const PostDetail = () => {
           setComments([]);
         }
 
-        // liked status
         if (isLoggedIn) {
           try {
             const statusRes = await api.get(`/likes/art/${id}/status`);
@@ -307,7 +303,6 @@ const PostDetail = () => {
                       const src = mediaSrc(file);
                       const fileName = file.split("/").pop();
 
-                      // VIDEO
                       if (isVideo(file)) {
                         return (
                           <video
@@ -319,7 +314,6 @@ const PostDetail = () => {
                         );
                       }
 
-                      // IMAGE
                       if (isImage(file)) {
                         return (
                           <img
@@ -330,7 +324,6 @@ const PostDetail = () => {
                         );
                       }
 
-                      // DOCUMENT
                       if (isDocument(file)) {
                         return (
                           <div
@@ -357,7 +350,6 @@ const PostDetail = () => {
                         );
                       }
 
-                      // fallback
                       return null;
                     })}
                   </div>

@@ -49,7 +49,6 @@ const api = axios.create({
   baseURL: "/api",  
 });
 
-// Auto attach token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
@@ -60,14 +59,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Redirect to login on 401/403
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     const status = err.response?.status;
     const url = err.config?.url;
 
-    // 🚨 skip redirect kalau lagi login/register, atau 403 dari endpoint
     const isAuthSkip = url.includes("/login") || url.includes("/register");
     const isForbiddenByRule = status === 403 && url.includes("/conversations");
 

@@ -1,8 +1,7 @@
-import JobApplication from '../model/JobApplicationModel.js';
-import JobPosting from '../model/JobPostingModel.js';
+import JobApplication from "../model/JobApplicationModel.js";
+import JobPosting from "../model/JobPostingModel.js";
 
 class JobApplicationController {
-
   static async getByJobId(req, res) {
     try {
       const { job_id } = req.params;
@@ -10,18 +9,20 @@ class JobApplicationController {
 
       const job = await JobPosting.getById(job_id);
       if (!job) {
-        return res.status(404).json({ message: 'Job posting not found' });
+        return res.status(404).json({ message: "Job posting not found" });
       }
       if (job.user_id !== user_id) {
-        return res.status(403).json({ message: 'Not authorized to view applicants for this job' });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to view applicants for this job" });
       }
 
       const applications = await JobApplication.getByJobId(job_id);
 
       return res.status(200).json({
-        message: 'List of applications for this job',
+        message: "List of applications for this job",
         total: applications.length,
-        data: applications
+        data: applications,
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -34,9 +35,9 @@ class JobApplicationController {
       const applications = await JobApplication.getByApplicant(user_id);
 
       return res.status(200).json({
-        message: 'List of your applications',
+        message: "List of your applications",
         total: applications.length,
-        data: applications
+        data: applications,
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -49,9 +50,9 @@ class JobApplicationController {
       const applications = await JobApplication.getByUserId(user_id);
 
       return res.status(200).json({
-        message: 'List of applications by user',
+        message: "List of applications by user",
         total: applications.length,
-        data: applications
+        data: applications,
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -68,29 +69,40 @@ class JobApplicationController {
       const job = await JobPosting.getById(job_id);
 
       if (!job) {
-        return res.status(404).json({ message: 'Job posting not found' });
+        return res.status(404).json({ message: "Job posting not found" });
       }
 
-      if (job.status !== 'Active') {
-        return res.status(400).json({ message: 'Job posting is not active' });
+      if (job.status !== "Active") {
+        return res.status(400).json({ message: "Job posting is not active" });
       }
 
-      const existing = await JobApplication.getByJobAndApplicant({ job_id, applicant_id: user_id });
+      if (job.user_id === user_id) {
+        return res
+          .status(403)
+          .json({ message: "Owner can't apply to their own job posting" });
+      }
+
+      const existing = await JobApplication.getByJobAndApplicant({
+        job_id,
+        applicant_id: user_id,
+      });
 
       if (existing) {
-        return res.status(409).json({ message: 'You have already applied for this job' });
+        return res
+          .status(409)
+          .json({ message: "You have already applied for this job" });
       }
 
       const application = await JobApplication.create({
         job_id,
         applicant_id: user_id,
         cover_letter,
-        cv
+        cv,
       });
 
       return res.status(201).json({
-        message: 'Application submitted successfully',
-        data: application
+        message: "Application submitted successfully",
+        data: application,
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -104,26 +116,28 @@ class JobApplicationController {
       const { status } = req.body;
 
       if (!status) {
-        return res.status(400).json({ message: 'Status is required' });
+        return res.status(400).json({ message: "Status is required" });
       }
 
       const app = await JobApplication.getById(id);
 
       if (!app) {
-        return res.status(404).json({ message: 'Application not found' });
+        return res.status(404).json({ message: "Application not found" });
       }
 
       const job = await JobPosting.getById(app.job_id);
 
       if (!job || job.user_id !== user_id) {
-        return res.status(403).json({ message: 'Not authorized to update this application' });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to update this application" });
       }
 
       const updated = await JobApplication.updateStatus(id, status);
 
       return res.status(200).json({
-        message: 'Application status updated successfully',
-        data: updated
+        message: "Application status updated successfully",
+        data: updated,
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -138,22 +152,23 @@ class JobApplicationController {
       const deleted = await JobApplication.delete(id);
 
       if (!deleted) {
-        return res.status(404).json({ message: 'Application not found' });
+        return res.status(404).json({ message: "Application not found" });
       }
 
       if (deleted.applicant_id !== user_id) {
-        return res.status(403).json({ message: 'Not authorized to delete this application' });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to delete this application" });
       }
 
       return res.status(200).json({
-        message: 'Application deleted successfully',
-        data: deleted
+        message: "Application deleted successfully",
+        data: deleted,
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
     }
   }
-
 }
 
 export default JobApplicationController;

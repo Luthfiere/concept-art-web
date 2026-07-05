@@ -72,11 +72,10 @@ const PostFormModal = ({
     title: "",
     description: "",
     status: "Open",
-    tags: [], // Diubah dari string menjadi array untuk menampung checklist
+    tags: [], 
     category: initialType,
   });
 
-  // Menutup dropdown tag jika klik di luar komponen
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tagDropdownRef.current && !tagDropdownRef.current.contains(event.target)) {
@@ -173,8 +172,7 @@ const PostFormModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Gabungkan tags array menjadi string jika backend Anda memerlukan format string (misal: "Tag1, Tag2")
-    // Atau kirim apa adanya jika backend menerima array
+
     const formattedTags = form.tags.join(", ");
 
     const payload = sanitizeFields(

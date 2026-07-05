@@ -24,10 +24,10 @@ const EditJobModal = ({ form, setForm, onClose, onSubmit }) => {
     <div
       className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-4"
       onMouseDown={(e) => {
-        e.stopPropagation(); // 🔥 penting
+        e.stopPropagation();
         if (e.target === e.currentTarget) onClose();
       }}
-      onClick={(e) => e.stopPropagation()} // 🔥 tambah ini juga
+      onClick={(e) => e.stopPropagation()} 
     >
       <div
         onClick={(e) => e.stopPropagation()}

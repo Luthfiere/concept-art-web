@@ -29,7 +29,6 @@ const PostForm = () => {
     category: "post",
   });
 
-  // Set category from URL param on mount
   useEffect(() => {
     if (typeParam === "community" || typeParam === "post") {
       setForm((prev) => ({ ...prev, category: typeParam }));

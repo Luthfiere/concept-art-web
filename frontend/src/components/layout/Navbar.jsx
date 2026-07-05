@@ -5,13 +5,11 @@ import { useChat } from "../../context/ChatContext";
 const BASE_URL = "";
 
 const Navbar = () => {
-  // 1. Ambil data user dan role dari localStorage
   const storedUser = localStorage.getItem("user");
-  const storedRole = localStorage.getItem("role"); // Mengambil role spesifik jika disimpan terpisah
+  const storedRole = localStorage.getItem("role"); 
 
   const user = storedUser ? JSON.parse(storedUser) : null;
 
-  // Jika di dalam objek user belum ada role, kita tempelkan role dari localStorage
   if (user && !user.role && storedRole) {
     user.role = storedRole;
   }

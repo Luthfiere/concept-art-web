@@ -21,12 +21,29 @@ const ALLOWED_MIMES = [
 ];
 const ALLOWED_EXTS = ['.pdf', '.doc', '.docx'];
 
+// 🔥 harus sinkron dengan validasi di frontend (JobDetail.jsx)
+const ALLOWED_NAME_PREFIXES = ['cv-', 'resume-'];
+
+function hasValidPrefix(filename) {
+  const lower = filename.toLowerCase();
+  return ALLOWED_NAME_PREFIXES.some((prefix) => lower.startsWith(prefix));
+}
+
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (ALLOWED_MIMES.includes(file.mimetype) && ALLOWED_EXTS.includes(ext)) {
-    return cb(null, true);
+
+  if (!ALLOWED_MIMES.includes(file.mimetype) || !ALLOWED_EXTS.includes(ext)) {
+    return cb(new Error('Invalid file type. Allowed: PDF, DOC, DOCX'), false);
   }
-  cb(new Error('Invalid file type. Allowed: PDF, DOC, DOCX'), false);
+
+  if (!hasValidPrefix(file.originalname)) {
+    return cb(
+      new Error('File name must start with "CV-" or "Resume-" (e.g. CV-JohnDoe.pdf)'),
+      false
+    );
+  }
+
+  cb(null, true);
 };
 
 const storage = multer.diskStorage({

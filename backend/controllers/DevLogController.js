@@ -18,14 +18,15 @@ class DevLogController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-
       const log = await DevLog.getById(id);
 
       if (!log) {
         return res.status(404).json({ message: "Dev log not found" });
       }
 
-      if (log.status !== "Published" && log.user_id !== req.user.user_id) {
+      const isOwner = req.user && req.user.user_id === log.user_id;
+
+      if (log.status !== "Published" && !isOwner) {
         return res
           .status(403)
           .json({ message: "Not authorized to view this dev log" });

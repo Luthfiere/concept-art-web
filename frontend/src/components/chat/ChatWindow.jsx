@@ -76,13 +76,11 @@ const ChatWindow = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // Fetch messages
   const fetchMessages = useCallback(async () => {
     if (!convId) return;
     try {
       const res = await api.get(`/messages/conversation/${convId}`);
       const newMessages = res.data.messages;
-      // Only update if message count changed (avoid unnecessary re-renders)
       if (newMessages.length !== messageCountRef.current) {
         messageCountRef.current = newMessages.length;
         setMessages(newMessages);
@@ -94,7 +92,6 @@ const ChatWindow = () => {
     }
   }, [convId]);
 
-  // Initial fetch
   useEffect(() => {
     setLoading(true);
     setMessages([]);
@@ -102,7 +99,6 @@ const ChatWindow = () => {
     fetchMessages();
   }, [fetchMessages]);
 
-  // Poll every 5s
   useEffect(() => {
     if (!convId) return;
     pollRef.current = setInterval(fetchMessages, 5000);
@@ -111,12 +107,10 @@ const ChatWindow = () => {
     };
   }, [convId, fetchMessages]);
 
-  // Scroll on new messages
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Update unread count when leaving
   useEffect(() => {
     return () => {
       fetchUnreadCount();

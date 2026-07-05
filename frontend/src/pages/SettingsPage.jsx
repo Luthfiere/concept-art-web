@@ -29,8 +29,6 @@ const daysRemaining = (iso) => {
   return Math.ceil(diff / 86_400_000);
 };
 
-// Icon Components 
-
 const CameraIcon = () => (
   <svg
     width="14"
@@ -121,8 +119,6 @@ const CalendarIcon = () => (
   </svg>
 );
 
-// ─── Reusable Sub-components 
-
 const SectionCard = ({ icon, title, accent = false, children }) => (
   <div
     className={`rounded-xl border mb-4 overflow-hidden backdrop-blur-md ${
@@ -168,8 +164,6 @@ const InputField = ({ label, ...props }) => (
     />
   </div>
 );
-
-// Main Component 
 
 export default function SettingsPage() {
   const token = localStorage.getItem("token");
@@ -300,7 +294,6 @@ export default function SettingsPage() {
       const hasNewPassword = !!form.new_password.trim();
       const hasConfirmPassword = !!form.confirm_password.trim();
 
-      // Jika salah satu field password diisi, semua wajib diisi
       if (hasCurrentPassword || hasNewPassword || hasConfirmPassword) {
         if (!hasCurrentPassword) {
           throw new Error("Current password is required");
@@ -347,20 +340,16 @@ export default function SettingsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      // 🔥 FETCH USER TERBARU
       const updatedRes = await fetch(`${API_BASE}/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const updatedData = await updatedRes.json();
 
-      // 🔥 UPDATE STATE
       setUser(updatedData.user);
 
-      // 🔥 UPDATE LOCAL STORAGE (INI YANG PENTING)
       localStorage.setItem("user", JSON.stringify(updatedData.user));
 
-      // 🔥 RESET PASSWORD FIELD
       setForm((prev) => ({
         ...prev,
         current_password: "",
@@ -368,7 +357,6 @@ export default function SettingsPage() {
         confirm_password: "",
       }));
 
-      // 🔥 SUCCESS FEEDBACK
       showBanner({
         type: "success",
         message: "Settings updated successfully.",

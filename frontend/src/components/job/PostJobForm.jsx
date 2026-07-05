@@ -16,7 +16,6 @@ const CURRENCIES = [
   "USD",
 ];
 
-// Canonical game-dev roles — suggestions only (not enforced)
 const GAME_DEV_TITLES = [
   "Concept Artist",
   "Senior Concept Artist",

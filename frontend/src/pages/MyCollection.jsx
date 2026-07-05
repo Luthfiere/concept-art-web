@@ -117,7 +117,6 @@ const MyCollection = () => {
           devlogRes.json(),
         ]);
 
-        // ART MEDIA
         const arts = artData.art || [];
         const artsWithMedia = await Promise.all(
           arts.map(async (art) => {
@@ -131,7 +130,6 @@ const MyCollection = () => {
           }),
         );
 
-        // DEVLOG MEDIA
         const devs = devlogData.data || [];
         const devsWithMedia = await Promise.all(
           devs.map(async (log) => {
@@ -150,9 +148,22 @@ const MyCollection = () => {
           }),
         );
 
+        const rawApps = appData.data || appData || [];
+        const appsWithJobTitle = await Promise.all(
+          rawApps.map(async (app) => {
+            try {
+              const res = await fetch(`${API_BASE}/job-postings/${app.job_id}`);
+              const data = await res.json();
+              return { ...app, job_title: data.data?.title || null };
+            } catch {
+              return { ...app, job_title: null };
+            }
+          }),
+        );
+
         setArts(artsWithMedia);
         setJobs(jobData.data || []);
-        setApplications(appData.data || appData || []);
+        setApplications(appsWithJobTitle);
         setDevlog(devsWithMedia);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -417,7 +428,6 @@ const MyCollection = () => {
     try {
       const payload = { ...jobForm };
 
-      // 🧹 Remove empty
       Object.keys(payload).forEach((key) => {
         if (payload[key] === "" || payload[key] === null) {
           delete payload[key];
@@ -709,6 +719,14 @@ const MyCollection = () => {
             />
           )}
         </>
+      )}
+
+      {isAppModalOpen && selectedApplication && (
+        <ApplicationDetailModal
+          app={selectedApplication}
+          onClose={() => setIsAppModalOpen(false)}
+          currentUserId={user?.id}
+        />
       )}
     </div>
   );

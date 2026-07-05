@@ -32,7 +32,6 @@ const CATEGORY_LABELS = {
   tutorial: "Tutorial",
 };
 
-// Data Opsi Game Genre
 const GAME_GENRES = [
   "Action",
   "Adventure",
@@ -46,7 +45,6 @@ const GAME_GENRES = [
   "Racing / Sports",
 ];
 
-// Data Opsi Tags dikelompokkan berdasarkan Kategori
 const TAG_CATEGORIES = {
   Platform: ["PC", "Web Browser", "Mobile", "Console"],
   "Engine & Tools": [
@@ -96,7 +94,7 @@ export default function Devlogs() {
     content: "",
     category: "devlog",
     genre: "",
-    tag: [], // Diubah menjadi array untuk menampung checklist
+    tag: [], 
     status: "Published",
     cover_image: null,
   });
@@ -228,7 +226,6 @@ export default function Devlogs() {
     }
   };
 
-  // Handler khusus untuk mengelola array Tag dari checklist
   const handleTagCheck = (tagValue) => {
     setForm((prev) => {
       const isExist = prev.tag.includes(tagValue);

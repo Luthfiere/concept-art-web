@@ -58,15 +58,23 @@ const ApplicationDetailModal = ({ app, onClose, currentUserId }) => {
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-lg bg-[#0f1323] p-5 rounded-2xl"
       >
-        <h2 className="text-lg font-bold mb-4">Application Detail</h2>
+        <h2 className="text-lg font-bold mb-1">Application Detail</h2>
 
-        <div className={`mb-4 px-3 py-1 rounded ${statusStyle}`}>
+        {/* Info job yang di-apply */}
+        <p className="text-sm text-gray-400 mb-4">
+          Applied to:{" "}
+          <span className="text-white font-medium">
+            {job?.title || "Loading..."}
+          </span>
+        </p>
+
+        <div className={`mb-4 px-3 py-1 rounded inline-block ${statusStyle}`}>
           {app.status}
         </div>
 
         {isLoggedIn &&
           job?.user_id !== currentUserId &&
-          ["pending", "shortlist", "hired"].includes(app.status) && (
+          ["pending", "shortlisted", "hired"].includes(app.status) && (
             <button
               onClick={() => {
                 openChatWithUser(job.user_id);

@@ -52,9 +52,7 @@ async function runHourlyTick() {
 }
 
 export function startJobExpiryService() {
-  // run once on startup
   runHourlyTick();
-  // then run on interval
   setInterval(runHourlyTick, INTERVAL_MS);
 }
 

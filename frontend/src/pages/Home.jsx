@@ -25,16 +25,13 @@ const Home = () => {
   const navigate = useNavigate();
   const [showAllArts, setShowAllArts] = useState(false);
 
-  // State untuk menyimpan data user yang sedang login
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Posts section — shared between ideation & community
   const [postsMode, setPostsMode] = useState("ideation");
   const [selectedPostCategory, setSelectedPostCategory] = useState("All");
   const [searchPost, setSearchPost] = useState("");
   const [showAllPosts, setShowAllPosts] = useState(false);
 
-  // Post form modal
   const [postFormOpen, setPostFormOpen] = useState(false);
   const [postFormType, setPostFormType] = useState("post");
   const [fetchKey, setFetchKey] = useState(0);
@@ -117,7 +114,6 @@ const Home = () => {
     return true;
   };
 
-  // Filter berdasarkan Kategori utama & Hak Akses Visibility
   const artOnly = artworks
     .filter((item) => item.category === "art")
     .filter(checkVisibility);
@@ -130,7 +126,6 @@ const Home = () => {
     .filter((item) => item.category === "community")
     .filter(checkVisibility);
 
-  // Art filters
   const artCategories = [
     "All",
     ...new Set(artOnly.flatMap((a) => parseTags(a.tag))),
@@ -148,7 +143,6 @@ const Home = () => {
       return 0;
     });
 
-  // Posts filters (driven by postsMode toggle)
   const activePostsRaw =
     postsMode === "ideation" ? ideationOnly : communityOnly;
 
