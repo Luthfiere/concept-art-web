@@ -314,7 +314,7 @@ const Subscription = () => {
                               `}
                   />
 
-                  {/* ⚠️ Warning Icon */}
+                  {/* Warning Icon */}
                   {touched.expiry &&
                     form.expiry &&
                     !isValidExpiry(form.expiry) && (
@@ -324,7 +324,7 @@ const Subscription = () => {
                     )}
                 </div>
 
-                {/* ❌ Error Message */}
+                {/* Error Message */}
                 {touched.expiry &&
                   form.expiry &&
                   !isValidExpiry(form.expiry) && (
