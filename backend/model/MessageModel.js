@@ -5,38 +5,38 @@ class Message {
   static async getByConversationId(conversation_id, { limit = 50, offset = 0 }) {
     const result = await db.query(`
       SELECT 
-        m.id,
-        m.conversation_id,
-        m.sender_id,
-        m.message,
-        m.is_read,
-        m.created_at,
-        u.username AS sender_username
+        m.id, m.conversation_id, m.sender_id, m.message, m.is_read, m.created_at,
+        u.username AS sender_username,
+        COALESCE(
+          (SELECT json_agg(a.* ORDER BY a.created_at ASC)
+          FROM core_message_attachments a
+          WHERE a.message_id = m.id),
+          '[]'
+        ) AS attachments
       FROM core_messages m
       JOIN master_users u ON u.id = m.sender_id
       WHERE m.conversation_id = $1
       ORDER BY m.created_at ASC
       LIMIT $2 OFFSET $3
     `, [conversation_id, limit, offset]);
-
     return result.rows;
   }
 
   static async getById(id) {
     const result = await db.query(`
       SELECT 
-        m.id,
-        m.conversation_id,
-        m.sender_id,
-        m.message,
-        m.is_read,
-        m.created_at,
-        u.username AS sender_username
+        m.id, m.conversation_id, m.sender_id, m.message, m.is_read, m.created_at,
+        u.username AS sender_username,
+        COALESCE(
+          (SELECT json_agg(a.* ORDER BY a.created_at ASC)
+          FROM core_message_attachments a
+          WHERE a.message_id = m.id),
+          '[]'
+        ) AS attachments
       FROM core_messages m
       JOIN master_users u ON u.id = m.sender_id
       WHERE m.id = $1
     `, [id]);
-
     return result.rows[0];
   }
 

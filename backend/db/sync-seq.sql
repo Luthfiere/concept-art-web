@@ -27,3 +27,6 @@ SELECT setval('core_subscriptions_id_seq', (SELECT COALESCE(MAX(id), 1) FROM cor
 SELECT setval('core_content_reports_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_content_reports));
 
 SELECT setval('core_moderation_actions_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_moderation_actions));
+
+SELECT setval('core_message_attachments_id_seq', (SELECT COALESCE(MAX(id), 1) FROM core_message_attachments));
+

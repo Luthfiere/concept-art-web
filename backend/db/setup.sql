@@ -1,4 +1,5 @@
 -- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS core_message_attachments CASCADE;
 DROP TABLE IF EXISTS core_moderation_actions CASCADE;
 DROP TABLE IF EXISTS core_content_reports CASCADE;
 DROP TABLE IF EXISTS core_subscriptions CASCADE;
@@ -29,6 +30,7 @@ DROP TYPE IF EXISTS entity_type CASCADE;
 DROP TYPE IF EXISTS subscription_plan CASCADE;
 DROP TYPE IF EXISTS payment_status CASCADE;
 DROP TYPE IF EXISTS report_reason CASCADE;
+DROP TYPE IF EXISTS message_attachment_type CASCADE;
 DROP TYPE IF EXISTS collaboration_status_type CASCADE;
 
 
@@ -47,7 +49,7 @@ CREATE TYPE entity_type AS ENUM ('art', 'devlog', 'forum', 'job');
 CREATE TYPE subscription_plan AS ENUM ('pro_monthly', 'corporate_monthly', 'pro_per_post', 'corporate_per_post');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'expired');
 CREATE TYPE report_reason AS ENUM ('off_scope', 'spam', 'scam', 'duplicate', 'inappropriate', 'other');
-
+CREATE TYPE message_attachment_type AS ENUM ('image', 'document', 'code');
 
 
 -- 1. Create User table
@@ -117,8 +119,16 @@ CREATE TABLE core_messages (
   id SERIAL PRIMARY KEY,
   conversation_id INTEGER NOT NULL REFERENCES core_conversations(id) ON DELETE CASCADE,
   sender_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
-  message TEXT NOT NULL,
+  message TEXT,
   is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_message_attachments (
+  id SERIAL PRIMARY KEY,
+  message_id INTEGER NOT NULL REFERENCES core_messages(id) ON DELETE CASCADE,
+  attachment_type message_attachment_type NOT NULL,
+  media VARCHAR(255) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

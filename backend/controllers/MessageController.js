@@ -1,5 +1,6 @@
 import Message from '../model/MessageModel.js';
 import Conversation from '../model/ConversationModel.js';
+import { resolveAttachmentType } from '../middlewares/multerMessageAttachment.js';
 
 class MessageController {
 
@@ -56,16 +57,18 @@ class MessageController {
     const { message } = req.body;
     const { user_id } = req.user;
 
-    if (!message || message.trim().length === 0) {
-      return res.status(400).json({ message: 'Message is required' });
+    const hasText = message && message.trim().length > 0;
+    const hasFiles = req.files && req.files.length > 0;
+
+    if (!hasText && !hasFiles) {
+      return res.status(400).json({ message: 'Message text or at least one attachment is required' });
     }
 
-    if (message.length > 1000) {
+    if (hasText && message.length > 1000) {
       return res.status(400).json({ message: 'Message must not exceed 1000 characters' });
     }
 
     try {
-      // Check if user is part of conversation
       const conversation = await Conversation.getById(conversation_id, user_id);
       if (!conversation) {
         return res.status(404).json({ message: 'Conversation not found' });
@@ -74,15 +77,28 @@ class MessageController {
       const newMessage = await Message.create({
         conversation_id,
         sender_id: user_id,
-        message: message.trim()
+        message: hasText ? message.trim() : null,
       });
 
-      // Update conversation timestamp
+      if (hasFiles) {
+        await Promise.all(
+          req.files.map((file) =>
+            MessageAttachment.create({
+              message_id: newMessage.id,
+              attachment_type: resolveAttachmentType(file.originalname),
+              media: file.path.replace(/\\/g, '/'),
+            })
+          )
+        );
+      }
+
       await Conversation.updateTimestamp(conversation_id);
+
+      const fullMessage = await Message.getById(newMessage.id);
 
       res.status(201).json({
         message: 'Message sent successfully',
-        data: newMessage
+        data: fullMessage,
       });
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -123,6 +139,28 @@ class MessageController {
       res.status(500).json({ message: err.message });
     }
   }
+
+  static async deleteAttachment(req, res) {
+    try {
+      const { id } = req.params;
+      const { user_id } = req.user;
+
+      const attachment = await MessageAttachment.getById(id);
+      if (!attachment) {
+        return res.status(404).json({ message: 'Attachment not found' });
+      }
+
+      const parentMessage = await Message.getById(attachment.message_id);
+      if (!parentMessage || parentMessage.sender_id !== user_id) {
+        return res.status(403).json({ message: 'Not authorized to delete this attachment' });
+      }
+
+      const deleted = await MessageAttachment.delete(id);
+      res.status(200).json({ message: 'Attachment deleted successfully', data: deleted });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }  
 
 }
 
