@@ -1,6 +1,8 @@
 import Message from '../model/MessageModel.js';
 import Conversation from '../model/ConversationModel.js';
 import { resolveAttachmentType } from '../middlewares/multerMessageAttachment.js';
+import MessageAttachment from '../model/MessageAttachmentModel.js';
+
 
 class MessageController {
 
@@ -20,7 +22,6 @@ class MessageController {
         offset: parseInt(offset)
       });
 
-      // Mark messages as read
       await Message.markAsRead(conversation_id, user_id);
 
       res.status(200).json({

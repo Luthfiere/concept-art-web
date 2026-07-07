@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 const MB = 1024 * 1024;
-const SIZE = { attachment: 10 * MB };
+const SIZE = { attachment: 50 * MB };
 
 const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'];
 const CODE_EXTS = [

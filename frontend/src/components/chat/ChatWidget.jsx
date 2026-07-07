@@ -54,7 +54,7 @@ const ChatWidget = () => {
   if (!isLoggedIn) return null;
 
   return (
-    <>
+    <div className="break [overflow-wrap:anywhere]">
       {/* Floating chat button — hidden on mobile (navbar chat icon takes over) */}
       <button
         onClick={toggleChat}
@@ -76,7 +76,7 @@ const ChatWidget = () => {
 
       {/* Chat panel — anchored bottom-left, above the chat button */}
       {isOpen && (
-        <div className="fixed z-[55] sm:bottom-24 sm:left-8 sm:w-[380px] sm:h-[500px] sm:rounded-xl bottom-0 left-0 w-full h-full bg-[#0f1225] border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-fade-in">
+        <div className="fixed z-[55] sm:bottom-24 sm:left-8 sm:w-[600px] sm:h-[550px] sm:rounded-xl bottom-0 left-0 w-full h-full bg-[#0f1225] border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-fade-in">
           {/* Panel header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
             <h3 className="text-sm font-semibold text-white">Private Chats</h3>
@@ -92,7 +92,7 @@ const ChatWidget = () => {
           {activeConversation ? <ChatWindow /> : <ConversationList />}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
