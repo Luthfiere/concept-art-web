@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api, { refreshToken } from "../services/api";
+import BCA from "../assets/images/Logo_BCA.png";
+import MasterCard from "../assets/images/Logo_MasterCard.png";
+import Visa from "../assets/images/Logo_Visa.png";
+
 
 const PLAN_DISPLAY = {
   pro_monthly: {
@@ -83,7 +87,9 @@ const Subscription = () => {
       navigate("/subscription/callback");
     } catch (err) {
       if (err.response?.status === 409) {
-        setError(err.response.data?.message || "You already have this plan active");
+        setError(
+          err.response.data?.message || "You already have this plan active",
+        );
       } else {
         setError(err.response?.data?.message || "Upgrade failed");
       }
@@ -92,7 +98,12 @@ const Subscription = () => {
   };
 
   const handleCancel = async () => {
-    if (!window.confirm("Cancel subscription? You'll lose pro privileges immediately.")) return;
+    if (
+      !window.confirm(
+        "Cancel subscription? You'll lose pro privileges immediately.",
+      )
+    )
+      return;
     try {
       await api.post("/subscriptions/cancel");
       await refreshToken();
@@ -341,22 +352,44 @@ const Subscription = () => {
               className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition mb-4"
             />
 
-            <label className="block text-xs font-medium text-gray-400 mb-1.5">
-              Card number
-            </label>
-            <input
-              name="card_number"
-              value={form.card_number}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  card_number: formatCardNumber(e.target.value),
-                })
-              }
-              placeholder="0000 0000 0000 0000"
-              inputMode="numeric"
-              className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition mb-4"
-            />
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-gray-400">
+                  Card number
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <img
+                    src={BCA}
+                    alt="BCA"
+                    className="h-11 object-contain"
+                  />
+                  <img
+                    src={MasterCard}
+                    alt="Mastercard"
+                    className="h-6 object-contain"
+                  />
+                  <img
+                    src={Visa}
+                    alt="Visa"
+                    className="h-3.5 object-contain"
+                  />
+                </div>
+              </div>
+
+              <input
+                name="card_number"
+                value={form.card_number}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    card_number: formatCardNumber(e.target.value),
+                  })
+                }
+                placeholder="0000 0000 0000 0000"
+                inputMode="numeric"
+                className="w-full bg-[#0f1323] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/40 transition"
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
@@ -377,7 +410,9 @@ const Subscription = () => {
                     inputMode="numeric"
                     className={`w-full bg-[#0f1323] border rounded-lg px-4 py-2.5 pr-10 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 transition
                                 ${
-                                  touched.expiry && form.expiry && !isValidExpiry(form.expiry)
+                                  touched.expiry &&
+                                  form.expiry &&
+                                  !isValidExpiry(form.expiry)
                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/40"
                                     : "border-white/10 focus:border-yellow-400 focus:ring-yellow-400/40"
                                 }
