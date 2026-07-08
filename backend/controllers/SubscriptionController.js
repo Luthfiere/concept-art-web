@@ -21,15 +21,13 @@ const PER_POST_TTL_DAYS = 90;
 const DURATION_BY_PLAN = {
   pro_monthly:        MONTHLY_DURATION_DAYS,
   corporate_monthly:  MONTHLY_DURATION_DAYS,
-  pro_per_post:       PER_POST_TTL_DAYS,
-  corporate_per_post: PER_POST_TTL_DAYS,
+  single_post:         PER_POST_TTL_DAYS,  
 };
 
 const PLAN_CATALOG = {
   pro_monthly:        { amount: 49000,  role: 'pro',       postsRemaining: null },
   corporate_monthly:  { amount: 249000, role: 'corporate', postsRemaining: null },
-  pro_per_post:       { amount: 25000,  role: 'pro',       postsRemaining: 1 },
-  corporate_per_post: { amount: 75000,  role: 'corporate', postsRemaining: 1 },
+  single_post:        { amount: 30000,  role: 'pro',       postsRemaining: 1 },
 };
 
 class SubscriptionController {

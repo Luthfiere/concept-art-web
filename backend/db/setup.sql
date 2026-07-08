@@ -46,7 +46,7 @@ CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'h
 CREATE TYPE dev_log_status AS ENUM ('Draft', 'Published', 'Archived');
 CREATE TYPE dev_log_category AS ENUM ('update', 'announcement', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion', 'tutorial');
 CREATE TYPE entity_type AS ENUM ('art', 'devlog', 'forum', 'job');
-CREATE TYPE subscription_plan AS ENUM ('pro_monthly', 'corporate_monthly', 'pro_per_post', 'corporate_per_post');
+CREATE TYPE subscription_plan AS ENUM ('pro_monthly', 'corporate_monthly', 'single_post');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'expired');
 CREATE TYPE report_reason AS ENUM ('off_scope', 'spam', 'scam', 'duplicate', 'inappropriate', 'other');
 CREATE TYPE message_attachment_type AS ENUM ('image', 'document', 'code');

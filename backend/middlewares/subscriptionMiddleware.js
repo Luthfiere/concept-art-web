@@ -13,7 +13,7 @@ export async function requireActiveSubscription(req, res, next) {
       return res.status(402).json({ message: 'No active subscription — please renew' });
     }
 
-    if (sub.plan === 'pro_per_post' || sub.plan === 'corporate_per_post') {
+    if (sub.plan === 'single_post') {
       req._perPostSub = sub;
     }
 

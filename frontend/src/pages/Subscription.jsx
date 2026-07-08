@@ -16,16 +16,10 @@ const PLAN_DISPLAY = {
     desc: "Up to 15 active postings",
     recurring: true,
   },
-  pro_per_post: {
-    label: "Pro — Single post",
-    tier: "Pro",
-    desc: "Pay per individual posting",
-    recurring: false,
-  },
-  corporate_per_post: {
-    label: "Corporate — Single post",
-    tier: "Corporate",
-    desc: "Pay per individual posting",
+  single_post: {
+    label: "Single Post",
+    tier: "Pay-per-post",
+    desc: "One-time job posting credit",
     recurring: false,
   },
 };
@@ -196,43 +190,119 @@ const Subscription = () => {
         {loading ? (
           <p className="text-gray-400 text-sm">Loading plans&hellip;</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {plans.map((p) => {
-              const meta = PLAN_DISPLAY[p.plan] || {
-                label: p.plan,
-                tier: p.role,
-                desc: "",
-              };
-              return (
-                <div
-                  key={p.plan}
-                  className="bg-[#111427]/80 backdrop-blur-md border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col"
-                >
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-yellow-400/80">
-                      {meta.tier}
-                    </p>
-                    <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
-                      {meta.label}
-                    </h2>
-                    <p className="text-sm text-gray-400 mt-2">{meta.desc}</p>
-                    <p className="text-2xl font-bold text-white mt-4">
-                      {fmtIDR(p.amount)}
-                      <span className="text-xs text-gray-400 font-normal ml-1">
-                        {meta.recurring ? "/ month" : "/ post"}
-                      </span>
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => openPaymentModal(p)}
-                    className="cursor-pointer mt-5 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2.5 rounded-lg shadow-md transition"
-                  >
-                    Subscribe
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+          <>
+            {/* Monthly plans */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {plans
+                .filter((p) => PLAN_DISPLAY[p.plan]?.recurring)
+                .map((p) => {
+                  const meta = PLAN_DISPLAY[p.plan] || {
+                    label: p.plan,
+                    tier: p.role,
+                    desc: "",
+                  };
+                  const isCorporate = p.plan === "corporate_monthly";
+                  return (
+                    <div
+                      key={p.plan}
+                      className={`relative bg-[#111427]/80 backdrop-blur-md border rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col transition-all duration-200 hover:-translate-y-0.5 ${
+                        isCorporate
+                          ? "border-yellow-400/30 hover:border-yellow-400/50 hover:shadow-yellow-400/10"
+                          : "border-white/10 hover:border-white/20"
+                      }`}
+                    >
+                      {isCorporate && (
+                        <span className="absolute -top-2.5 right-5 bg-yellow-400 text-black text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md">
+                          Best value
+                        </span>
+                      )}
+                      <div className="flex-1">
+                        <p
+                          className={`text-xs font-semibold uppercase tracking-wider ${
+                            isCorporate ? "text-yellow-400" : "text-yellow-400/70"
+                          }`}
+                        >
+                          {meta.tier}
+                        </p>
+                        <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
+                          {meta.label}
+                        </h2>
+                        <p className="text-sm text-gray-400 mt-2">{meta.desc}</p>
+                        <p className="text-2xl font-bold text-white mt-4">
+                          {fmtIDR(p.amount)}
+                          <span className="text-xs text-gray-400 font-normal ml-1">
+                            / month
+                          </span>
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => openPaymentModal(p)}
+                        className={`cursor-pointer mt-5 w-full font-semibold px-4 py-2.5 rounded-lg shadow-md transition ${
+                          isCorporate
+                            ? "bg-yellow-400 hover:bg-yellow-300 text-black"
+                            : "bg-white/10 hover:bg-white/15 border border-white/15 text-white"
+                        }`}
+                      >
+                        Subscribe
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-8">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-xs text-gray-500 uppercase tracking-wider">
+                Or pay per post
+              </span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+
+            {/* One-off plan(s) */}
+            <div className="space-y-4">
+              {plans
+                .filter((p) => !PLAN_DISPLAY[p.plan]?.recurring)
+                .map((p) => {
+                  const meta = PLAN_DISPLAY[p.plan] || {
+                    label: p.plan,
+                    tier: p.role,
+                    desc: "",
+                  };
+                  return (
+                    <div
+                      key={p.plan}
+                      className="bg-[#111427]/80 backdrop-blur-md border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 hover:border-white/20 transition-all duration-200"
+                    >
+                      <div className="flex-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-yellow-400/70">
+                          {meta.tier}
+                        </p>
+                        <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
+                          {meta.label}
+                        </h2>
+                        <p className="text-sm text-gray-400 mt-1">{meta.desc}</p>
+                      </div>
+
+                      <div className="flex items-center gap-4 sm:gap-6">
+                        <p className="text-2xl font-bold text-white whitespace-nowrap">
+                          {fmtIDR(p.amount)}
+                          <span className="text-xs text-gray-400 font-normal ml-1">
+                            / post
+                          </span>
+                        </p>
+                        <button
+                          onClick={() => openPaymentModal(p)}
+                          className="cursor-pointer bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-6 py-2.5 rounded-lg shadow-md transition whitespace-nowrap"
+                        >
+                          Subscribe
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </>
         )}
       </div>
 

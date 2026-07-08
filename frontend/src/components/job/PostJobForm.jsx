@@ -16,6 +16,8 @@ const CURRENCIES = [
   "USD",
 ];
 
+const MAX_EXPIRY_DAYS = 90; // adjust if you want a longer/shorter cap
+
 const GAME_DEV_TITLES = [
   "Concept Artist",
   "Senior Concept Artist",
@@ -105,6 +107,12 @@ const PostJobForm = () => {
     return d.toISOString().split("T")[0];
   })();
 
+  const maxExpiryISO = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + MAX_EXPIRY_DAYS);
+    return d.toISOString().split("T")[0];
+  })();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (banner) setBanner(null);
@@ -144,6 +152,14 @@ const PostJobForm = () => {
       showBanner({
         type: "error",
         message: "Expiration date must be in the future.",
+      });
+      return;
+    }
+
+    if (form.expired_at && form.expired_at > maxExpiryISO) {
+      showBanner({
+        type: "error",
+        message: `Expiration date can't be more than ${MAX_EXPIRY_DAYS} days from today.`,
       });
       return;
     }
@@ -378,11 +394,12 @@ const PostJobForm = () => {
             onChange={handleChange}
             onKeyDown={(e) => e.preventDefault()}
             min={tomorrowISO}
+            max={maxExpiryISO}
             className={`${inputCls} [color-scheme:dark]`}
           />
           <p className="text-[11px] text-gray-500 mt-1.5">
             Posting will automatically move to &quot;Expired&quot; after this
-            date.
+            date. Must be within {MAX_EXPIRY_DAYS} days from today.
           </p>
         </div>
       </section>
