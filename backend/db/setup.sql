@@ -1,4 +1,8 @@
 -- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS core_scripting_media CASCADE;
+DROP TABLE IF EXISTS core_scripting_questions CASCADE;
+DROP TABLE IF EXISTS core_tutorial_media CASCADE;
+DROP TABLE IF EXISTS core_tutorials CASCADE;
 DROP TABLE IF EXISTS core_message_attachments CASCADE;
 DROP TABLE IF EXISTS core_moderation_actions CASCADE;
 DROP TABLE IF EXISTS core_content_reports CASCADE;
@@ -44,8 +48,8 @@ CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked', 'A
 CREATE TYPE currency_type AS ENUM ('AUD', 'HKD', 'IDR', 'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'USD');
 CREATE TYPE application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'hired');
 CREATE TYPE dev_log_status AS ENUM ('Draft', 'Published', 'Archived');
-CREATE TYPE dev_log_category AS ENUM ('update', 'announcement', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion', 'tutorial');
-CREATE TYPE entity_type AS ENUM ('art', 'devlog', 'forum', 'job');
+CREATE TYPE dev_log_category AS ENUM ('update', 'announcement', 'milestone', 'devlog', 'postmortem', 'game_design', 'tech_discussion');
+CREATE TYPE entity_type AS ENUM ('art', 'devlog', 'forum', 'job', 'tutorial', 'scripting');
 CREATE TYPE subscription_plan AS ENUM ('pro_monthly', 'corporate_monthly', 'single_post');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'expired');
 CREATE TYPE report_reason AS ENUM ('off_scope', 'spam', 'scam', 'duplicate', 'inappropriate', 'other');
@@ -224,6 +228,44 @@ CREATE TABLE core_dev_log_media (
   id SERIAL PRIMARY KEY,
   log_id INTEGER NOT NULL REFERENCES core_dev_log(id) ON DELETE CASCADE,
   media VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_tutorials (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE, 
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  tag VARCHAR(255),
+  views INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_tutorial_media (
+  id SERIAL PRIMARY KEY,
+  tutorial_id INTEGER NOT NULL REFERENCES core_tutorials(id) ON DELETE CASCADE,
+  media VARCHAR(255) NOT NULL,       
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_scripting_questions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  code_snippet TEXT,                 
+  tag VARCHAR(255),
+  views INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE core_scripting_media (
+  id SERIAL PRIMARY KEY,
+  question_id INTEGER NOT NULL REFERENCES core_scripting_questions(id) ON DELETE CASCADE,
+  media VARCHAR(255) NOT NULL,        
+  original_name VARCHAR(255),        
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
