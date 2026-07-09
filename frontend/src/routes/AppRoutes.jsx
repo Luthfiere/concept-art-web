@@ -18,6 +18,11 @@ import SubscriptionCallback from "../pages/SubscriptionCallback";
 import SettingsPage from "../pages/SettingsPage";
 import Moderation from "../pages/Moderation";
 import UserProfile from "../pages/UserProfile";
+import Scripting from "../pages/Scripting";
+import ScriptingDetail from "../components/Scripting/Scriptingdetail";
+import PostAsseting from "../pages/PostAsseting";
+import TutorialPage from "../pages/TutorialPage";
+import TutorialDetailPage from "../components/TutorialPage/TutorialDetailPage";
 
 const AppRoutes = () => {
   return (
@@ -31,14 +36,27 @@ const AppRoutes = () => {
       <Route path="/job/:id" element={<JobApplicantsPage />} />
       <Route path="/devlog/:id" element={<DevlogDetail />} />
       <Route path="/profile/:id" element={<UserProfile />} />
+      <Route path="/scripting/:id" element={<ScriptingDetail />} />
+      <Route path="/Asseting/:id" element={<TutorialDetailPage />} />
 
       <Route path="/Job" element={<JobPage />} />
+      <Route path="/learn/scripting" element={<Scripting />} />
+      <Route path="/learn/asseting" element={<TutorialPage />} />
 
       <Route
         path="/JobPost"
         element={
           <ProtectedRoute>
             <PostJobPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/PostTutorial"
+        element={
+          <ProtectedRoute>
+            <PostAsseting />
           </ProtectedRoute>
         }
       />

@@ -61,7 +61,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const uploadScriptingMedia = multer({
+const  uploadScriptingMedia = multer({
   storage,
   fileFilter,
   limits: { fileSize: SIZE.code, files: 3 },

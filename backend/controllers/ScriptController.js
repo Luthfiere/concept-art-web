@@ -1,6 +1,6 @@
 import ScriptingQuestion from '../model/ScriptModel.js';
 
-class ScriptingQuestionController {
+class ScriptController {
 
   static async getAll(req, res) {
     try {
@@ -148,4 +148,4 @@ class ScriptingQuestionController {
   }
 }
 
-export default ScriptingQuestionController;
+export default ScriptController;

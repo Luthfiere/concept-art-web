@@ -26,6 +26,10 @@ import forum from "./routes/forum.js";
 import contentReports from "./routes/content-reports.js";
 import moderation from "./routes/moderation.js";
 import moderationActions from "./routes/moderation-actions.js";
+import script  from "./routes/script.js";
+import scriptmedia from "./routes/script-media.js";
+import tutorial from "./routes/tutorial.js";
+import tutorialmedia from "./routes/tutorial-media.js"
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -97,6 +101,10 @@ app.use("/api/likes", likes);
 app.use("/api/comments", comments);
 app.use("/api/conversations", conversation);
 app.use("/api/messages", messages);
+app.use("/api/script", script);
+app.use("/api/script-media", scriptmedia);
+app.use("/api/tutorial", tutorial);
+app.use("/api/tutorial-media", tutorialmedia);
 app.use("/api/job-postings", jobPostings);
 app.use("/api/job-applications", jobApplications);
 app.use("/api/subscriptions", subscriptions);
