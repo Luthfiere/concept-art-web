@@ -6,7 +6,7 @@ const BASE_URL = "";
 
 const Navbar = () => {
   const storedUser = localStorage.getItem("user");
-  const storedRole = localStorage.getItem("role"); 
+  const storedRole = localStorage.getItem("role");
 
   const user = storedUser ? JSON.parse(storedUser) : null;
 
@@ -20,17 +20,23 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-
+  const [learnOpen, setLearnOpen] = useState(false);
+  
   const createActions = [
     { label: "Post Art", path: "/post-art" },
     { label: "Share Idea", path: "/post-form?type=post" },
-    { label: "Community Post", path: "/post-form?type=community" },
+    { label: "Community Post", path: "/post-form?type=community" }
+  ];
+
+  const learnActions = [
+    { label: "Scripting", path: "/learn/scripting" },
+    { label: "Asseting", path: "/learn/asseting" },
   ];
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.removeItem("role"); // Hapus role saat logout
+    localStorage.removeItem("role");
     navigate("/");
     window.location.reload();
   };
@@ -45,6 +51,7 @@ const Navbar = () => {
     { name: "Job Posting", path: "/JobPost", hideForRoles: ["moderator"] },
     { name: "Developer Logs", path: "/DevLogs" },
     { name: "Moderation", path: "/moderation", role: "moderator" },
+    { name: "Post Tutorial", path: "/PostTutorial", role: "moderator"}, 
   ];
 
   const navLinks = allNavLinks.filter((l) => {
@@ -109,7 +116,7 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
       </div>
 
       {/* Desktop Menu */}
-      <div className="hidden md:flex gap-6 lg:gap-8 text-gray-300 text-sm font-medium">
+      <div className="hidden md:flex items-center gap-6 lg:gap-8 text-gray-300 text-sm font-medium">
         {navLinks.map((item) => (
           <Link
             key={item.name}
@@ -123,6 +130,47 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
             ></span>
           </Link>
         ))}
+
+        <div className="relative group">
+          <button
+            onClick={() => setLearnOpen(!learnOpen)}
+            className="flex items-center gap-1 hover:text-white transition focus:outline-none cursor-pointer"
+          >
+            Learn
+            <span
+              className="absolute left-0 -bottom-1 w-0 h-[2px]
+        bg-yellow-400 transition-all duration-300 group-hover:w-full"
+            ></span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${learnOpen ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </button>
+
+          {learnOpen && (
+            <div className="absolute left-0 mt-2 w-40 bg-[#111827] border border-white/10 rounded-xl shadow-xl backdrop-blur-lg z-50 overflow-hidden">
+              {learnActions.map((action) => (
+                <Link
+                  key={action.path}
+                  to={action.path}
+                  onClick={() => setLearnOpen(false)}
+                  className="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition"
+                >
+                  {action.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Right Section */}
@@ -221,7 +269,6 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
               >
                 <div className="px-4 py-3 text-sm border-b border-white/10">
                   <p className="text-white font-medium">{user.username}</p>
-                  {/* Tambahan visual opsional: Menampilkan info role di profile dropdown */}
                   <p className="text-yellow-400 text-[10px] uppercase tracking-wider font-bold">
                     {user.role}
                   </p>
@@ -291,11 +338,52 @@ bg-[#0b0f1a]/80 backdrop-blur-md border-b border-white/10"
                 key={item.name}
                 to={item.path}
                 onClick={() => setMobileOpen(false)}
-                className="px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 border-b border-white/5 last:border-b-0 transition"
+                className="px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 border-b border-white/5 transition"
               >
                 {item.name}
               </Link>
             ))}
+
+            {/* Menu Learn Bergerak (Accordion) di Mobile View */}
+            <div className="border-b border-white/5">
+              <button
+                onClick={() => setLearnOpen(!learnOpen)}
+                className="w-full flex justify-between items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition"
+              >
+                <span>Learn</span>
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${learnOpen ? "rotate-180" : ""}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </button>
+
+              {learnOpen && (
+                <div className="bg-black/20 pl-4">
+                  {learnActions.map((action) => (
+                    <Link
+                      key={action.path}
+                      to={action.path}
+                      onClick={() => {
+                        setMobileOpen(false);
+                        setLearnOpen(false);
+                      }}
+                      className="block px-4 py-2.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 transition"
+                    >
+                      {action.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

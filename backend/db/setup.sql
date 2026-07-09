@@ -41,7 +41,7 @@ DROP TYPE IF EXISTS collaboration_status_type CASCADE;
 CREATE TYPE tier_type AS ENUM ('member', 'pro', 'corporate', 'moderator');
 CREATE TYPE collaboration_status_type AS ENUM ('open', 'closed');
 CREATE TYPE status_type AS ENUM('Open', 'In Progress', 'Closed');
-CREATE TYPE art_category AS ENUM('art', 'post', 'community'); -- for art & post without art
+CREATE TYPE art_category AS ENUM('art', 'post', 'community');
 CREATE TYPE work_option_type AS ENUM ('On-site', 'Hybrid', 'Remote');
 CREATE TYPE work_type_type AS ENUM ('Full-time', 'Part-time', 'Contract', 'Casual');
 CREATE TYPE job_status_type AS ENUM ('Draft', 'Active', 'Expired', 'Blocked', 'Auto-Closed');
@@ -55,8 +55,6 @@ CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'expired');
 CREATE TYPE report_reason AS ENUM ('off_scope', 'spam', 'scam', 'duplicate', 'inappropriate', 'other');
 CREATE TYPE message_attachment_type AS ENUM ('image', 'document', 'code');
 
-
--- 1. Create User table
 CREATE TABLE master_users (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
