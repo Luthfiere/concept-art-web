@@ -11,12 +11,12 @@ class ScriptingMedia {
     return result.rows;
   }
 
-  static async create({ question_id, media, original_name }) {
+  static async create({ question_id, media }) {
     const result = await db.query(`
-      INSERT INTO core_scripting_media (question_id, media, original_name)
-      VALUES ($1, $2, $3)
+      INSERT INTO core_scripting_media (question_id, media)
+      VALUES ($1, $2)
       RETURNING *
-    `, [question_id, media, original_name]);
+    `, [question_id, media]);
     return result.rows[0];
   }
 

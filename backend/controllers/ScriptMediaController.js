@@ -41,7 +41,6 @@ class ScriptingMediaController {
           ScriptingMedia.create({
             question_id,
             media: file.path.replace(/\\/g, '/'),
-            original_name: file.originalname,
           })
         )
       );

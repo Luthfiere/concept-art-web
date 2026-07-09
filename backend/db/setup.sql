@@ -265,7 +265,6 @@ CREATE TABLE core_scripting_media (
   id SERIAL PRIMARY KEY,
   question_id INTEGER NOT NULL REFERENCES core_scripting_questions(id) ON DELETE CASCADE,
   media VARCHAR(255) NOT NULL,        
-  original_name VARCHAR(255),        
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
