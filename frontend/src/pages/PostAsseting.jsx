@@ -90,13 +90,14 @@ const PostAsseting = () => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 8) {
-      alert(
-        "Maksimal gambar yang boleh diunggah adalah 8 file sesuai batasan sistem.",
-      );
+      alert("Maksimal gambar yang boleh diunggah adalah 8 file sesuai batasan sistem.");
       return;
     }
     setSelectedImages(files);
-    const filePreviews = files.map((file) => URL.createObjectURL(file));
+    const filePreviews = files.map((file) => ({
+      url: URL.createObjectURL(file),
+      isVideo: file.type.startsWith("video/"),
+    }));
     setPreviews(filePreviews);
   };
 
@@ -306,7 +307,7 @@ const PostAsseting = () => {
                 <input
                   type="file"
                   multiple
-                  accept="image/*"
+                  accept="image/*,video/mp4,video/webm,video/quicktime,video/ogg"
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
@@ -326,30 +327,22 @@ const PostAsseting = () => {
                 <p className="mt-2 text-xs text-gray-300">
                   Klik atau drag berkas gambar ke area ini
                 </p>
-                <p className="text-[10px] text-gray-500 mt-1">
-                  Maksimum 8 file gambar (PNG, JPG, WEBP, dll) • Maks 5MB per
-                  file
-                </p>
+                <p className="text-[10px] text-gray-500 mt-1">Maksimum 8 file (gambar atau video) • Gambar maks 5MB, video maks 30MB per file</p> 
               </div>
             </div>
 
             {/* IMAGE PREVIEWS */}
             {previews.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-gray-400 mb-2">
-                  Pratinjau Gambar Terpilih ({previews.length}/8):
-                </p>
+                <p className="text-xs font-medium text-gray-400 mb-2">Pratinjau Media Terpilih ({previews.length}/8):</p>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-                  {previews.map((src, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/30"
-                    >
-                      <img
-                        src={src}
-                        alt={`preview-${index}`}
-                        className="w-full h-full object-cover"
-                      />
+                  {previews.map((p, index) => (
+                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/30">
+                      {p.isVideo ? (
+                        <video src={p.url} muted className="w-full h-full object-cover" />
+                      ) : (
+                        <img src={p.url} alt={`preview-${index}`} className="w-full h-full object-cover" />
+                      )}
                     </div>
                   ))}
                 </div>

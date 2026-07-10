@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "";
 
 const TAGS_OPTIONS = [
   "3D Modeling",
@@ -125,26 +125,27 @@ const EditTutorialModal = ({
   };
 
   const handleFileProcess = (files) => {
-    const totalCurrentCount =
-      existingMedia.length + mediaFiles.length + files.length;
-    if (totalCurrentCount > 3) {
-      alert("Maximum 3 files are allowed for tutorial media.");
+    const totalCurrentCount = existingMedia.length + mediaFiles.length + files.length;
+    if (totalCurrentCount > 8) {
+      alert("Maximum 8 files are allowed for tutorial media.");
       return;
     }
 
-    // Hanya izinkan gambar untuk menu Asseting / Moderation ini
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-    if (imageFiles.length !== files.length) {
-      alert("Only image files are allowed for asseting moderation!");
+    const validFiles = files.filter(
+      (file) => file.type.startsWith("image/") || file.type.startsWith("video/")
+    );
+    if (validFiles.length !== files.length) {
+      alert("Only image or video files are allowed!");
     }
 
-    if (imageFiles.length === 0) return;
+    if (validFiles.length === 0) return;
 
-    setMediaFiles((prev) => [...prev, ...imageFiles]);
+    setMediaFiles((prev) => [...prev, ...validFiles]);
 
-    const previews = imageFiles.map((file) => ({
+    const previews = validFiles.map((file) => ({
       url: URL.createObjectURL(file),
       name: file.name,
+      isVideo: file.type.startsWith("video/"),
     }));
     setMediaPreview((prev) => [...prev, ...previews]);
   };
@@ -285,13 +286,13 @@ const EditTutorialModal = ({
           className="mb-4"
         >
           <label className="block mb-1 text-xs font-medium text-gray-400">
-            Asset Images Preview (Max 3 Files)
+            Asset Images Preview (Max 8 Files)
           </label>
           <input
             id="tutorial-media-input"
             type="file"
             multiple
-            accept="image/*"
+            accept="image/*,video/mp4,video/webm,video/quicktime,video/ogg"
             className="hidden"
             onChange={(e) => handleFileProcess(Array.from(e.target.files))}
           />
@@ -313,7 +314,7 @@ const EditTutorialModal = ({
               />
             </svg>
             <p className="text-xs text-gray-400">
-              Click or Drag images here to update asset screenshots
+              Click or Drag images/videos here to update asset screenshots
             </p>
           </label>
         </div>
@@ -322,47 +323,30 @@ const EditTutorialModal = ({
         {(existingMedia.length > 0 || mediaPreview.length > 0) && (
           <div className="grid grid-cols-3 gap-2 mb-5">
             {/* Menggambarkan Existing Image yang sudah tersimpan di Database */}
-            {existingMedia.map((m) => (
-              <div
-                key={m.id}
-                className="relative group aspect-square rounded-lg overflow-hidden border border-white/10 bg-[#060813]"
-              >
-                <img
-                  src={getMediaUrl(m.media)}
-                  className="w-full h-full object-cover"
-                  alt="existing tutorial media"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleDeleteExisting(m.id)}
-                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 hover:bg-red-500 text-white text-[10px] flex items-center justify-center transition-colors"
-                >
-                  ✕
-                </button>
+            {existingMedia.map((m) => {
+            const isVideo = /\.(mp4|webm|mov|ogv|ogg)$/i.test(m.media || "");
+            return (
+              <div key={m.id} className="relative group aspect-square rounded-lg overflow-hidden border border-white/10 bg-[#060813]">
+                {isVideo ? (
+                  <video src={getMediaUrl(m.media)} muted className="w-full h-full object-cover" />
+                ) : (
+                  <img src={getMediaUrl(m.media)} className="w-full h-full object-cover" alt="existing tutorial media" />
+                )}
+                <button type="button" onClick={() => handleDeleteExisting(m.id)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 hover:bg-red-500 text-white text-[10px] flex items-center justify-center transition-colors">✕</button>
               </div>
-            ))}
+            );
+          })}
 
             {/* Menggambarkan Gambar baru yang siap diupload */}
             {mediaPreview.map((m, index) => (
-              <div
-                key={index}
-                className="relative group aspect-square rounded-lg overflow-hidden border border-amber-500/20 bg-[#0c0f20]"
-              >
-                <img
-                  src={m.url}
-                  className="w-full h-full object-cover opacity-90"
-                  alt="new asset file"
-                />
-                <span className="absolute bottom-1 left-1 text-[8px] bg-emerald-500/20 text-emerald-400 px-1 rounded border border-emerald-500/30">
-                  New
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteNew(index)}
-                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 hover:bg-red-500 text-white text-[10px] flex items-center justify-center transition-colors"
-                >
-                  ✕
-                </button>
+              <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border border-amber-500/20 bg-[#0c0f20]">
+                {m.isVideo ? (
+                  <video src={m.url} muted className="w-full h-full object-cover opacity-90" />
+                ) : (
+                  <img src={m.url} className="w-full h-full object-cover opacity-90" alt="new asset file" />
+                )}
+                <span className="absolute bottom-1 left-1 text-[8px] bg-emerald-500/20 text-emerald-400 px-1 rounded border border-emerald-500/30">New</span>
+                <button type="button" onClick={() => handleDeleteNew(index)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 hover:bg-red-500 text-white text-[10px] flex items-center justify-center transition-colors">✕</button>
               </div>
             ))}
           </div>

@@ -34,9 +34,7 @@ export default function TutorialPage() {
                   const rawUrl = file.media || file.url || file.image_url || file.path || "";
                   
                   // Gabungkan dengan host backend jika path-nya lokal (tidak diawali http)
-                  const finalUrl = rawUrl.startsWith("http") 
-                    ? rawUrl 
-                    : `http://localhost:5000/${rawUrl}`;
+                  const finalUrl = rawUrl.startsWith("http") ? rawUrl : `/${rawUrl}`;
 
                   return {
                     ...file,
