@@ -6,6 +6,7 @@
 /backend/.env
 /frontend/.env
 /.claude
+/frontend/vite.config.js
 
 /docs
 

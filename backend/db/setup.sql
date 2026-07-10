@@ -101,6 +101,7 @@ CREATE TABLE core_comments (
   entity_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL REFERENCES master_users(id) ON DELETE CASCADE,
   comment TEXT NOT NULL,
+  code_snippet TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -22,22 +22,22 @@ class Comment {
     return result.rows[0];
   }
 
-  static async create(entityType, entityId, userId, comment) {
+  static async create(entityType, entityId, userId, comment, codeSnippet = null) {
     const result = await db.query(`
-      INSERT INTO core_comments (entity_type, entity_id, user_id, comment)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO core_comments (entity_type, entity_id, user_id, comment, code_snippet)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
-    `, [entityType, entityId, userId, comment]);
+    `, [entityType, entityId, userId, comment, codeSnippet]);
     return result.rows[0];
   }
 
-  static async update(id, comment) {
+  static async update(id, comment, codeSnippet) {
     const result = await db.query(`
       UPDATE core_comments
-      SET comment = $1, updated_at = NOW()
-      WHERE id = $2
+      SET comment = $1, code_snippet = $2, updated_at = NOW()
+      WHERE id = $3
       RETURNING *
-    `, [comment, id]);
+    `, [comment, codeSnippet, id]);
     return result.rows[0];
   }
 

@@ -1,5 +1,7 @@
 import Comment from "../model/CommentModel.js";
 
+const MAX_SNIPPET_LENGTH = 3000;
+
 class CommentController {
   static async getByEntityId(req, res) {
     try {
@@ -40,20 +42,27 @@ class CommentController {
     try {
       const { user_id } = req.user;
       const { entity_type, entity_id } = req.params;
-      const { comment } = req.body;
+      const { comment, code_snippet } = req.body;
 
       if (!comment) {
         return res.status(400).json({ message: "Comment is required" });
       }
-
       if (comment.trim().length === 0) {
         return res.status(400).json({ message: "Comment cannot be empty" });
       }
-
       if (comment.length > 500) {
-        return res
-          .status(400)
-          .json({ message: "Comment must not exceed 500 characters" });
+        return res.status(400).json({ message: "Comment must not exceed 500 characters" });
+      }
+
+      let cleanSnippet = null;
+      if (code_snippet) {
+        if (entity_type !== "scripting") {
+          return res.status(400).json({ message: "code_snippet is only allowed on scripting comments" });
+        }
+        if (code_snippet.length > MAX_SNIPPET_LENGTH) {
+          return res.status(400).json({ message: `Code snippet must not exceed ${MAX_SNIPPET_LENGTH} characters` });
+        }
+        cleanSnippet = code_snippet;
       }
 
       const created = await Comment.create(
@@ -61,6 +70,7 @@ class CommentController {
         entity_id,
         user_id,
         comment.trim(),
+        cleanSnippet,
       );
       const newComment = await Comment.getById(created.id);
 

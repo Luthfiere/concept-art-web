@@ -146,6 +146,7 @@ export default function ScriptingDetail() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
+  const [newCodeSnippet, setNewCodeSnippet] = useState("");
 
   const getAvatar = (user) =>
     user?.profile_image
@@ -328,15 +329,15 @@ export default function ScriptingDetail() {
         },
         body: JSON.stringify({
           comment: newComment.trim(),
+          code_snippet: newCodeSnippet.trim() || undefined,
         }),
       });
 
       const result = await res.json();
-
-      console.log("result: ", result);
       if (res.ok) {
         setComments((prev) => [...prev, result.data || result]);
         setNewComment("");
+        setNewCodeSnippet("");
       }
     } catch (err) {
       console.error("Error posting comment:", err);
@@ -652,7 +653,7 @@ export default function ScriptingDetail() {
                 alt="you"
                 className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-1"
               />
-              <div className="flex-1">
+              <div className="flex-1 space-y-2">
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
@@ -660,7 +661,17 @@ export default function ScriptingDetail() {
                   rows={3}
                   className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-yellow-400/50 rounded-xl p-3 text-sm text-white placeholder:text-gray-600 outline-none transition resize-none"
                 />
-                <div className="flex justify-end mt-2">
+
+                <textarea
+                  value={newCodeSnippet}
+                  onChange={(e) => setNewCodeSnippet(e.target.value)}
+                  placeholder="Optional: attach a code snippet..."
+                  maxLength={3000}
+                  rows={3}
+                  className="w-full bg-[#0d1117] border border-white/10 font-mono text-xs text-amber-200 rounded-lg p-2 outline-none focus:border-amber-400/40 resize-none"
+                />
+
+                <div className="flex justify-end">
                   <button
                     onClick={handlePostComment}
                     disabled={!newComment.trim() || commentLoading}
@@ -728,6 +739,11 @@ export default function ScriptingDetail() {
                     <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap break-words">
                       {c.comment || c.content}
                     </p>
+                    {c.code_snippet && (
+                      <pre className="mt-2 bg-[#0d1117] border border-white/10 rounded-lg p-2.5 text-[11px] font-mono text-amber-200 overflow-x-auto">
+                        <code>{c.code_snippet}</code>
+                      </pre>
+                    )}
                   </div>
                 </div>
               );

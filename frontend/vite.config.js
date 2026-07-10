@@ -12,7 +12,7 @@ export default defineConfig({
       'www.kalaxel.site',
     ],
     host: true,
-    port: 5173,
+    port: 5175,
     strictPort: true,
     hmr: {
       protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws',
