@@ -3,10 +3,49 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 
 const TAGS_OPTIONS = [
-  "Unity", "Godot", "Unreal Engine", "Roblox", "Web",
-  "C#", "GDScript", "C++", "JavaScript", "TypeScript",
-  "Python", "Lua", "UI", "AI", "Asset",
-  "Texture", "Model", "Animation", "Dasar"
+  "3D Modeling",
+  "Sculpting",
+  "Texturing",
+  "Rigging",
+  "Animation",
+  "Retopology",
+  "UV Unwrapping",
+
+  "2D Art",
+  "Pixel Art",
+  "Vector",
+  "Concept Art",
+  "Sprite Sheet",
+  "Texture Mapping",
+  "UI Design",
+
+  "Blender",
+  "Substance Painter",
+  "Photoshop",
+  "Maya",
+  "ZBrush",
+  "Aseprite",
+  "Figma",
+
+  "Unity",
+  "Unreal Engine",
+  "Godot",
+  "Roblox Studio",
+
+  "VFX",
+  "Shaders",
+  "Particle System",
+  "Lighting",
+  "Baking",
+
+  "Level Design",
+  "Audio",
+  "SFX",
+  "Music",
+
+  "Dasar (Beginner)",
+  "Menengah (Intermediate)",
+  "Mahir (Advanced)",
 ];
 
 const PostAsseting = () => {
@@ -15,7 +54,7 @@ const PostAsseting = () => {
   // State untuk Data Teks Tutorial
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [selectedTags, setSelectedTags] = useState([]); 
+  const [selectedTags, setSelectedTags] = useState([]);
 
   // State UI Dropdown Checkbox
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +63,7 @@ const PostAsseting = () => {
   // State untuk Data Media (Gambar)
   const [selectedImages, setSelectedImages] = useState([]);
   const [previews, setPreviews] = useState([]);
-  
+
   // State UI / Status
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -51,7 +90,9 @@ const PostAsseting = () => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 8) {
-      alert("Maksimal gambar yang boleh diunggah adalah 8 file sesuai batasan sistem.");
+      alert(
+        "Maksimal gambar yang boleh diunggah adalah 8 file sesuai batasan sistem.",
+      );
       return;
     }
     setSelectedImages(files);
@@ -89,7 +130,7 @@ const PostAsseting = () => {
         body: JSON.stringify({
           title,
           content,
-          tag: selectedTags.join(", "), 
+          tag: selectedTags.join(", "),
         }),
       });
 
@@ -106,24 +147,30 @@ const PostAsseting = () => {
         setMessage("Mengunggah media tutorial pendukung...");
         const formData = new FormData();
         selectedImages.forEach((image) => {
-          formData.append("media", image); 
+          formData.append("media", image);
         });
 
-        const mediaResponse = await fetch(`/api/tutorial-media/tutorial/${createdTutorialId}`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
+        const mediaResponse = await fetch(
+          `/api/tutorial-media/tutorial/${createdTutorialId}`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          },
+        );
 
         const mediaData = await mediaResponse.json();
         if (!mediaResponse.ok) {
-          throw new Error(mediaData.message || "Tutorial teks berhasil dibuat, namun gagal mengunggah gambar pendukung.");
+          throw new Error(
+            mediaData.message ||
+              "Tutorial teks berhasil dibuat, namun gagal mengunggah gambar pendukung.",
+          );
         }
       }
 
       setIsSuccess(true);
       setMessage("Tutorial dan Media pendukung sukses dipublikasikan!");
-      
+
       // Reset Form input
       setTitle("");
       setContent("");
@@ -134,7 +181,6 @@ const PostAsseting = () => {
       setTimeout(() => {
         navigate("/");
       }, 2000);
-
     } catch (error) {
       console.error(error);
       setIsSuccess(false);
@@ -151,16 +197,21 @@ const PostAsseting = () => {
       <div className="max-w-3xl mx-auto px-4 py-10">
         <div className="bg-[#111827] border border-white/10 rounded-2xl p-6 shadow-xl backdrop-blur-lg">
           <div className="border-b border-white/5 pb-4 mb-6">
-            <h1 className="text-xl font-bold text-yellow-400">Create New Tutorial</h1>
+            <h1 className="text-xl font-bold text-yellow-400">
+              Create New Tutorial
+            </h1>
             <p className="text-xs text-gray-400 mt-1">
-              Halaman Khusus Moderator — Publikasikan tutorial teks beserta gambar lampirannya secara langsung.
+              Halaman Khusus Moderator — Publikasikan tutorial teks beserta
+              gambar lampirannya secara langsung.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* INPUT TITLE */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Judul Tutorial *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Judul Tutorial *
+              </label>
               <input
                 type="text"
                 value={title}
@@ -173,7 +224,9 @@ const PostAsseting = () => {
 
             {/* INPUT CONTENT */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Konten Materi Tutorial *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Konten Materi Tutorial *
+              </label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -186,8 +239,10 @@ const PostAsseting = () => {
 
             {/* CUSTOM DROPDOWN CHECKBOX */}
             <div ref={dropdownRef} className="relative">
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Tag / Kategori *</label>
-              
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Tag / Kategori *
+              </label>
+
               {/* Tombol Utama Dropdown */}
               <button
                 type="button"
@@ -195,8 +250,8 @@ const PostAsseting = () => {
                 className="w-full flex justify-between items-center px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:border-yellow-400 text-sm text-white transition text-left"
               >
                 <span className="truncate">
-                  {selectedTags.length > 0 
-                    ? selectedTags.join(", ") 
+                  {selectedTags.length > 0
+                    ? selectedTags.join(", ")
                     : "Pilih Kategori Tutorial (multiselect)"}
                 </span>
                 <svg
@@ -205,7 +260,12 @@ const PostAsseting = () => {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
 
@@ -218,7 +278,9 @@ const PostAsseting = () => {
                       <label
                         key={option}
                         className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer transition select-none ${
-                          isChecked ? "bg-yellow-400/10 text-yellow-400 font-medium" : "hover:bg-white/5 text-gray-300"
+                          isChecked
+                            ? "bg-yellow-400/10 text-yellow-400 font-medium"
+                            : "hover:bg-white/5 text-gray-300"
                         }`}
                       >
                         <input
@@ -237,7 +299,9 @@ const PostAsseting = () => {
 
             {/* INPUT MEDIA FILES (MULTIPLE IMAGES) */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Gambar Pendukung / Screenshots (Opsional)</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Gambar Pendukung / Screenshots (Opsional)
+              </label>
               <div className="border-2 border-dashed border-white/10 hover:border-yellow-400/50 rounded-xl p-5 text-center cursor-pointer transition relative bg-black/10">
                 <input
                   type="file"
@@ -246,22 +310,46 @@ const PostAsseting = () => {
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg
+                  className="mx-auto h-8 w-8 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
-                <p className="mt-2 text-xs text-gray-300">Klik atau drag berkas gambar ke area ini</p>
-                <p className="text-[10px] text-gray-500 mt-1">Maksimum 8 file gambar (PNG, JPG, WEBP, dll) • Maks 5MB per file</p>
+                <p className="mt-2 text-xs text-gray-300">
+                  Klik atau drag berkas gambar ke area ini
+                </p>
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Maksimum 8 file gambar (PNG, JPG, WEBP, dll) • Maks 5MB per
+                  file
+                </p>
               </div>
             </div>
 
             {/* IMAGE PREVIEWS */}
             {previews.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-gray-400 mb-2">Pratinjau Gambar Terpilih ({previews.length}/8):</p>
+                <p className="text-xs font-medium text-gray-400 mb-2">
+                  Pratinjau Gambar Terpilih ({previews.length}/8):
+                </p>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                   {previews.map((src, index) => (
-                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/30">
-                      <img src={src} alt={`preview-${index}`} className="w-full h-full object-cover" />
+                    <div
+                      key={index}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/30"
+                    >
+                      <img
+                        src={src}
+                        alt={`preview-${index}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   ))}
                 </div>

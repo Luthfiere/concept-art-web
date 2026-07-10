@@ -3,31 +3,61 @@ import { useState, useEffect, useRef } from "react";
 const BACKEND_URL = "http://localhost:5000";
 
 const TAGS_OPTIONS = [
-  "Unity",
-  "Godot",
-  "Unreal Engine",
-  "Roblox",
-  "Web",
-  "C#",
-  "GDScript",
-  "C++",
-  "JavaScript",
-  "TypeScript",
-  "Python",
-  "Lua",
-  "UI",
-  "AI",
-  "Asset",
-  "Texture",
-  "Model",
+  "3D Modeling",
+  "Sculpting",
+  "Texturing",
+  "Rigging",
   "Animation",
-  "Dasar"
+  "Retopology",
+  "UV Unwrapping",
+
+  "2D Art",
+  "Pixel Art",
+  "Vector",
+  "Concept Art",
+  "Sprite Sheet",
+  "Texture Mapping",
+  "UI Design",
+
+  "Blender",
+  "Substance Painter",
+  "Photoshop",
+  "Maya",
+  "ZBrush",
+  "Aseprite",
+  "Figma",
+
+  "Unity",
+  "Unreal Engine",
+  "Godot",
+  "Roblox Studio",
+
+  "VFX",
+  "Shaders",
+  "Particle System",
+  "Lighting",
+  "Baking",
+
+  "Level Design",
+  "Audio",
+  "SFX",
+  "Music",
+
+  "Dasar (Beginner)",
+  "Menengah (Intermediate)",
+  "Mahir (Advanced)",
 ];
 
-const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => {
+const EditTutorialModal = ({
+  form,
+  setForm,
+  media = [],
+  onClose,
+  onSubmit,
+}) => {
   const contentRef = useRef(null);
   const tagDropdownRef = useRef(null);
-  
+
   const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
 
@@ -47,8 +77,11 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
     setDeletedMedia([]);
   }, [media]);
 
-  const currentTags = form.tag 
-    ? form.tag.split(",").map((t) => t.trim()).filter(Boolean)
+  const currentTags = form.tag
+    ? form.tag
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
     : [];
 
   useEffect(() => {
@@ -60,7 +93,10 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (tagDropdownRef.current && !tagDropdownRef.current.contains(event.target)) {
+      if (
+        tagDropdownRef.current &&
+        !tagDropdownRef.current.contains(event.target)
+      ) {
         setIsTagDropdownOpen(false);
       }
     };
@@ -89,14 +125,15 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
   };
 
   const handleFileProcess = (files) => {
-    const totalCurrentCount = existingMedia.length + mediaFiles.length + files.length;
+    const totalCurrentCount =
+      existingMedia.length + mediaFiles.length + files.length;
     if (totalCurrentCount > 3) {
       alert("Maximum 3 files are allowed for tutorial media.");
       return;
     }
 
     // Hanya izinkan gambar untuk menu Asseting / Moderation ini
-    const imageFiles = files.filter(file => file.type.startsWith("image/"));
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
     if (imageFiles.length !== files.length) {
       alert("Only image files are allowed for asseting moderation!");
     }
@@ -104,10 +141,10 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
     if (imageFiles.length === 0) return;
 
     setMediaFiles((prev) => [...prev, ...imageFiles]);
-    
+
     const previews = imageFiles.map((file) => ({
       url: URL.createObjectURL(file),
-      name: file.name
+      name: file.name,
     }));
     setMediaPreview((prev) => [...prev, ...previews]);
   };
@@ -135,12 +172,18 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
         className="w-full max-w-lg bg-[#0f1323] p-5 sm:p-6 rounded-2xl max-h-[90vh] overflow-y-auto border border-amber-500/20"
       >
         <h2 className="mb-4 font-bold text-white flex items-center gap-2 text-base">
-          <span className="text-amber-400">🖼️</span> Edit Asset / Tutorial Moderation
+          <span className="text-amber-400">🖼️</span> Edit Asset / Tutorial
+          Moderation
         </h2>
 
         {/* Title */}
         <div className="mb-3">
-          <label htmlFor="title" className="block mb-1 text-xs font-medium text-gray-400">Title</label>
+          <label
+            htmlFor="title"
+            className="block mb-1 text-xs font-medium text-gray-400"
+          >
+            Title
+          </label>
           <input
             id="title"
             name="title"
@@ -153,7 +196,12 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
 
         {/* Content (Deskripsi/Langkah) */}
         <div className="mb-3">
-          <label htmlFor="content" className="block mb-1 text-xs font-medium text-gray-400">Content / Steps Explanation</label>
+          <label
+            htmlFor="content"
+            className="block mb-1 text-xs font-medium text-gray-400"
+          >
+            Content / Steps Explanation
+          </label>
           <textarea
             ref={contentRef}
             id="content"
@@ -168,22 +216,47 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
 
         {/* Tag Selector Dropdown Checklist */}
         <div ref={tagDropdownRef} className="relative mb-4">
-          <label className="block mb-1 text-xs font-medium text-gray-400">Tags</label>
+          <label className="block mb-1 text-xs font-medium text-gray-400">
+            Tags
+          </label>
           <button
             type="button"
             onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)}
             className="w-full h-[42px] flex items-center justify-between px-3 rounded-lg bg-[#0a0d1a] border border-white/10 text-sm text-gray-200 hover:border-white/20 focus:border-amber-400/50 outline-none transition-all text-left"
           >
-            <span className={currentTags.length === 0 ? "text-gray-500 truncate" : "text-gray-200 truncate"}>
-              {currentTags.length === 0 ? "Select Tags..." : currentTags.join(", ")}
+            <span
+              className={
+                currentTags.length === 0
+                  ? "text-gray-500 truncate"
+                  : "text-gray-200 truncate"
+              }
+            >
+              {currentTags.length === 0
+                ? "Select Tags..."
+                : currentTags.join(", ")}
             </span>
-            <svg className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${isTagDropdownOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+            <svg
+              className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${isTagDropdownOpen ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
+            </svg>
           </button>
 
           {isTagDropdownOpen && (
             <div className="absolute z-50 mt-1.5 w-full max-h-40 overflow-y-auto rounded-lg bg-[#12162c] border border-white/10 shadow-xl py-1.5">
               {TAGS_OPTIONS.map((tag) => (
-                <label key={tag} className="flex items-center gap-2.5 px-3 py-1.5 rounded-md hover:bg-white/5 text-xs text-gray-200 cursor-pointer select-none transition-colors">
+                <label
+                  key={tag}
+                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-md hover:bg-white/5 text-xs text-gray-200 cursor-pointer select-none transition-colors"
+                >
                   <input
                     type="checkbox"
                     checked={currentTags.includes(tag)}
@@ -198,27 +271,50 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
         </div>
 
         {/* IMAGE DRAG & DROP AREA */}
-        <div 
-          onDragOver={(e) => { e.preventDefault(); setDragging(true); }} 
-          onDragLeave={() => setDragging(false)} 
-          onDrop={(e) => { e.preventDefault(); setDragging(false); handleFileProcess(Array.from(e.dataTransfer.files)); }} 
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            handleFileProcess(Array.from(e.dataTransfer.files));
+          }}
           className="mb-4"
         >
-          <label className="block mb-1 text-xs font-medium text-gray-400">Asset Images Preview (Max 3 Files)</label>
-          <input 
-            id="tutorial-media-input" 
-            type="file" 
-            multiple 
-            accept="image/*" 
-            className="hidden" 
-            onChange={(e) => handleFileProcess(Array.from(e.target.files))} 
+          <label className="block mb-1 text-xs font-medium text-gray-400">
+            Asset Images Preview (Max 3 Files)
+          </label>
+          <input
+            id="tutorial-media-input"
+            type="file"
+            multiple
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleFileProcess(Array.from(e.target.files))}
           />
-          <label 
-            htmlFor="tutorial-media-input" 
+          <label
+            htmlFor="tutorial-media-input"
             className={`cursor-pointer flex flex-col items-center justify-center border-2 border-dashed rounded-xl py-6 transition-all ${dragging ? "border-amber-400 bg-amber-400/5" : "border-white/10 hover:border-amber-400/40 bg-[#0a0d1a]"}`}
           >
-            <svg className="w-6 h-6 text-gray-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
-            <p className="text-xs text-gray-400">Click or Drag images here to update asset screenshots</p>
+            <svg
+              className="w-6 h-6 text-gray-500 mb-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+              />
+            </svg>
+            <p className="text-xs text-gray-400">
+              Click or Drag images here to update asset screenshots
+            </p>
           </label>
         </div>
 
@@ -284,7 +380,11 @@ const EditTutorialModal = ({ form, setForm, media = [], onClose, onSubmit }) => 
           <button
             type="button"
             onClick={() => {
-              if (window.confirm("Are you sure you want to save changes to this asset/tutorial?"))
+              if (
+                window.confirm(
+                  "Are you sure you want to save changes to this asset/tutorial?",
+                )
+              )
                 onSubmit({ mediaFiles, deletedMedia });
             }}
             className="flex-1 bg-amber-400 hover:bg-amber-300 text-black p-2 rounded-lg font-medium text-sm transition"
