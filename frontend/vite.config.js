@@ -9,18 +9,17 @@ export default {
   ],
   server: {
     allowedHosts: [
-      '5c26-103-3-222-219.ngrok-free.app',  // Your ngrok URL
-      '.ngrok-free.app',  // Allow all ngrok subdomains
       'localhost',
-      '127.0.0.1'
+      '127.0.0.1',
+      'kalaxel.site',
+      'www.kalaxel.site',
     ],
     host: true,
-    port: 5173,
+    port: 5175,
     strictPort: true,
     hmr: {
-      protocol: 'ws',
-      host: 'localhost',
-      port: 5173
+      protocol: 'wss',
+      host: 'www.kalaxel.site',
     },
     proxy: {
       // Proxy API and asset requests to backend in development

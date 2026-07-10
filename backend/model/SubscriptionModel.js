@@ -115,7 +115,7 @@ class Subscription {
         AND (
           (active_until IS NOT NULL AND active_until <= NOW())
           OR (
-            plan IN ('pro_per_post', 'corporate_per_post')
+            plan = 'single_post'
             AND (posts_remaining IS NULL OR posts_remaining = 0)
           )
         )
