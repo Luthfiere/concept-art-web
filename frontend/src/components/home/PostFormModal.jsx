@@ -206,6 +206,7 @@ const PostFormModal = ({
       }
 
       onSuccess?.();
+      alert("post Berhasil!")
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || err.message || "Upload failed");
