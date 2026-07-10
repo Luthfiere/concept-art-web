@@ -70,6 +70,7 @@ const Login = () => {
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
 
+      alert("login berhasil");
       navigate(searchParams.get("redirect") || "/");
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Login gagal");

@@ -349,7 +349,7 @@ export default function Devlogs() {
       setMediaFiles([]);
       setMediaPreview([]);
 
-      alert("Post Success");
+      alert("Post Behasil!");
       fetchDevlogs(activeFilter);
     } catch (err) {
       console.error(err);
@@ -452,7 +452,7 @@ export default function Devlogs() {
       setMediaFiles([]);
       setMediaPreview([]);
 
-      alert("Save Success");
+      alert("Save berhasil");
       fetchDevlogs(activeFilter);
     } catch (err) {
       console.error(err);

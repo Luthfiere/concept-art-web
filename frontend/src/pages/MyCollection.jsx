@@ -724,7 +724,7 @@ const MyCollection = () => {
         ),
       );
 
-      alert("Update Success");
+      alert("Update berhasil");
       setIsEditOpen(false);
     } catch (err) {
       console.error(err);

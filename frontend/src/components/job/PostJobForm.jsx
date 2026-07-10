@@ -166,6 +166,7 @@ const PostJobForm = () => {
 
     setSubmitting(true);
     setBanner(null);
+    alert("Job Berhasil Di post!");
 
     try {
       const clean = sanitizeFields(form, [

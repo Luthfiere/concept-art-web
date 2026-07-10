@@ -229,6 +229,7 @@ const Scripting = () => {
           );
       }
 
+      alert("Post Berhasil")
       setShowModal(false);
       fetchQuestions();
     } catch (err) {

@@ -116,7 +116,7 @@ const PostForm = () => {
         }
       }
 
-      alert("Post uploaded!");
+      alert("Post berhasil!");
       navigate("/");
     } catch (err) {
       console.error(err);

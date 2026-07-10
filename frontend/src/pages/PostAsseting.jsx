@@ -196,8 +196,10 @@ const PostAsseting = () => {
         }
       }
 
+      alert("Post Berhasil!");
       setIsSuccess(true);
       setMessage("Tutorial dan Media pendukung sukses dipublikasikan!");
+      
 
       // Reset Form input
       setTitle("");

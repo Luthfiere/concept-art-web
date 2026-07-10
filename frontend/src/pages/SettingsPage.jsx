@@ -362,6 +362,7 @@ export default function SettingsPage() {
         message: "Settings updated successfully.",
       });
 
+      alert("Berhasil Submit!")
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
     } catch (err) {
