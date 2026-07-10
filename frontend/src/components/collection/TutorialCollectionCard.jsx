@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import CardActions from "./CardActions";
 import { parseTags } from "../../utils/sanitize";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "";
 
 const TutorialCollectionCard = ({ item, onClick, onEdit, onDelete }) => {
   // Menggunakan useMemo untuk konsistensi penanganan image URL layaknya DevlogCard

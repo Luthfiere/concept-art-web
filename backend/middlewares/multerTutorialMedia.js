@@ -1,3 +1,4 @@
+// backend/middlewares/multerTutorialMedia.js
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -12,19 +13,36 @@ function slugify(text) {
 }
 
 const MB = 1024 * 1024;
-const SIZE = { image: 5 * MB };
+const SIZE = { image: 5 * MB, video: 30 * MB };
 
-const ALLOWED_MIMES = [
-  'image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', 'image/avif',
+const IMAGE_MIMES = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp',
+  'image/gif',
+  'image/avif',
 ];
-const ALLOWED_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'];
+const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'];
+
+const VIDEO_MIMES = [
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'video/ogg',
+];
+const VIDEO_EXTS = ['.mp4', '.webm', '.mov', '.ogv', '.ogg'];
 
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (ALLOWED_MIMES.includes(file.mimetype) && ALLOWED_EXTS.includes(ext)) {
-    return cb(null, true);
-  }
-  cb(new Error('Invalid file type. Allowed: PNG, JPG, JPEG, WEBP, GIF, AVIF'), false);
+  const mime = file.mimetype;
+
+  const isImage = IMAGE_MIMES.includes(mime) && IMAGE_EXTS.includes(ext);
+  const isVideo = VIDEO_MIMES.includes(mime) && VIDEO_EXTS.includes(ext);
+
+  if (isImage || isVideo) return cb(null, true);
+
+  cb(new Error('Invalid file type. Allowed: images (PNG, JPG, WEBP, GIF, AVIF) or videos (MP4, WEBM, MOV, OGG)'), false);
 };
 
 const storage = multer.diskStorage({
@@ -63,7 +81,7 @@ const storage = multer.diskStorage({
 const uploadTutorialMedia = multer({
   storage,
   fileFilter,
-  limits: { fileSize: SIZE.image, files: 8 },
+  limits: { fileSize: SIZE.video, files: 8 },
 });
 
 export default uploadTutorialMedia;

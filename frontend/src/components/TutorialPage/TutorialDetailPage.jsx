@@ -42,9 +42,7 @@ export default function TutorialDetailPage() {
                 file.media || file.url || file.image_url || file.path || "";
 
               // Sambungkan dengan port backend jika jalurnya lokal
-              const finalUrl = rawUrl.startsWith("http")
-                ? rawUrl
-                : `http://localhost:5000/${rawUrl}`;
+              const finalUrl = rawUrl.startsWith("http") ? rawUrl : `/${rawUrl}`;
 
               return {
                 ...file,
@@ -172,7 +170,8 @@ export default function TutorialDetailPage() {
                 }}
               />
             </div>
-          )}
+          )
+        }
 
         {/* Isi Konten Panduan */}
         <div className="mb-8">
