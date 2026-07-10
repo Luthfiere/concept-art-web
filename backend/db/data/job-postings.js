@@ -12,7 +12,7 @@ export const jobPostingsData = [
     salary_max: 25000000,
     salary_currency: "IDR",
     status: "Active",
-    expired_at: "2026-06-30T23:59:59Z",
+    expired_at: "2026-07-30T23:59:59Z",
   },
   {
     id: 2,
@@ -27,7 +27,7 @@ export const jobPostingsData = [
     salary_max: 14000000,
     salary_currency: "IDR",
     status: "Active",
-    expired_at: "2026-05-31T23:59:59Z",
+    expired_at: "2026-07-20T23:59:59Z",
   },
   {
     id: 3,
@@ -57,7 +57,7 @@ export const jobPostingsData = [
     salary_max: 10000000,
     salary_currency: "IDR",
     status: "Active",
-    expired_at: "2026-06-15T23:59:59Z",
+    expired_at: "2026-07-15T23:59:59Z",
   },
   {
     id: 5,
@@ -87,7 +87,7 @@ export const jobPostingsData = [
     salary_max: 9000000,
     salary_currency: "IDR",
     status: "Active",
-    expired_at: "2026-05-15T23:59:59Z",
+    expired_at: "2026-08-15T23:59:59Z",
   },
   {
     id: 7,
@@ -117,7 +117,7 @@ export const jobPostingsData = [
     salary_max: 15000000,
     salary_currency: "IDR",
     status: "Active",
-    expired_at: "2026-06-20T23:59:59Z",
+    expired_at: "2026-08-20T23:59:59Z",
   },
   {
     id: 9,
@@ -147,7 +147,7 @@ export const jobPostingsData = [
     salary_max: 50000000,
     salary_currency: "IDR",
     status: "Active",
-    expired_at: "2026-10-31T23:59:59Z",
+    expired_at: "2026-07-31T23:59:59Z",
   },
   {
     id: 11,
@@ -177,6 +177,6 @@ export const jobPostingsData = [
     salary_max: 12000000,
     salary_currency: "IDR",
     status: "Active",
-    expired_at: "2026-06-01T23:59:59Z",
+    expired_at: "2026-08-01T23:59:59Z",
   },
 ];

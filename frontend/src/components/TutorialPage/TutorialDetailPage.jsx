@@ -219,7 +219,7 @@ export default function TutorialDetailPage() {
         {/* Isi Konten Panduan */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-200 mb-3">
-            Panduan Langkah Demi Langkah
+            Description & Tutorial Content
           </h3>
           <div className="bg-[#111827]/50 p-6 md:p-8 rounded-xl border border-white/5 text-base text-gray-300 leading-relaxed whitespace-pre-line shadow-inner">
             {tutorial.content}

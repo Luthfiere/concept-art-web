@@ -131,7 +131,9 @@ const MyCollection = () => {
             fetch(`${API_BASE}/script/user/${user.id}`, {
               headers: { Authorization: `Bearer ${token}` },
             }),
-            fetch(`${API_BASE}/tutorial/user/${user.id}`),
+            user.role === "moderator"
+              ? fetch(`${API_BASE}/tutorial/user/${user.id}`)
+              : Promise.resolve({ json: async () => ({ data: [] }) }),
           ]);
 
         const [
@@ -980,42 +982,44 @@ const MyCollection = () => {
           )}
         </section>
         {/* ──── TUTORIAL / ASSETING MODERATION SECTION ──── */}
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-[3px] h-6 rounded-sm bg-gradient-to-b from-amber-500 to-yellow-400" />
-            <h2 className="text-xl font-bold tracking-tight">
-              Tutorial & Asseting Moderation
-            </h2>
-            <span className="text-xs text-white/30">
-              {tutorials.length} items
-            </span>
-          </div>
+        {user?.role === "moderator" && (
+          <section className="mb-12">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-[3px] h-6 rounded-sm bg-gradient-to-b from-amber-500 to-yellow-400" />
+              <h2 className="text-xl font-bold tracking-tight">
+                Tutorial & Asseting Moderation
+              </h2>
+              <span className="text-xs text-white/30">
+                {tutorials.length} items
+              </span>
+            </div>
 
-          {tutorials.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
-              {tutorials.map((tutorial) => (
-                <TutorialCollectionCard
-                  key={`tutorial-${tutorial.id}`}
-                  item={{ ...tutorial, type: "tutorial" }}
-                  onClick={() =>
-                    !isEditOpen && handleOpen({ ...tutorial, type: "tutorial" })
-                  }
-                  onEdit={() => handleEdit({ ...tutorial, type: "tutorial" })}
-                  onDelete={() =>
-                    handleDelete({ ...tutorial, type: "tutorial" })
-                  }
-                  statusConfig={STATUS_CONFIG}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 border border-white/[0.06] rounded-xl">
-              <p className="text-white/20 text-sm">
-                No tutorials or moderation assets available.
-              </p>
-            </div>
-          )}
-        </section>
+            {tutorials.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
+                {tutorials.map((tutorial) => (
+                  <TutorialCollectionCard
+                    key={`tutorial-${tutorial.id}`}
+                    item={{ ...tutorial, type: "tutorial" }}
+                    onClick={() =>
+                      !isEditOpen && handleOpen({ ...tutorial, type: "tutorial" })
+                    }
+                    onEdit={() => handleEdit({ ...tutorial, type: "tutorial" })}
+                    onDelete={() =>
+                      handleDelete({ ...tutorial, type: "tutorial" })
+                    }
+                    statusConfig={STATUS_CONFIG}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 border border-white/[0.06] rounded-xl">
+                <p className="text-white/20 text-sm">
+                  No tutorials or moderation assets available.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
       </div>
 
       {isEditOpen && selectedItem && (
