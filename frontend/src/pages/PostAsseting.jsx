@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 
+const MAX_MEDIA = 8;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+
 const TAGS_OPTIONS = [
   "3D Modeling",
   "Sculpting",
@@ -89,10 +93,33 @@ const PostAsseting = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 8) {
-      alert("Maksimal gambar yang boleh diunggah adalah 8 file sesuai batasan sistem.");
+
+    if (files.length > MAX_MEDIA) {
+      alert(
+        `Maksimal media yang boleh diunggah adalah ${MAX_MEDIA} file (gambar/video).`,
+      );
+      e.target.value = "";
       return;
     }
+
+    const invalidFiles = [];
+
+    files.forEach((file) => {
+      const isVideo = file.type.startsWith("video/");
+      const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+
+      if (file.size > maxSize) {
+        const limitLabel = isVideo ? "50MB" : "5MB";
+        invalidFiles.push(`${file.name} — melebihi batas ${limitLabel}`);
+      }
+    });
+
+    if (invalidFiles.length > 0) {
+      alert(`Beberapa file tidak valid:\n\n${invalidFiles.join("\n")}`);
+      e.target.value = "";
+      return;
+    }
+
     setSelectedImages(files);
     const filePreviews = files.map((file) => ({
       url: URL.createObjectURL(file),
@@ -327,21 +354,37 @@ const PostAsseting = () => {
                 <p className="mt-2 text-xs text-gray-300">
                   Klik atau drag berkas gambar ke area ini
                 </p>
-                <p className="text-[10px] text-gray-500 mt-1">Maksimum 8 file (gambar atau video) • Gambar maks 5MB, video maks 30MB per file</p> 
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Maksimum {MAX_MEDIA} file (gambar atau video) • Gambar maks
+                  5MB, video maks 50MB per file
+                </p>
               </div>
             </div>
 
             {/* IMAGE PREVIEWS */}
             {previews.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-gray-400 mb-2">Pratinjau Media Terpilih ({previews.length}/8):</p>
+                <p className="text-xs font-medium text-gray-400 mb-2">
+                  Pratinjau Media Terpilih ({previews.length}/8):
+                </p>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                   {previews.map((p, index) => (
-                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/30">
+                    <div
+                      key={index}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/30"
+                    >
                       {p.isVideo ? (
-                        <video src={p.url} muted className="w-full h-full object-cover" />
+                        <video
+                          src={p.url}
+                          muted
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <img src={p.url} alt={`preview-${index}`} className="w-full h-full object-cover" />
+                        <img
+                          src={p.url}
+                          alt={`preview-${index}`}
+                          className="w-full h-full object-cover"
+                        />
                       )}
                     </div>
                   ))}

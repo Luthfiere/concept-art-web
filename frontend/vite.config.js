@@ -1,12 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { plugin } from 'postcss'
 
 // https://vite.dev/config/
-export default {
-  plugins: [
-    react()
-  ],
+export default defineConfig({
+  plugins: [react()],
   server: {
     allowedHosts: [
       'localhost',
@@ -15,16 +12,15 @@ export default {
       'www.kalaxel.site',
     ],
     host: true,
-    port: 5175,
+    port: 5173,
     strictPort: true,
     hmr: {
-      protocol: 'wss',
-      host: 'www.kalaxel.site',
+      protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws',
+      host: process.env.NODE_ENV === 'production' ? 'www.kalaxel.site' : 'localhost',
     },
     proxy: {
-      // Proxy API and asset requests to backend in development
       '/api': 'http://localhost:5000/',
       '/assets': 'http://localhost:5000/'
     }
   }
-}
+})

@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Calendar, User, Film, ArrowLeft, Eye, Tag } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Film,
+  ArrowLeft,
+  Eye,
+  Tag,
+  X,
+  Download,
+  Play,
+} from "lucide-react";
 import Navbar from "../layout/Navbar";
 
 export default function TutorialDetailPage() {
@@ -8,6 +18,28 @@ export default function TutorialDetailPage() {
   const navigate = useNavigate();
   const [tutorial, setTutorial] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [previewImage, setPreviewImage] = useState(null);
+
+  const isVideoMedia = (media) => {
+    if (!media) return false;
+    if (
+      media.mimetype?.startsWith("video/") ||
+      media.type?.startsWith("video/")
+    ) {
+      return true;
+    }
+    const url = media.url || "";
+    return /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(url);
+  };
+
+  // Handler tombol Escape untuk menutup lightbox
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") setPreviewImage(null);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   useEffect(() => {
     const fetchTutorialDetail = async () => {
@@ -42,7 +74,9 @@ export default function TutorialDetailPage() {
                 file.media || file.url || file.image_url || file.path || "";
 
               // Sambungkan dengan port backend jika jalurnya lokal
-              const finalUrl = rawUrl.startsWith("http") ? rawUrl : `/${rawUrl}`;
+              const finalUrl = rawUrl.startsWith("http")
+                ? rawUrl
+                : `/${rawUrl}`;
 
               return {
                 ...file,
@@ -94,7 +128,6 @@ export default function TutorialDetailPage() {
     );
   }
 
-  // Pemisahan string tag database ("unity, dasar") menjadi array hiasan komponen
   const tagsArray = tutorial.tag
     ? tutorial.tag.split(",").map((t) => t.trim())
     : [];
@@ -159,19 +192,29 @@ export default function TutorialDetailPage() {
           tutorial.media.length > 0 &&
           tutorial.media[0]?.url && (
             <div className="rounded-xl overflow-hidden border border-white/5 mb-8 aspect-video bg-black shadow-xl flex items-center justify-center">
-              <img
-                src={tutorial.media[0].url}
-                alt="Cover Banner"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src =
-                    "https://placehold.co/800x450/0d1117/ffffff?text=Image+Not+Found";
-                }}
-              />
+              {isVideoMedia(tutorial.media[0]) ? (
+                <video
+                  src={tutorial.media[0].url}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-full object-contain bg-black"
+                />
+              ) : (
+                <img
+                  src={tutorial.media[0].url}
+                  alt="Cover Banner"
+                  onClick={() => setPreviewImage(tutorial.media[0].url)}
+                  className="w-full h-full object-cover cursor-zoom-in"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src =
+                      "https://placehold.co/800x450/0d1117/ffffff?text=Image+Not+Found";
+                  }}
+                />
+              )}
             </div>
-          )
-        }
+          )}
 
         {/* Isi Konten Panduan */}
         <div className="mb-8">
@@ -198,7 +241,7 @@ export default function TutorialDetailPage() {
           </div>
         )}
 
-        {/* Galeri Lampiran Media Tambahan (Hanya merender gambar sisa/index ke-1 dst.) */}
+        {/* Galeri Lampiran Media Tambahan (Hanya merender media sisa/index ke-1 dst.) */}
         {tutorial.media && tutorial.media.length > 1 && (
           <div className="border-t border-white/10 pt-6">
             <h3 className="text-sm font-medium text-gray-400 mb-4 flex items-center gap-1.5">
@@ -206,24 +249,76 @@ export default function TutorialDetailPage() {
               Attachment & Additional Media ({tutorial.media.length - 1})
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-[#020617]/40 p-4 rounded-xl border border-white/5">
-              {tutorial.media.slice(1).map((file, idx) => (
-                <div
-                  key={idx}
-                  className="relative rounded-lg overflow-hidden border border-white/10 aspect-video bg-black group/img cursor-zoom-in"
-                >
-                  <img
-                    src={file.url}
-                    alt={`Asset-Attachment-${idx}`}
-                    className="w-full h-full object-cover opacity-80 group-hover/img:opacity-100 group-hover/img:scale-105 transition-all duration-300"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src =
-                        "https://placehold.co/600x400/0d1117/ffffff?text=Image+404";
-                    }}
-                  />
-                </div>
-              ))}
+              {tutorial.media.slice(1).map((file, idx) =>
+                isVideoMedia(file) ? (
+                  <div
+                    key={idx}
+                    className="relative rounded-lg overflow-hidden border border-white/10 aspect-video bg-black"
+                  >
+                    <video
+                      src={file.url}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    key={idx}
+                    className="relative rounded-lg overflow-hidden border border-white/10 aspect-video bg-black group/img cursor-zoom-in"
+                    onClick={() => setPreviewImage(file.url)}
+                  >
+                    <img
+                      src={file.url}
+                      alt={`Asset-Attachment-${idx}`}
+                      className="w-full h-full object-cover opacity-80 group-hover/img:opacity-100 group-hover/img:scale-105 transition-all duration-300"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://placehold.co/600x400/0d1117/ffffff?text=Image+404";
+                      }}
+                    />
+                  </div>
+                ),
+              )}
             </div>
+          </div>
+        )}
+
+        {/* LIGHTBOX PREVIEW MODAL — di luar blok gallery, jadi selalu bisa
+            muncul walau tutorial cuma punya 1 media (banner saja) */}
+        {previewImage && (
+          <div
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-10"
+            onClick={() => setPreviewImage(null)}
+          >
+            {/* Tombol Close */}
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Tombol Download */}
+            <a
+              href={previewImage}
+              download
+              onClick={(e) => e.stopPropagation()}
+              className="absolute top-4 left-4 md:top-6 md:left-6 flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+            >
+              <Download size={16} />
+              Download
+            </a>
+
+            {/* Gambar Full Size */}
+            <img
+              src={previewImage}
+              alt="Preview"
+              onClick={(e) => e.stopPropagation()}
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            />
           </div>
         )}
       </div>

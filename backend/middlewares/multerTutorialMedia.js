@@ -13,7 +13,7 @@ function slugify(text) {
 }
 
 const MB = 1024 * 1024;
-const SIZE = { image: 5 * MB, video: 30 * MB };
+const SIZE = { image: 5 * MB, video: 50 * MB };
 
 const IMAGE_MIMES = [
   'image/png',

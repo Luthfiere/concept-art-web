@@ -28,13 +28,13 @@ export default function TutorialPage() {
                 const mediaResult = await mediaResponse.json();
                 const rawMedia = mediaResult.data || [];
 
-                // Normalisasi properti URL berdasarkan struktur key "media" dari API kamu
                 const normalizedMedia = rawMedia.map((file) => {
-                  // Mengambil dari file.media sesuai payload response API kamu
-                  const rawUrl = file.media || file.url || file.image_url || file.path || "";
-                  
-                  // Gabungkan dengan host backend jika path-nya lokal (tidak diawali http)
-                  const finalUrl = rawUrl.startsWith("http") ? rawUrl : `/${rawUrl}`;
+                  const rawUrl =
+                    file.media || file.url || file.image_url || file.path || "";
+
+                  const finalUrl = rawUrl.startsWith("http")
+                    ? rawUrl
+                    : `/${rawUrl}`;
 
                   return {
                     ...file,
@@ -68,10 +68,21 @@ export default function TutorialPage() {
     navigate(`/Asseting/${tutorial.id}`);
   };
 
-  // FILTERING: Fitur pencarian berdasarkan judul tutorial
   const filteredTutorials = tutorials.filter((t) =>
     t.title?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const isVideoMedia = (media) => {
+    if (!media) return false;
+    if (
+      media.mimetype?.startsWith("video/") ||
+      media.type?.startsWith("video/")
+    ) {
+      return true;
+    }
+    const url = media.url || "";
+    return /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(url);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#050816] to-[#0b0f2a] text-white break-words [overflow-wrap:anywhere]">
@@ -129,16 +140,40 @@ export default function TutorialPage() {
                     {/* Thumbnail / Cover */}
                     <div className="aspect-video bg-[#0d1117] relative overflow-hidden flex items-center justify-center border-b border-white/5">
                       {mainCover && mainCover.url ? (
-                        <img
-                          src={mainCover.url}
-                          alt={tutorial.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src =
-                              "https://placehold.co/600x400/0d1117/ffffff?text=Image+Not+Found";
-                          }}
-                        />
+                        isVideoMedia(mainCover) ? (
+                          <>
+                            <video
+                              src={mainCover.url}
+                              muted
+                              playsInline
+                              preload="metadata"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            {/* Play icon overlay biar jelas ini video */}
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
+                              <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center">
+                                <svg
+                                  className="w-4 h-4 text-white ml-0.5"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <img
+                            src={mainCover.url}
+                            alt={tutorial.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src =
+                                "https://placehold.co/600x400/0d1117/ffffff?text=Image+Not+Found";
+                            }}
+                          />
+                        )
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 gap-1.5 bg-[#0a0f1d]">
                           <Film size={20} className="text-gray-700" />
@@ -153,7 +188,6 @@ export default function TutorialPage() {
                         <Film size={12} /> {tutorial.media?.length || 0} Media
                       </div>
                     </div>
-
                     {/* Text Area */}
                     <div className="p-5">
                       {/* Category Badge */}
